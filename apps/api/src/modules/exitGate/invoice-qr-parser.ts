@@ -97,3 +97,45 @@ export function parseInvoiceQr(rawPayload: string): ParsedInvoiceQr {
     normalizedRawPayload: normalized,
   };
 }
+
+// Maps IOCL invoice product codes (e.g. "BULK-MS/8000") → DB field names
+const PRODUCT_CODE_MAP: Record<string, string> = {
+  "BULK-MS": "qtyMs",
+  "MS": "qtyMs",
+  "BULK-HSD": "qtyHsd",
+  "HSD": "qtyHsd",
+  "BULK-XPMS": "qtyXpms",
+  "XPMS": "qtyXpms",
+  "XP-95": "qtyXpms",
+  "XP95": "qtyXpms",
+  "BULK-XP95": "qtyXpms",
+  "BULK-SKO": "qtySko",
+  "SKO": "qtySko",
+  "BULK-XG": "qtyXg",
+  "XG": "qtyXg",
+  "BULK-BIOHSD": "qtyBioHsd",
+  "BIO-HSD": "qtyBioHsd",
+  "BIOHSD": "qtyBioHsd",
+  "BULK-FO": "qtyFo",
+  "FO": "qtyFo",
+  "BULK-LDO": "qtyLdo",
+  "LDO": "qtyLdo",
+  "BULK-EBMS": "qtyEbms",
+  "EBMS": "qtyEbms",
+};
+
+export function parseProductQuantities(raw: string): Record<string, number> {
+  const result: Record<string, number> = {};
+  // Matches patterns like BULK-MS/8000 or BULK-HSD/2000.500
+  const pattern = /([A-Z0-9][A-Z0-9-]*)\/(\d+(?:\.\d+)?)/g;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(raw.toUpperCase())) !== null) {
+    const code = match[1]!;
+    const qty = parseFloat(match[2]!);
+    const field = PRODUCT_CODE_MAP[code];
+    if (field && Number.isFinite(qty) && qty > 0) {
+      result[field] = qty;
+    }
+  }
+  return result;
+}

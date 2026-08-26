@@ -23,7 +23,7 @@ import { env } from "../../config/env.js";
 import { ApiError } from "../../lib/api-error.js";
 import { formatDisplaySerial, getBusinessDate, monthDateRange, parseIsoBusinessDate } from "../../lib/date.js";
 import { prisma } from "../../lib/prisma.js";
-import { parseInvoiceQr } from "../exitGate/invoice-qr-parser.js";
+import { parseInvoiceQr, parseProductQuantities } from "../exitGate/invoice-qr-parser.js";
 
 const includeEntry = {
   safetyChecklist: true,
@@ -207,8 +207,11 @@ export async function createEntry(input: CreateGateEntryValue, actor: Actor, met
     ]);
     if (!pass || !pass.isActive) throw new ApiError(404, "PASS_NOT_FOUND", "Crew pass is invalid or inactive");
     if (!actorUser) throw new ApiError(401, "AUTH_REQUIRED", "Authenticated user was not found");
-    if (pass.passValidUntil < businessDate) throw new ApiError(422, "PASS_EXPIRED", "Crew pass has expired");
-    if (pass.drivingLicenseExpiryDate < businessDate) throw new ApiError(422, "LICENCE_EXPIRED", "Driving licence has expired");
+    // For manual entries the operator has already accepted the warning — don't hard-block on expiry
+    if (pass.sourceSystem !== "MANUAL_ENTRY") {
+      if (pass.passValidUntil < businessDate) throw new ApiError(422, "PASS_EXPIRED", "Crew pass has expired");
+      if (pass.drivingLicenseExpiryDate < businessDate) throw new ApiError(422, "LICENCE_EXPIRED", "Driving licence has expired");
+    }
 
     assertHelperData(pass.crewType, input.helperName, input.helperPassNumber);
 
@@ -460,6 +463,7 @@ export async function resolveInvoice(rawInvoiceQr: string) {
       invoiceValue: invoice.invoiceValue,
       vehicleNumber: invoice.vehicleNumber,
       productQuantityRaw: invoice.productQuantityRaw,
+      parsedQuantities: parseProductQuantities(invoice.productQuantityRaw),
       consignee: invoice.consignee,
       rawInvoiceQr: invoice.normalizedRawPayload,
     },

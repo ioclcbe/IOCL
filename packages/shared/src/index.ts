@@ -173,7 +173,7 @@ const operationalIdentifier = (min: number, max: number, requiredMessage: string
 export const createGateEntrySchema = z.object({
   crewPassId: z.string().uuid("Scan and verify a valid crew pass"),
   qrScanMethod: qrScanMethodSchema.default("CAMERA"),
-  customerDestination: cleanText(2, 160, "Customer / destination is required"),
+  customerDestination: z.string().trim().max(160).default("-"),
   actualTankTruckNumber: truckNumber,
   abs: yesNo,
   challanNumber: z.string().default("-"),
@@ -448,6 +448,7 @@ export interface ExitInvoiceData {
   invoiceValue: string | null;
   vehicleNumber: string;
   productQuantityRaw: string;
+  parsedQuantities: Record<string, number>;
   consignee: string;
   rawInvoiceQr: string;
 }

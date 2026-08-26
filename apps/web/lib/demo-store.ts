@@ -220,7 +220,7 @@ export function createDemoEntry(input: CreateGateEntryInput) {
     displaySerial: serial(index), businessDate: todayKey(), entryDate: now, timeIn: now, timeOut: null, status: "IN",
     qrScanMethod: input.qrScanMethod ?? "MANUAL", crewId: pass.crewId, driverName: pass.driverName, crewType: pass.crewType,
     passValidUntil: pass.passValidUntil, ttNumberOnPass: pass.ttNumberOnPass, drivingLicenseNumber: pass.drivingLicenseNumber,
-    drivingLicenseExpiryDate: pass.drivingLicenseExpiryDate, customerDestination: input.customerDestination,
+    drivingLicenseExpiryDate: pass.drivingLicenseExpiryDate, customerDestination: input.customerDestination ?? "-",
     actualTankTruckNumber: truck, abs: input.abs, challanNumber: input.challanNumber ?? "-", driverPassNumber: input.driverPassNumber ?? "-",
     driverAbt: input.driverAbt ?? false, helperName: input.helperName || null, helperPassNumber: input.helperPassNumber || null,
     helperAbt: input.helperAbt ?? false, mobileTokenNumber: token, driverSignatureConfirmed: input.driverSignatureConfirmed === true,
@@ -266,7 +266,7 @@ export function resolveDemoInvoice(rawInvoiceQr: string): ExitResolveResult {
   const entry = getDemoEntries().find((item) => item.status === "IN" && item.actualTankTruckNumber === invoice.vehicleNumber);
   if (!entry) throw new Error("No open IN record was found today for the invoice vehicle");
   return {
-    invoice: { ...invoice, invoiceDate: "2026-06-06", rawInvoiceQr, invoiceValue: invoice.invoiceValue || null },
+    invoice: { ...invoice, invoiceDate: "2026-06-06", rawInvoiceQr, invoiceValue: invoice.invoiceValue || null, parsedQuantities: {} },
     entry,
     warnings: [
       ...(entry.passValidUntil < `${todayKey()}T00:00:00.000Z` ? ["Crew pass is expired"] : []),

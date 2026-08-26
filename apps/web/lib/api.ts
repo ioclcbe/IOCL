@@ -169,6 +169,17 @@ export async function resolvePass(qrToken: string): Promise<CrewPass> {
   if (DEMO_MODE) return resolveDemoPass(qrToken);
   return request<CrewPass>("/crew-passes/resolve", { method: "POST", body: JSON.stringify({ qrToken }) });
 }
+export async function createManualCrewPass(input: {
+  driverName: string;
+  ttNumberOnPass: string;
+  drivingLicenseNumber: string;
+  drivingLicenseExpiryDate: string;
+  passValidUntil: string;
+  crewType: string;
+}): Promise<CrewPass> {
+  if (DEMO_MODE) throw new ApiClientError("Manual driver entry is not available in demo mode", "DEMO_MANUAL_DISABLED");
+  return request<CrewPass>("/crew-passes/manual", { method: "POST", body: JSON.stringify(input) });
+}
 export async function createEntry(input: CreateGateEntryInput): Promise<GateEntryRecord> {
   if (DEMO_MODE) return createDemoEntry(input);
   return request<GateEntryRecord>("/gate-entries", { method: "POST", body: JSON.stringify(input) });
