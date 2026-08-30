@@ -86,6 +86,19 @@ export function EntryWizard() {
   const [helperScanResolving, setHelperScanResolving] = useState(false);
   const [helperPass, setHelperPass] = useState<CrewPass | null>(null);
 
+  // Master databases for manual mode
+  const [masterTrucks, setMasterTrucks] = useState<any[]>([]);
+  const [masterDrivers, setMasterDrivers] = useState<any[]>([]);
+  const [masterHelpers, setMasterHelpers] = useState<any[]>([]);
+
+  useEffect(() => {
+    import("../../lib/api").then(api => {
+      api.getMasterTrucks().then(setMasterTrucks).catch(console.error);
+      api.getMasterDrivers().then(setMasterDrivers).catch(console.error);
+      api.getMasterHelpers().then(setMasterHelpers).catch(console.error);
+    });
+  }, []);
+
   const {
     register, setValue, watch, trigger, handleSubmit, reset,
     formState: { errors, isSubmitting },
@@ -316,10 +329,44 @@ export function EntryWizard() {
                 <p className="mb-4 font-black text-blue-900">Enter driver details manually</p>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <ManualField label="Driver Name *" error={manualDriverErrors.driverName}>
-                    <input className="field-input" placeholder="e.g. RAMESH KUMAR" value={manualDriver.driverName} onChange={(e) => setManualDriver((p) => ({ ...p, driverName: e.target.value }))} />
+                    <input
+                      list="master-drivers-list"
+                      className="field-input"
+                      placeholder="Type or select driver..."
+                      value={manualDriver.driverName}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setManualDriver((p) => ({ ...p, driverName: val }));
+                        const driver = masterDrivers.find((d) => d.name === val);
+                        if (driver) {
+                          setManualDriver((p) => ({
+                            ...p,
+                            drivingLicenseNumber: driver.drivingLicenseNumber,
+                            drivingLicenseExpiryDate: new Date(driver.drivingLicenseExpiryDate).toISOString().slice(0, 10),
+                            passValidUntil: new Date(driver.passValidUntil).toISOString().slice(0, 10),
+                          }));
+                        }
+                      }}
+                    />
+                    <datalist id="master-drivers-list">
+                      {masterDrivers.map((d) => (
+                        <option key={d.id} value={d.name}>{d.drivingLicenseNumber}</option>
+                      ))}
+                    </datalist>
                   </ManualField>
                   <ManualField label="TT Number on Pass *" error={manualDriverErrors.ttNumberOnPass}>
-                    <input className="field-input uppercase font-black tracking-wider" placeholder="e.g. TN74AZ8730" value={manualDriver.ttNumberOnPass} onChange={(e) => setManualDriver((p) => ({ ...p, ttNumberOnPass: e.target.value }))} />
+                    <input
+                      list="master-trucks-list"
+                      className="field-input uppercase font-black tracking-wider"
+                      placeholder="Type or select Tank Truck..."
+                      value={manualDriver.ttNumberOnPass}
+                      onChange={(e) => setManualDriver((p) => ({ ...p, ttNumberOnPass: e.target.value.toUpperCase() }))}
+                    />
+                    <datalist id="master-trucks-list">
+                      {masterTrucks.map((t) => (
+                        <option key={t.id} value={t.ttNumber}>{t.ttNumber}</option>
+                      ))}
+                    </datalist>
                   </ManualField>
                   <ManualField label="Driving License Number *" error={manualDriverErrors.drivingLicenseNumber}>
                     <input className="field-input" placeholder="e.g. TN7420210005690" value={manualDriver.drivingLicenseNumber} onChange={(e) => setManualDriver((p) => ({ ...p, drivingLicenseNumber: e.target.value }))} />
@@ -373,7 +420,25 @@ export function EntryWizard() {
                   </div> : null}
                 </> : <div className="grid gap-3 sm:grid-cols-2">
                   <Field label="Helper Name *" error={errors.helperName?.message}>
-                    <input {...register("helperName")} className="field-input" placeholder="Required" />
+                    <input
+                      list="master-helpers-list"
+                      className="field-input"
+                      placeholder="Type or select Helper..."
+                      value={values.helperName ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setValue("helperName", val, { shouldValidate: true });
+                        const helper = masterHelpers.find((h) => h.name === val);
+                        if (helper) {
+                          setValue("helperPassNumber", helper.helperPassNumber, { shouldValidate: true });
+                        }
+                      }}
+                    />
+                    <datalist id="master-helpers-list">
+                      {masterHelpers.map((h) => (
+                        <option key={h.id} value={h.name}>{h.helperPassNumber}</option>
+                      ))}
+                    </datalist>
                   </Field>
                   <Field label="Helper Pass Number" error={errors.helperPassNumber?.message}>
                     <input {...register("helperPassNumber")} className="field-input" placeholder="Optional" />
@@ -383,7 +448,25 @@ export function EntryWizard() {
             ) : (
               /* Optional helper for other crew types */
               <Field label="Helper Name (optional)" error={errors.helperName?.message} className="lg:col-span-2">
-                <input {...register("helperName")} className="field-input" placeholder="Optional" />
+                <input
+                  list="master-helpers-list"
+                  className="field-input"
+                  placeholder="Type or select Helper..."
+                  value={values.helperName ?? ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setValue("helperName", val, { shouldValidate: true });
+                    const helper = masterHelpers.find((h) => h.name === val);
+                    if (helper) {
+                      setValue("helperPassNumber", helper.helperPassNumber, { shouldValidate: true });
+                    }
+                  }}
+                />
+                <datalist id="master-helpers-list">
+                  {masterHelpers.map((h) => (
+                    <option key={h.id} value={h.name}>{h.helperPassNumber}</option>
+                  ))}
+                </datalist>
               </Field>
             )}
 

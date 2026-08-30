@@ -100,7 +100,7 @@ async function refreshAccess(): Promise<{ accessToken: string; user: SessionUser
   return refreshPromise;
 }
 
-async function request<T>(path: string, init: RequestInit = {}, canRefresh = true): Promise<T> {
+export async function apiFetch<T = any>(path: string, init: RequestInit = {}, canRefresh = true): Promise<T> {
   const headers = new Headers(init.headers);
   if (init.body) headers.set("content-type", "application/json");
   const accessToken = token();
@@ -112,7 +112,7 @@ async function request<T>(path: string, init: RequestInit = {}, canRefresh = tru
     throw new ApiClientError("Cannot reach the gate server. Check the network connection.", "NETWORK_ERROR");
   }
   if (response.status === 401 && canRefresh && !path.startsWith("/auth/")) {
-    try { await refreshAccess(); return request<T>(path, init, false); }
+    try { await refreshAccess(); return apiFetch<T>(path, init, false); }
     catch (error) {
       setAccessToken(null);
       if (typeof window !== "undefined") window.dispatchEvent(new Event("iocl-session-expired"));
@@ -162,12 +162,12 @@ export async function logoutSession() {
 }
 export async function login(employeeCode: string, password: string) {
   if (DEMO_MODE) { await new Promise((resolve) => setTimeout(resolve, 350)); return demoLogin(employeeCode, password); }
-  return request<{ accessToken: string; user: SessionUser }>("/auth/login", { method: "POST", body: JSON.stringify({ employeeCode, password }) });
+  return apiFetch<{ accessToken: string; user: SessionUser }>("/auth/login", { method: "POST", body: JSON.stringify({ employeeCode, password }) });
 }
 
 export async function resolvePass(qrToken: string): Promise<CrewPass> {
   if (DEMO_MODE) return resolveDemoPass(qrToken);
-  return request<CrewPass>("/crew-passes/resolve", { method: "POST", body: JSON.stringify({ qrToken }) });
+  return apiFetch<CrewPass>("/crew-passes/resolve", { method: "POST", body: JSON.stringify({ qrToken }) });
 }
 export async function createManualCrewPass(input: {
   driverName: string;
@@ -178,27 +178,27 @@ export async function createManualCrewPass(input: {
   crewType: string;
 }): Promise<CrewPass> {
   if (DEMO_MODE) throw new ApiClientError("Manual driver entry is not available in demo mode", "DEMO_MANUAL_DISABLED");
-  return request<CrewPass>("/crew-passes/manual", { method: "POST", body: JSON.stringify(input) });
+  return apiFetch<CrewPass>("/crew-passes/manual", { method: "POST", body: JSON.stringify(input) });
 }
 export async function createEntry(input: CreateGateEntryInput): Promise<GateEntryRecord> {
   if (DEMO_MODE) return createDemoEntry(input);
-  return request<GateEntryRecord>("/gate-entries", { method: "POST", body: JSON.stringify(input) });
+  return apiFetch<GateEntryRecord>("/gate-entries", { method: "POST", body: JSON.stringify(input) });
 }
 export async function updateEntry(id: string, input: UpdateGateEntryInput): Promise<GateEntryRecord> {
   if (DEMO_MODE) return updateDemoEntry(id, input);
-  return request<GateEntryRecord>(`/gate-entries/${id}`, { method: "PATCH", body: JSON.stringify(input) });
+  return apiFetch<GateEntryRecord>(`/gate-entries/${id}`, { method: "PATCH", body: JSON.stringify(input) });
 }
 export async function resolveExitInvoice(rawInvoiceQr: string): Promise<ExitResolveResult> {
   if (DEMO_MODE) return resolveDemoInvoice(rawInvoiceQr);
-  return request<ExitResolveResult>("/gate-entries/exit/resolve", { method: "POST", body: JSON.stringify({ rawInvoiceQr }) });
+  return apiFetch<ExitResolveResult>("/gate-entries/exit/resolve", { method: "POST", body: JSON.stringify({ rawInvoiceQr }) });
 }
 export async function submitExit(id: string, input: SubmitExitInput): Promise<GateEntryRecord> {
   if (DEMO_MODE) return submitDemoExit(id, input);
-  return request<GateEntryRecord>(`/gate-entries/${id}/exit`, { method: "POST", body: JSON.stringify(input) });
+  return apiFetch<GateEntryRecord>(`/gate-entries/${id}/exit`, { method: "POST", body: JSON.stringify(input) });
 }
 export async function updateExitQuantities(id: string, input: UpdateExitQuantitiesInput): Promise<GateEntryRecord> {
   if (DEMO_MODE) return updateDemoExitQuantities(id, input);
-  return request<GateEntryRecord>(`/gate-entries/${id}/exit-quantities`, { method: "PATCH", body: JSON.stringify(input) });
+  return apiFetch<GateEntryRecord>(`/gate-entries/${id}/exit-quantities`, { method: "PATCH", body: JSON.stringify(input) });
 }
 
 export async function listEntries(filter: Partial<EntryFilter> = {}) {
@@ -215,46 +215,46 @@ export async function listEntries(filter: Partial<EntryFilter> = {}) {
   }
   const params = new URLSearchParams();
   Object.entries(filter).forEach(([key, value]) => value !== undefined && params.set(key, String(value)));
-  return request<{ items: GateEntryRecord[]; page: number; pageSize: number; total: number; totalPages: number }>(`/gate-entries?${params}`);
+  return apiFetch<{ items: GateEntryRecord[]; page: number; pageSize: number; total: number; totalPages: number }>(`/gate-entries?${params}`);
 }
-export async function getEntry(id: string) { if (DEMO_MODE) return getDemoEntry(id); return request<GateEntryRecord>(`/gate-entries/${id}`); }
-export async function getDashboard(): Promise<DashboardSummary> { if (DEMO_MODE) return getDemoDashboard(); return request<DashboardSummary>("/dashboard/summary"); }
+export async function getEntry(id: string) { if (DEMO_MODE) return getDemoEntry(id); return apiFetch<GateEntryRecord>(`/gate-entries/${id}`); }
+export async function getDashboard(): Promise<DashboardSummary> { if (DEMO_MODE) return getDemoDashboard(); return apiFetch<DashboardSummary>("/dashboard/summary"); }
 export async function getAudits(filter: { action?: string; entityId?: string; limit?: number } = {}): Promise<AuditLogRecord[]> {
   if (DEMO_MODE) return getDemoAudits().filter((item) => !filter.action || item.action === filter.action).slice(0, filter.limit ?? 50);
   const params = new URLSearchParams(); Object.entries(filter).forEach(([key, value]) => value !== undefined && params.set(key, String(value)));
-  return request<AuditLogRecord[]>(`/audit-logs?${params}`);
+  return apiFetch<AuditLogRecord[]>(`/audit-logs?${params}`);
 }
-export async function getDestinations(): Promise<DestinationOption[]> { if (DEMO_MODE) return getDemoDestinations(); return request<DestinationOption[]>("/masters/destinations"); }
+export async function getDestinations(): Promise<DestinationOption[]> { if (DEMO_MODE) return getDemoDestinations(); return apiFetch<DestinationOption[]>("/masters/destinations"); }
 
 export async function softDeleteEntry(id: string, input: DeleteEntryInput) {
   if (DEMO_MODE) throw new ApiClientError("Record deletion is disabled in the standalone demo", "DEMO_DELETE_DISABLED");
-  return request<GateEntryRecord>(`/gate-entries/${id}`, { method: "DELETE", body: JSON.stringify(input) });
+  return apiFetch<GateEntryRecord>(`/gate-entries/${id}`, { method: "DELETE", body: JSON.stringify(input) });
 }
 export async function restoreEntry(id: string) {
   if (DEMO_MODE) throw new ApiClientError("Record restore is disabled in the standalone demo", "DEMO_RESTORE_DISABLED");
-  return request<GateEntryRecord>(`/gate-entries/${id}/restore`, { method: "POST" });
+  return apiFetch<GateEntryRecord>(`/gate-entries/${id}/restore`, { method: "POST" });
 }
 export async function bulkDeleteEntries(input: BulkDeleteInput) {
   if (DEMO_MODE) throw new ApiClientError("Bulk deletion is disabled in the standalone demo", "DEMO_DELETE_DISABLED");
-  return request<{ count: number }>("/gate-entries/bulk-delete", { method: "POST", body: JSON.stringify(input) });
+  return apiFetch<{ count: number }>("/gate-entries/bulk-delete", { method: "POST", body: JSON.stringify(input) });
 }
 
 export async function listUsers(filter: Partial<UserListFilter> = {}) {
   if (DEMO_MODE) { const items = getDemoUsers(); return { items, total: items.length, page: 1, pageSize: 100, totalPages: 1 }; }
   const params = new URLSearchParams(); Object.entries(filter).forEach(([key, value]) => value !== undefined && params.set(key, String(value)));
-  return request<{ items: UserRecord[]; total: number; page: number; pageSize: number; totalPages: number }>(`/users?${params}`);
+  return apiFetch<{ items: UserRecord[]; total: number; page: number; pageSize: number; totalPages: number }>(`/users?${params}`);
 }
 export async function createUser(input: CreateUserInput) {
   if (DEMO_MODE) throw new ApiClientError("User changes are disabled in the standalone demo", "DEMO_USERS_READ_ONLY");
-  return request<UserRecord>("/users", { method: "POST", body: JSON.stringify(input) });
+  return apiFetch<UserRecord>("/users", { method: "POST", body: JSON.stringify(input) });
 }
 export async function updateUser(id: string, input: UpdateUserInput) {
   if (DEMO_MODE) throw new ApiClientError("User changes are disabled in the standalone demo", "DEMO_USERS_READ_ONLY");
-  return request<UserRecord>(`/users/${id}`, { method: "PATCH", body: JSON.stringify(input) });
+  return apiFetch<UserRecord>(`/users/${id}`, { method: "PATCH", body: JSON.stringify(input) });
 }
 export async function resetUserPassword(id: string, input: ResetPasswordInput) {
   if (DEMO_MODE) throw new ApiClientError("Password reset is disabled in the standalone demo", "DEMO_USERS_READ_ONLY");
-  return request<UserRecord>(`/users/${id}/reset-password`, { method: "POST", body: JSON.stringify(input) });
+  return apiFetch<UserRecord>(`/users/${id}/reset-password`, { method: "POST", body: JSON.stringify(input) });
 }
 
 export async function downloadCsv(filter: Partial<EntryFilter> = {}) {
@@ -278,5 +278,21 @@ export async function getReportSummary(date: string) {
       quantities: summary.quantities,
     };
   }
-  return request<{ date: string; total: number; in: number; out: number; cancelled: number; quantities: DashboardSummary["quantities"] }>(`/reports/summary?date=${encodeURIComponent(date)}`);
+  return apiFetch<{ date: string; total: number; in: number; out: number; cancelled: number; quantities: DashboardSummary["quantities"] }>(`/reports/summary?date=${encodeURIComponent(date)}`);
+}
+// ============================================================================
+// Master Data API
+// ============================================================================
+
+export async function getMasterTrucks() {
+  const res = await apiFetch('/masters/trucks');
+  return res;
+}
+export async function getMasterDrivers() {
+  const res = await apiFetch('/masters/drivers');
+  return res;
+}
+export async function getMasterHelpers() {
+  const res = await apiFetch('/masters/helpers');
+  return res;
 }

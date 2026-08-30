@@ -103,6 +103,31 @@ export const crewPassSchema = z.object({
 });
 export type CrewPass = z.infer<typeof crewPassSchema>;
 
+export const tankTruckSchema = z.object({
+  id: z.string().uuid().optional(),
+  ttNumber: z.string().trim().min(3).max(20).toUpperCase(),
+  isActive: z.boolean().default(true),
+});
+export type TankTruck = z.infer<typeof tankTruckSchema>;
+
+export const driverSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().trim().min(3).max(120),
+  drivingLicenseNumber: z.string().trim().min(5).max(40),
+  drivingLicenseExpiryDate: isoDateSchema,
+  passValidUntil: isoDateSchema,
+  isActive: z.boolean().default(true),
+});
+export type Driver = z.infer<typeof driverSchema>;
+
+export const helperSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().trim().min(3).max(120),
+  helperPassNumber: z.string().trim().min(5).max(50),
+  isActive: z.boolean().default(true),
+});
+export type Helper = z.infer<typeof helperSchema>;
+
 const yesNo = z.boolean({ error: "Select Yes or No" });
 
 export const IN_GATE_SAFETY_ITEMS = [
