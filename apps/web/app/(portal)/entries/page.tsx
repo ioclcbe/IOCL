@@ -60,7 +60,7 @@ function EntryRow({ entry }: { entry: GateEntryRecord }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-black tracking-wide text-iocl-navy">{entry.actualTankTruckNumber}</p>
-        <p className="truncate text-xs text-slate-500">{entry.driverName} · {entry.customerDestination}</p>
+        <p className="truncate text-xs text-slate-500">{entry.driverName}</p>
         <div className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-400">
           <Clock3 className="h-3 w-3" />
           <span>{formatIndiaTime(entry.timeIn)}</span>

@@ -11,49 +11,33 @@ const test = async () => {
     return (await res.json()).data.accessToken;
   };
 
-  try {
-    const truckId = `T-${Date.now().toString().slice(-6)}`;
-    console.log("1. Login as ADMIN");
-    const adminToken = await login("ADMIN");
-    
-    console.log("2. Create Master records");
-    const ttRes = await fetch("http://localhost:4000/api/v1/masters/trucks", {
-      method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${adminToken}` },
-      body: JSON.stringify({ ttNumber: truckId, isActive: true })
-    });
-    // ignore if exists
-    
-    console.log("3. Login as IN GATE");
-    const inToken = await login("IN");
+  const executeFlow = async (caseName, includeHelperInitially, addHelperLater) => {
+    console.log(`\n=== Starting ${caseName} ===`);
+    try {
+      const truckId = `T-${Date.now().toString().slice(-6)}`;
+      const inToken = await login("IN");
+      const adminToken = await login("ADMIN");
+      const outToken = await login("OUT");
 
-    console.log("4. Fetch Master Trucks");
-    const trucksRes = await fetch("http://localhost:4000/api/v1/masters/trucks", {
-      headers: { "Authorization": `Bearer ${inToken}` }
-    });
-    if (!trucksRes.ok) throw new Error(`Failed to fetch trucks: ${await trucksRes.text()}`);
-    const trucks = await trucksRes.json();
-    console.log(`Fetched ${trucks.data.length} trucks`);
+      // 1. Create Pass
+      console.log("-> Create Manual Pass");
+      const passRes = await fetch("http://localhost:4000/api/v1/crew-passes/manual", {
+        method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${inToken}` },
+        body: JSON.stringify({
+          driverName: "TEST DRIVER " + caseName,
+          ttNumberOnPass: truckId,
+          drivingLicenseNumber: "DL12345",
+          drivingLicenseExpiryDate: "2030-01-01",
+          passValidUntil: "2030-01-01",
+          crewType: includeHelperInitially ? "DRIVER_WITH_HELPER" : "DRIVER"
+        })
+      });
+      if (!passRes.ok) throw new Error(`Pass failed: ${await passRes.text()}`);
+      const pass = await passRes.json();
 
-    console.log("5. Create Manual Pass");
-    const passRes = await fetch("http://localhost:4000/api/v1/crew-passes/manual", {
-      method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${inToken}` },
-      body: JSON.stringify({
-        driverName: "TEST DRIVER",
-        ttNumberOnPass: truckId,
-        drivingLicenseNumber: "DL12345",
-        drivingLicenseExpiryDate: "2030-01-01",
-        passValidUntil: "2030-01-01",
-        crewType: "DRIVER"
-      })
-    });
-    if (!passRes.ok) throw new Error(`Pass failed: ${await passRes.text()}`);
-    const pass = await passRes.json();
-    console.log("Pass created:", pass.data.id);
-
-    console.log("6. Create IN Entry");
-    const entryRes = await fetch("http://localhost:4000/api/v1/gate-entries", {
-      method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${inToken}` },
-      body: JSON.stringify({
+      // 2. Create IN Entry
+      console.log("-> Create IN Entry");
+      const payload = {
         crewPassId: pass.data.id,
         qrScanMethod: "MANUAL",
         actualTankTruckNumber: truckId,
@@ -66,31 +50,56 @@ const test = async () => {
           truckTyreConditionAcceptable: true, batteryCutOffSwitchCondition: true, handBrakeWorking: true, earthCleatProvided: true,
           inspectionArea: "FRONT", sealNumber: "S-1", verifiedBy: "Admin", verificationNotes: "OK"
         }
-      })
-    });
-    if (!entryRes.ok) throw new Error(`Entry failed: ${await entryRes.text()}`);
-    const entry = await entryRes.json();
-    console.log("Entry created:", entry.data.id);
+      };
+      
+      if (includeHelperInitially) {
+        payload.helperName = "Helper Initial";
+        payload.helperPassNumber = "HP-INITIAL-123";
+      }
 
-    console.log("7. Login as OUT GATE");
-    const outToken = await login("OUT");
+      const entryRes = await fetch("http://localhost:4000/api/v1/gate-entries", {
+        method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${inToken}` },
+        body: JSON.stringify(payload)
+      });
+      if (!entryRes.ok) throw new Error(`Entry failed: ${await entryRes.text()}`);
+      let entry = (await entryRes.json()).data;
+      console.log("   Entry created:", entry.id);
 
-    console.log("8. Execute Manual EXIT");
-    const outRes = await fetch(`http://localhost:4000/api/v1/gate-entries/${entry.data.id}/exit`, {
-      method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${outToken}` },
-      body: JSON.stringify({
-        expectedVersion: 1, 
-        rawInvoiceQr: `Inv:MANUAL-123 Dt:30.08.2026 Val:0 Veh:${truckId} Prd/Qty:BULK-MS/1000 Con:MANUAL`,
-        lockNumber: "123", 
-        qtyMs: 1000
-      })
-    });
-    if (!outRes.ok) throw new Error(`Exit failed: ${await outRes.text()}`);
-    console.log("Exit successful!");
+      // 3. Add Helper Later (Edit mode via Admin)
+      if (addHelperLater) {
+        console.log("-> Add Helper Later via Edit");
+        const updateRes = await fetch(`http://localhost:4000/api/v1/gate-entries/${entry.id}`, {
+          method: "PATCH", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${adminToken}` },
+          body: JSON.stringify({
+            expectedVersion: entry.recordVersion,
+            helperName: "Helper Added Later",
+            helperPassNumber: "HP-LATER-999"
+          })
+        });
+        if (!updateRes.ok) throw new Error(`Update failed: ${await updateRes.text()}`);
+        entry = (await updateRes.json()).data;
+        console.log("   Entry updated with helper");
+      }
 
-    console.log("✅ ALL TESTS PASSED");
-  } catch (e) {
-    console.error("❌ TEST FAILED:", e.message);
-  }
+      // 4. Exit
+      console.log("-> Execute Manual EXIT");
+      const outRes = await fetch(`http://localhost:4000/api/v1/gate-entries/${entry.id}/exit`, {
+        method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${outToken}` },
+        body: JSON.stringify({
+          expectedVersion: entry.recordVersion, 
+          rawInvoiceQr: `Inv:MANUAL-123 Dt:30.08.2026 Val:0 Veh:${truckId} Prd/Qty:BULK-MS/1000 Con:MANUAL`,
+          lockNumber: "123", 
+          qtyMs: 1000
+        })
+      });
+      if (!outRes.ok) throw new Error(`Exit failed: ${await outRes.text()}`);
+      console.log(`o. ${caseName} PASSED`);
+    } catch (e) {
+      console.error(`?O ${caseName} FAILED:`, e.message);
+    }
+  };
+
+  await executeFlow("CASE 1 (No Helper -> Edit Helper -> Exit)", false, true);
+  await executeFlow("CASE 2 (Initial Helper -> Exit)", true, false);
 };
 test();

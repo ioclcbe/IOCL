@@ -403,72 +403,48 @@ export function EntryWizard() {
             {/* Driver confirmation */}
             <div className="lg:col-span-2 rounded-2xl border border-slate-200 p-4"><label className="flex min-h-11 cursor-pointer items-center gap-3"><input type="checkbox" className="h-5 w-5 accent-orange-600" checked={values.driverSignatureConfirmed === true} onChange={(event) => setValue("driverSignatureConfirmed", event.target.checked as true, { shouldValidate: true })} /><span className="text-sm font-black text-iocl-navy">Driver has reviewed and confirmed the gate entry information</span></label>{errors.driverSignatureConfirmed ? <ErrorText>{errors.driverSignatureConfirmed.message}</ErrorText> : null}</div>
 
-            {/* Helper section — only shown for DRIVER_WITH_HELPER */}
-            {pass?.crewType === "DRIVER_WITH_HELPER" ? (
-              <div className="lg:col-span-2 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5 space-y-4">
-                <p className="font-black text-indigo-900">Helper details required</p>
-                {/* Helper mode toggle */}
-                <div className="flex gap-2 rounded-2xl border border-indigo-200 bg-white p-1.5">
-                  <ModeTab active={helperMode === "scan"} icon={<ScanLine className="h-4 w-4" />} label="Scan Helper Pass" onClick={() => { setHelperMode("scan"); setHelperPass(null); setValue("helperName", ""); setValue("helperPassNumber", ""); }} />
-                  <ModeTab active={helperMode === "manual"} icon={<Keyboard className="h-4 w-4" />} label="Manual" onClick={() => { setHelperMode("manual"); setHelperPass(null); }} />
-                </div>
-                {helperMode === "scan" ? <>
-                  <QRScanner onDetected={(v, m) => { void scanHelper(v); }} loading={helperScanResolving} />
-                  {helperPass ? <div className="rounded-2xl border border-indigo-200 bg-white p-4 text-sm">
-                    <p className="font-black text-indigo-900">{helperPass.driverName}</p>
-                    <p className="text-xs text-slate-500 mt-1">Crew ID: {helperPass.crewId}</p>
-                  </div> : null}
-                </> : <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label="Helper Name *" error={errors.helperName?.message}>
-                    <input
-                      list="master-helpers-list"
-                      className="field-input"
-                      placeholder="Type or select Helper..."
-                      value={values.helperName ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setValue("helperName", val, { shouldValidate: true });
-                        const helper = masterHelpers.find((h) => h.name === val);
-                        if (helper) {
-                          setValue("helperPassNumber", helper.helperPassNumber, { shouldValidate: true });
-                        }
-                      }}
-                    />
-                    <datalist id="master-helpers-list">
-                      {masterHelpers.map((h) => (
-                        <option key={h.id} value={h.name}>{h.helperPassNumber}</option>
-                      ))}
-                    </datalist>
-                  </Field>
-                  <Field label="Helper Pass Number" error={errors.helperPassNumber?.message}>
-                    <input {...register("helperPassNumber")} className="field-input" placeholder="Optional" />
-                  </Field>
-                </div>}
+            {/* Helper section */}
+            <div className={`lg:col-span-2 rounded-3xl border-2 p-5 space-y-4 ${pass?.crewType === 'DRIVER_WITH_HELPER' ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-slate-50'}`}>
+              <p className={`font-black ${pass?.crewType === 'DRIVER_WITH_HELPER' ? 'text-indigo-900' : 'text-slate-900'}`}>
+                {pass?.crewType === 'DRIVER_WITH_HELPER' ? 'Helper details required' : 'Helper details (optional)'}
+              </p>
+              <div className="flex gap-2 rounded-2xl border border-indigo-200 bg-white p-1.5">
+                <ModeTab active={helperMode === "scan"} icon={<ScanLine className="h-4 w-4" />} label="Scan Helper Pass" onClick={() => { setHelperMode("scan"); setHelperPass(null); setValue("helperName", ""); setValue("helperPassNumber", ""); }} />
+                <ModeTab active={helperMode === "manual"} icon={<Keyboard className="h-4 w-4" />} label="Manual" onClick={() => { setHelperMode("manual"); setHelperPass(null); }} />
               </div>
-            ) : (
-              /* Optional helper for other crew types */
-              <Field label="Helper Name (optional)" error={errors.helperName?.message} className="lg:col-span-2">
-                <input
-                  list="master-helpers-list"
-                  className="field-input"
-                  placeholder="Type or select Helper..."
-                  value={values.helperName ?? ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setValue("helperName", val, { shouldValidate: true });
-                    const helper = masterHelpers.find((h) => h.name === val);
-                    if (helper) {
-                      setValue("helperPassNumber", helper.helperPassNumber, { shouldValidate: true });
-                    }
-                  }}
-                />
-                <datalist id="master-helpers-list">
-                  {masterHelpers.map((h) => (
-                    <option key={h.id} value={h.name}>{h.helperPassNumber}</option>
-                  ))}
-                </datalist>
-              </Field>
-            )}
+              {helperMode === "scan" ? <>
+                <QRScanner onDetected={(v, m) => { void scanHelper(v); }} loading={helperScanResolving} />
+                {helperPass ? <div className="rounded-2xl border border-indigo-200 bg-white p-4 text-sm">
+                  <p className="font-black text-indigo-900">{helperPass.driverName}</p>
+                  <p className="text-xs text-slate-500 mt-1">Crew ID: {helperPass.crewId}</p>
+                </div> : null}
+              </> : <div className="grid gap-3 sm:grid-cols-2">
+                <Field label={`Helper Name ${pass?.crewType === 'DRIVER_WITH_HELPER' ? '*' : '(optional)'}`} error={errors.helperName?.message}>
+                  <input
+                    list="master-helpers-list"
+                    className="field-input"
+                    placeholder="Type or select Helper..."
+                    value={values.helperName ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setValue("helperName", val, { shouldValidate: true });
+                      const helper = masterHelpers.find((h) => h.name === val);
+                      if (helper) {
+                        setValue("helperPassNumber", helper.helperPassNumber, { shouldValidate: true });
+                      }
+                    }}
+                  />
+                  <datalist id="master-helpers-list">
+                    {masterHelpers.map((h) => (
+                      <option key={h.id} value={h.name}>{h.helperPassNumber}</option>
+                    ))}
+                  </datalist>
+                </Field>
+                <Field label="Helper Pass Number" error={errors.helperPassNumber?.message}>
+                  <input {...register("helperPassNumber")} className="field-input" placeholder="Optional" />
+                </Field>
+              </div>}
+            </div>
 
             <Field label="Remarks" error={errors.remarks?.message} className="lg:col-span-2">
               <textarea {...register("remarks")} className="field-textarea" placeholder="Operational notes" />

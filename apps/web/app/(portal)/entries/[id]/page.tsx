@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { IN_GATE_SAFETY_ITEMS, type GateEntryRecord, type SafetyCheckKey, type UpdateGateEntryInput } from "@iocl/shared";
-import { AlertTriangle, ArrowLeft, CalendarDays, CheckCircle2, Clock3, Edit3, FileLock2, Printer, RefreshCw, Save, ShieldCheck, Truck, UserRound, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CalendarDays, CheckCircle2, Clock3, Edit3, FileLock2, Printer, RefreshCw, Save, ShieldCheck, Truck, UserRound, X, ScanLine } from "lucide-react";
 import { toast } from "sonner";
-import { getEntry, updateEntry, updateExitQuantities } from "../../../../lib/api";
+import { getEntry, updateEntry, updateExitQuantities, resolvePass } from "../../../../lib/api";
 import { useAuth } from "../../../../lib/auth-context";
 import { formatIndiaDate, formatIndiaTime, normalizeTruck } from "../../../../lib/utils";
 import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import { YesNoToggle } from "../../../../components/ui/toggle";
+import { QRScanner } from "../../../../components/entry/qr-scanner";
 
 export default function EntryDetailPage() {
   const params = useParams<{ id: string }>();
@@ -21,6 +22,8 @@ export default function EntryDetailPage() {
   const [loadVersion, setLoadVersion] = useState(0);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showHelperScanner, setShowHelperScanner] = useState(false);
+  const [helperScanResolving, setHelperScanResolving] = useState(false);
   const [draft, setDraft] = useState<UpdateGateEntryInput>({ expectedVersion: 1, remarks: "" });
   const [quantities, setQuantities] = useState({ qtyMs: "0", qtyXpms: "0", qtyEbms: "0", qtyHsd: "0", qtySko: "0", qtyXg: "0", qtyBioHsd: "0", qtyFo: "0", qtyLdo: "0", lockNumber: "" });
 
@@ -79,14 +82,43 @@ export default function EntryDetailPage() {
           <EditField label="Actual Tank Truck Number" value={draftTruck} onChange={(value) => setDraft((current) => ({ ...current, actualTankTruckNumber: value.toUpperCase() }))} />
           <Data label="TT Number on Pass (locked)" value={entry.ttNumberOnPass} />
           <div><label className="field-label">TT Match (automatic)</label><div className={`flex min-h-13 items-center justify-between rounded-2xl border px-4 ${calculatedMatch ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}`}><span className="font-black">{calculatedMatch ? "YES — Matched" : "NO — Mismatch"}</span><Badge tone={calculatedMatch ? "green" : "red"}>{calculatedMatch ? "Verified" : "Alert"}</Badge></div></div>
-          <EditField label="Customer / Destination" value={String(draft.customerDestination ?? "")} onChange={(value) => setDraft((current) => ({ ...current, customerDestination: value }))} />
-          <Toggle label="ABS" value={draft.abs} onChange={(value) => setDraft((current) => ({ ...current, abs: value }))} />
+            <Toggle label="ABS" value={draft.abs} onChange={(value) => setDraft((current) => ({ ...current, abs: value }))} />
           <Toggle label="ABT — Driver" value={draft.driverAbt} onChange={(value) => setDraft((current) => ({ ...current, driverAbt: value }))} />
-          <EditField label="Helper Name" value={String(draft.helperName ?? "")} onChange={(value) => setDraft((current) => ({ ...current, helperName: value }))} />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <label className="field-label mb-0">Helper Name</label>
+              <button type="button" onClick={() => setShowHelperScanner(true)} className="flex items-center gap-1 text-[11px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-wider"><ScanLine className="h-3 w-3" /> Scan Pass</button>
+            </div>
+            <input className="field-input" value={String(draft.helperName ?? "")} onChange={(e) => setDraft((curr) => ({ ...curr, helperName: e.target.value }))} />
+            {showHelperScanner && (
+               <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+                 <div className="w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl relative">
+                   <button type="button" onClick={() => setShowHelperScanner(false)} className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"><X className="h-5 w-5" /></button>
+                   <h3 className="text-lg font-black text-iocl-navy mb-4">Scan Helper Pass</h3>
+                   <QRScanner onDetected={async (text) => {
+                      setHelperScanResolving(true);
+                      try {
+                        const res = await resolvePass(text);
+                        if (res.crewId) {
+                           setDraft(curr => ({ ...curr, helperName: res.driverName, helperPassNumber: res.crewId }));
+                           setShowHelperScanner(false);
+                           toast.success("Helper details imported");
+                        }
+                      } catch (e) {
+                        toast.error(e instanceof Error ? e.message : "Invalid QR");
+                      } finally {
+                        setHelperScanResolving(false);
+                      }
+                   }} loading={helperScanResolving} />
+                 </div>
+               </div>
+            )}
+          </div>
+          <EditField label="Helper Pass Number" value={String(draft.helperPassNumber ?? "")} onChange={(value) => setDraft((current) => ({ ...current, helperPassNumber: value }))} />
           <Toggle label="ABT — Helper" value={draft.helperAbt} onChange={(value) => setDraft((current) => ({ ...current, helperAbt: value }))} />
           <div className="sm:col-span-2"><label className="field-label">Remarks</label><textarea className="field-textarea" value={String(draft.remarks ?? "")} onChange={(event) => setDraft((current) => ({ ...current, remarks: event.target.value }))} /></div>
         </> : <>
-          <Data label="Actual TT Number" value={entry.actualTankTruckNumber} /><Data label="TT Number on Pass" value={entry.ttNumberOnPass} /><Data label="Customer / Destination" value={entry.customerDestination} /><Data label="Driver ABT" value={yesNo(entry.driverAbt)} /><Data label="ABS" value={yesNo(entry.abs)} /><Data label="Helper" value={entry.helperName || "Not provided"} /><Data label="Helper ABT" value={yesNo(entry.helperAbt)} /><Data label="Remarks" value={entry.remarks || "—"} wide />
+          <Data label="Actual TT Number" value={entry.actualTankTruckNumber} /><Data label="TT Number on Pass" value={entry.ttNumberOnPass} /><Data label="Driver ABT" value={yesNo(entry.driverAbt)} /><Data label="ABS" value={yesNo(entry.abs)} /><Data label="Helper" value={entry.helperName || "Not provided"} /><Data label="Helper Pass No." value={entry.helperPassNumber || "—"} /><Data label="Helper ABT" value={yesNo(entry.helperAbt)} /><Data label="Remarks" value={entry.remarks || "—"} wide />
         </>}
       </div></Section>
 
@@ -144,7 +176,7 @@ function toDraft(entry: GateEntryRecord): UpdateGateEntryInput {
     verificationNotes: entry.safetyChecklist.verificationNotes ?? undefined, exceptionRemarks: entry.safetyChecklist.exceptionRemarks,
   };
   for (const { key } of IN_GATE_SAFETY_ITEMS) if (entry.safetyChecklist[key] != null) safetyChecklist[key] = entry.safetyChecklist[key] as boolean;
-  return { expectedVersion: entry.recordVersion, customerDestination: entry.customerDestination, actualTankTruckNumber: entry.actualTankTruckNumber, abs: entry.abs, driverAbt: entry.driverAbt, helperName: entry.helperName ?? "", helperAbt: entry.helperAbt, driverSignatureConfirmed: entry.driverSignatureConfirmed ? true : undefined, remarks: entry.remarks ?? "", safetyChecklist };
+  return { expectedVersion: entry.recordVersion, customerDestination: entry.customerDestination, actualTankTruckNumber: entry.actualTankTruckNumber, abs: entry.abs, driverAbt: entry.driverAbt, helperName: entry.helperName ?? "", helperPassNumber: entry.helperPassNumber ?? "", helperAbt: entry.helperAbt, driverSignatureConfirmed: entry.driverSignatureConfirmed ? true : undefined, remarks: entry.remarks ?? "", safetyChecklist };
 }
 function toQuantities(entry: GateEntryRecord) { return { qtyMs: entry.qtyMs ?? "0", qtyXpms: entry.qtyXpms ?? "0", qtyEbms: entry.qtyEbms ?? "0", qtyHsd: entry.qtyHsd ?? "0", qtySko: entry.qtySko ?? "0", qtyXg: entry.qtyXg ?? "0", qtyBioHsd: entry.qtyBioHsd ?? "0", qtyFo: entry.qtyFo ?? "0", qtyLdo: entry.qtyLdo ?? "0", lockNumber: entry.lockNumber ?? "" }; }
 function setSafety(setDraft: React.Dispatch<React.SetStateAction<UpdateGateEntryInput>>, key: SafetyCheckKey, value: boolean) { setDraft((current) => ({ ...current, safetyChecklist: { ...current.safetyChecklist, [key]: value } })); }
