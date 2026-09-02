@@ -70,7 +70,9 @@ function EntryRow({ entry }: { entry: GateEntryRecord }) {
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
-        <Badge tone={entry.ttNumberMatch ? "green" : "red"}>{entry.ttNumberMatch ? "Match" : "Mismatch"}</Badge>
+        {entry.invoiceNumber ? (
+          <Badge tone="slate">Inv: ...{entry.invoiceNumber.slice(-4)}</Badge>
+        ) : null}
         <p className="text-[10px] font-bold text-slate-400">{entry.displaySerial}</p>
       </div>
       <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-iocl-orange" />

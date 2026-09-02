@@ -217,7 +217,7 @@ export async function createEntry(input: CreateGateEntryValue, actor: Actor, met
 
     const [openEntry, openCrewEntry, tokenUsed] = await Promise.all([
       tx.gateEntry.findFirst({
-        where: { actualTankTruckNumber: actualTruck, status: EntryStatus.IN, isDeleted: false, businessDate },
+        where: { actualTankTruckNumber: actualTruck, status: EntryStatus.IN, isDeleted: false },
         select: { serialNumber: true, businessDate: true },
       }),
       tx.gateEntry.findFirst({

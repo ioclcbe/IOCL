@@ -152,9 +152,16 @@ export function EntryWizard() {
   // Manual driver submit handler (step 0 manual mode)
   async function submitManualDriver() {
     const errs: Record<string, string> = {};
-    if (!manualDriver.driverName.trim()) errs.driverName = "Driver name is required";
+    const dName = manualDriver.driverName.trim();
+    const dDL = manualDriver.drivingLicenseNumber.trim();
+    if (!dName) errs.driverName = "Driver name is required";
+    else if (!masterDrivers.find(d => d.name === dName)) errs.driverName = "Only registered drivers can be selected.";
+    
     if (!manualDriver.ttNumberOnPass.trim()) errs.ttNumberOnPass = "Truck number is required";
-    if (!manualDriver.drivingLicenseNumber.trim()) errs.drivingLicenseNumber = "DL number is required";
+    
+    if (!dDL) errs.drivingLicenseNumber = "DL number is required";
+    else if (!masterDrivers.find(d => d.drivingLicenseNumber === dDL)) errs.drivingLicenseNumber = "Invalid registered DL number.";
+
     if (!manualDriver.drivingLicenseExpiryDate) errs.drivingLicenseExpiryDate = "DL expiry date is required";
     if (!manualDriver.passValidUntil) errs.passValidUntil = "Pass valid until date is required";
     if (Object.keys(errs).length > 0) { setManualDriverErrors(errs); return; }
@@ -211,8 +218,13 @@ export function EntryWizard() {
       if (step === 2) safetyTop.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       return toast.error("Please correct the highlighted fields");
     }
-    if (step === 1 && pass?.crewType === "DRIVER_WITH_HELPER") {
-      if (!(values.helperName ?? "").trim()) return toast.error("Helper name is required for this crew type");
+    if (step === 1) {
+      const hName = (values.helperName ?? "").trim();
+      if (hName) {
+        if (!masterHelpers.find(h => h.name === hName)) return toast.error("Only registered helpers can be selected from the database.");
+      } else if (pass?.crewType === "DRIVER_WITH_HELPER") {
+        return toast.error("Helper name is required for this crew type");
+      }
     }
     setStep((value) => Math.min(3, value + 1));
   }
@@ -344,6 +356,7 @@ export function EntryWizard() {
                             drivingLicenseNumber: driver.drivingLicenseNumber,
                             drivingLicenseExpiryDate: new Date(driver.drivingLicenseExpiryDate).toISOString().slice(0, 10),
                             passValidUntil: new Date(driver.passValidUntil).toISOString().slice(0, 10),
+                            ttNumberOnPass: driver.defaultTruckNumber || p.ttNumberOnPass,
                           }));
                         }
                       }}
@@ -369,7 +382,31 @@ export function EntryWizard() {
                     </datalist>
                   </ManualField>
                   <ManualField label="Driving License Number *" error={manualDriverErrors.drivingLicenseNumber}>
-                    <input className="field-input" placeholder="e.g. TN7420210005690" value={manualDriver.drivingLicenseNumber} onChange={(e) => setManualDriver((p) => ({ ...p, drivingLicenseNumber: e.target.value }))} />
+                    <input
+                      list="master-dls-list"
+                      className="field-input"
+                      placeholder="e.g. TN7420210005690"
+                      value={manualDriver.drivingLicenseNumber}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setManualDriver((p) => ({ ...p, drivingLicenseNumber: val }));
+                        const driver = masterDrivers.find((d) => d.drivingLicenseNumber === val);
+                        if (driver) {
+                          setManualDriver((p) => ({
+                            ...p,
+                            driverName: driver.name,
+                            drivingLicenseExpiryDate: new Date(driver.drivingLicenseExpiryDate).toISOString().slice(0, 10),
+                            passValidUntil: new Date(driver.passValidUntil).toISOString().slice(0, 10),
+                            ttNumberOnPass: driver.defaultTruckNumber || p.ttNumberOnPass,
+                          }));
+                        }
+                      }}
+                    />
+                    <datalist id="master-dls-list">
+                      {masterDrivers.map((d) => (
+                        <option key={`dl-${d.id}`} value={d.drivingLicenseNumber}>{d.name}</option>
+                      ))}
+                    </datalist>
                   </ManualField>
                   <ManualField label="DL Expiry Date *" error={manualDriverErrors.drivingLicenseExpiryDate}>
                     <input type="date" className="field-input" value={manualDriver.drivingLicenseExpiryDate} onChange={(e) => setManualDriver((p) => ({ ...p, drivingLicenseExpiryDate: e.target.value }))} />
@@ -441,7 +478,25 @@ export function EntryWizard() {
                   </datalist>
                 </Field>
                 <Field label="Helper Pass Number" error={errors.helperPassNumber?.message}>
-                  <input {...register("helperPassNumber")} className="field-input" placeholder="Optional" />
+                  <input
+                    list="master-hps-list"
+                    className="field-input"
+                    placeholder="Optional"
+                    value={values.helperPassNumber ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setValue("helperPassNumber", val, { shouldValidate: true });
+                      const helper = masterHelpers.find((h) => h.helperPassNumber === val);
+                      if (helper) {
+                        setValue("helperName", helper.name, { shouldValidate: true });
+                      }
+                    }}
+                  />
+                  <datalist id="master-hps-list">
+                    {masterHelpers.map((h) => (
+                      <option key={`hp-${h.id}`} value={h.helperPassNumber}>{h.name}</option>
+                    ))}
+                  </datalist>
                 </Field>
               </div>}
             </div>

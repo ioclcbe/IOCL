@@ -43,7 +43,7 @@ masterRouter.put(
     const { id } = req.params;
     const data = tankTruckSchema.parse(req.body);
     const truck = await db.tankTruck.update({
-      where: { id },
+      where: { id: id as string },
       data: { ttNumber: data.ttNumber, isActive: data.isActive },
     });
     res.json({ success: true, data: truck });
@@ -55,7 +55,7 @@ masterRouter.delete(
   authorize(UserRole.ADMIN),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    await db.tankTruck.delete({ where: { id } });
+    await db.tankTruck.delete({ where: { id: id as string } });
     res.json({ success: true });
   })
 );
@@ -102,7 +102,7 @@ masterRouter.put(
     const { id } = req.params;
     const data = driverSchema.parse(req.body);
     const driver = await db.driver.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         name: data.name,
         drivingLicenseNumber: data.drivingLicenseNumber,
@@ -120,7 +120,7 @@ masterRouter.delete(
   authorize(UserRole.ADMIN),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    await db.driver.delete({ where: { id } });
+    await db.driver.delete({ where: { id: id as string } });
     res.json({ success: true });
   })
 );
@@ -164,7 +164,7 @@ masterRouter.put(
     const { id } = req.params;
     const data = helperSchema.parse(req.body);
     const helper = await db.helper.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         name: data.name,
         helperPassNumber: data.helperPassNumber,
@@ -180,7 +180,7 @@ masterRouter.delete(
   authorize(UserRole.ADMIN),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    await db.helper.delete({ where: { id } });
+    await db.helper.delete({ where: { id: id as string } });
     res.json({ success: true });
   })
 );

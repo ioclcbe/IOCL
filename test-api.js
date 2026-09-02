@@ -83,11 +83,12 @@ const test = async () => {
 
       // 4. Exit
       console.log("-> Execute Manual EXIT");
+      const randomInv1 = `Inv:MANUAL-${Math.floor(Math.random() * 1000000)} Dt:30.08.2026 Val:0 Veh:${truckId} Prd/Qty:BULK-MS/1000 Con:MANUAL`;
       const outRes = await fetch(`http://localhost:4000/api/v1/gate-entries/${entry.id}/exit`, {
         method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${outToken}` },
         body: JSON.stringify({
           expectedVersion: entry.recordVersion, 
-          rawInvoiceQr: `Inv:MANUAL-123 Dt:30.08.2026 Val:0 Veh:${truckId} Prd/Qty:BULK-MS/1000 Con:MANUAL`,
+          rawInvoiceQr: randomInv1,
           lockNumber: "123", 
           qtyMs: 1000
         })
