@@ -130,6 +130,79 @@ masterRouter.delete(
   })
 );
 
+
+masterRouter.post(
+  "/drivers/upload",
+  authorize(UserRole.ADMIN),
+  upload.single("file"),
+  asyncHandler(async (req, res) => {
+    if (!req.file) throw new ApiError(400, "NO_FILE", "Please upload an Excel file");
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(req.file.buffer);
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) throw new ApiError(400, "EMPTY_FILE", "The uploaded Excel file is empty");
+
+    const rows = worksheet.getSheetValues() as any[][];
+    if (rows.length < 2) throw new ApiError(400, "NO_DATA", "The uploaded Excel file has no data rows");
+
+    const headers = rows[1] || [];
+    let nameIdx = -1, dlIdx = -1, dlExpIdx = -1, passExpIdx = -1;
+    for (let i = 1; i < headers.length; i++) {
+      const h = String(headers[i] || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (h.includes("name")) nameIdx = i;
+      else if (h.includes("exp")) dlExpIdx = i;
+      else if (h.includes("pass") || h.includes("valid") || h.includes("upto")) passExpIdx = i;
+      else if (h.includes("dl") || h.includes("lic")) dlIdx = i;
+    }
+
+    if (nameIdx === -1 || dlIdx === -1 || dlExpIdx === -1 || passExpIdx === -1) {
+      throw new ApiError(400, "INVALID_FORMAT", "Excel must contain columns for Name, DL Number, DL Expiry, and Pass Validity");
+    }
+
+    const dataToInsert = [];
+    for (let r = 2; r < rows.length; r++) {
+      const row = rows[r];
+      if (!row) continue;
+      const name = String(row[nameIdx] || "").trim();
+      const dlNumber = String(row[dlIdx] || "").trim().toUpperCase();
+      const rawDlExp = row[dlExpIdx];
+      const rawPassExp = row[passExpIdx];
+
+      if (!name || !dlNumber || !rawDlExp || !rawPassExp) continue;
+
+      const parseDate = (val: any) => {
+        if (val instanceof Date) return val;
+        const s = String(val).trim();
+        const parts = s.split(/[/-]/);
+        if (parts.length === 3) {
+          if (parts[0]?.length === 4) return new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
+          return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        }
+        return new Date(s);
+      };
+
+      try {
+        dataToInsert.push({
+          name,
+          drivingLicenseNumber: dlNumber,
+          drivingLicenseExpiryDate: parseDate(rawDlExp),
+          passValidUntil: parseDate(rawPassExp),
+          isActive: true
+        });
+      } catch {
+        // skip invalid
+      }
+    }
+
+    const result = await db.driver.createMany({
+      data: dataToInsert,
+      skipDuplicates: true
+    });
+
+    res.json({ success: true, inserted: result.count });
+  })
+);
+
 // ==========================================
 // HELPERS
 // ==========================================
@@ -189,6 +262,58 @@ masterRouter.delete(
     res.json({ success: true });
   })
 );
+
+masterRouter.post(
+  "/helpers/upload",
+  authorize(UserRole.ADMIN),
+  upload.single("file"),
+  asyncHandler(async (req, res) => {
+    if (!req.file) throw new ApiError(400, "NO_FILE", "Please upload an Excel file");
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(req.file.buffer);
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) throw new ApiError(400, "EMPTY_FILE", "The uploaded Excel file is empty");
+
+    const rows = worksheet.getSheetValues() as any[][];
+    if (rows.length < 2) throw new ApiError(400, "NO_DATA", "The uploaded Excel file has no data rows");
+
+    const headers = rows[1] || [];
+    let nameIdx = -1, passIdx = -1;
+    for (let i = 1; i < headers.length; i++) {
+      const h = String(headers[i] || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (h.includes("name")) nameIdx = i;
+      else if (h.includes("pass") || h.includes("id") || h.includes("num") || h.includes("no")) passIdx = i;
+    }
+
+    if (nameIdx === -1 || passIdx === -1) {
+      throw new ApiError(400, "INVALID_FORMAT", "Excel must contain columns for Name and Pass Number");
+    }
+
+    const dataToInsert = [];
+    for (let r = 2; r < rows.length; r++) {
+      const row = rows[r];
+      if (!row) continue;
+      const name = String(row[nameIdx] || "").trim();
+      const passNumber = String(row[passIdx] || "").trim().toUpperCase();
+
+      if (!name || !passNumber) continue;
+
+      dataToInsert.push({
+        name,
+        helperPassNumber: passNumber,
+        isActive: true
+      });
+    }
+
+    const result = await db.helper.createMany({
+      data: dataToInsert,
+      skipDuplicates: true
+    });
+
+    res.json({ success: true, inserted: result.count });
+  })
+);
+
 // ==========================================
 // DESTINATIONS
 // ==========================================
