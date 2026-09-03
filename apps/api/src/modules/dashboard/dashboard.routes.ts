@@ -45,7 +45,7 @@ dashboardRouter.get(
       }),
       prisma.gateEntry.aggregate({
         where: { ...base, status: EntryStatus.OUT },
-        _sum: { qtyMs: true, qtyXpms: true, qtyEbms: true, qtyHsd: true },
+        _sum: { qtyMs: true, qtyXpms: true, qtyEbms: true, qtyHsd: true, qtySko: true, qtyXg: true, qtyBioHsd: true, qtyFo: true, qtyLdo: true },
       }),
     ]);
     res.json({

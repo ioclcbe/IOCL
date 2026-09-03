@@ -489,8 +489,14 @@ export interface QuantitySummary {
   xpms: string;
   ebms: string;
   hsd: string;
+  sko: string;
+  xg: string;
+  bioHsd: string;
+  fo: string;
+  ldo: string;
   petrol: string;
   diesel: string;
+  other: string;
 }
 
 export interface DashboardSummary {

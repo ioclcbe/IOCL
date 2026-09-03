@@ -165,12 +165,14 @@ model Driver {
 }
 
 model Helper {
-  id               String   @id @default(uuid()) @db.Uuid
-  name             String   @db.VarChar(120)
-  helperPassNumber String   @unique @db.VarChar(50)
-  isActive         Boolean  @default(true)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                 String    @id @default(uuid()) @db.Uuid
+  name               String    @db.VarChar(120)
+  helperPassNumber   String    @unique @db.VarChar(50)
+  passValidUntil     DateTime? @db.Date
+  defaultTruckNumber String?   @db.VarChar(20)
+  isActive           Boolean   @default(true)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   @@index([isActive])
   @@map("master_helpers")

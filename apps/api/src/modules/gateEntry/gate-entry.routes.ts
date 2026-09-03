@@ -136,11 +136,16 @@ gateEntryRouter.get(
   "/export.xlsx",
   authorize(UserRole.SUPERVISOR, UserRole.ADMIN),
   asyncHandler(async (req, res) => {
-    const queryDate = (req.query.date as string) || new Date().toISOString().slice(0, 10);
-    const items = await service.listForExport({ date: queryDate, pageSize: 10000 } as any, req.auth!);
+    const dateFrom = (req.query.dateFrom as string) || new Date().toISOString().slice(0, 10);
+    const dateTo = (req.query.dateTo as string) || dateFrom;
+    const filter = { dateFrom, dateTo, pageSize: 10000 };
+    
+    const items = await service.listForExport(filter as any, req.auth!);
 
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet(queryDate);
+    const sheetName = dateFrom !== dateTo ? `${dateFrom} to ${dateTo}` : dateFrom;
+    const safeSheetName = sheetName.substring(0, 31).replace(/[\[\]*?:\/\\]/g, "");
+    const sheet = workbook.addWorksheet(safeSheetName);
 
     sheet.columns = [
       { header: "Sl. No", key: "slNo", width: 8 },
@@ -256,7 +261,7 @@ gateEntryRouter.get(
     });
 
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", `attachment; filename="gate-log-${queryDate}.xlsx"`);
+    res.setHeader("Content-Disposition", `attachment; filename="gate-log-${dateFrom !== dateTo ? `${dateFrom}-to-${dateTo}` : dateFrom}.xlsx"`);
 
     await workbook.xlsx.write(res);
     res.end();

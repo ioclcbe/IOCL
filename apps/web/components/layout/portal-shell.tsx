@@ -30,10 +30,11 @@ import { LoadingScreen } from "../ui/loading-screen";
 interface NavItem { href: string; label: string; icon: LucideIcon; roles: string[]; exact?: boolean }
 const nav: NavItem[] = [
   { href: "/dashboard",    label: "Control Room",     icon: Gauge,            roles: ["SUPERVISOR", "ADMIN"] },
-  { href: "/entries/new", label: "IN Gate Scanner",      icon: ScanLine,             roles: ["ENTRY_GATE_SECURITY", "SUPERVISOR", "ADMIN"] },
-  { href: "/out",         label: "OUT Gate Scanner",  icon: ScanLine,         roles: ["EXIT_GATE_SECURITY", "SUPERVISOR", "ADMIN"] },
+  { href: "/entries/new", label: "IN Gate Scanner",      icon: ScanLine,             roles: ["ENTRY_GATE_SECURITY", "SUPERVISOR"] },
+  { href: "/out",         label: "OUT Gate Scanner",  icon: ScanLine,         roles: ["EXIT_GATE_SECURITY", "SUPERVISOR"] },
   { href: "/entries?tab=in",  label: "IN-Gate Record",   icon: ArrowDownToLine,  roles: ["ENTRY_GATE_SECURITY", "EXIT_GATE_SECURITY", "SUPERVISOR", "ADMIN"] },
   { href: "/entries?tab=out", label: "OUT-Gate Record",  icon: ArrowUpFromLine,  roles: ["ENTRY_GATE_SECURITY", "EXIT_GATE_SECURITY", "SUPERVISOR", "ADMIN"] },
+  { href: "/admin/tracking",label: "Live Tracking",    icon: Truck,            roles: ["ADMIN", "SUPERVISOR"] },
   { href: "/admin/records", label: "Admin Register",   icon: FileSpreadsheet,  roles: ["ADMIN"] },
   { href: "/admin/trucks",  label: "Truck Database",   icon: Truck,            roles: ["ADMIN"] },
   { href: "/admin/drivers", label: "Driver Database",  icon: Users,            roles: ["ADMIN"] },
@@ -78,7 +79,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
       (pathname === "/dashboard" && !["SUPERVISOR", "ADMIN"].includes(user.role)) ||
       (pathname.startsWith("/entries/new") && !["ENTRY_GATE_SECURITY", "SUPERVISOR", "ADMIN"].includes(user.role)) ||
       (pathname.startsWith("/out") && !["EXIT_GATE_SECURITY", "SUPERVISOR", "ADMIN"].includes(user.role)) ||
-      (pathname.startsWith("/admin") && user.role !== "ADMIN" && !(pathname.startsWith("/admin/reports") && user.role === "SUPERVISOR")) ||
+      (pathname.startsWith("/admin") && user.role !== "ADMIN" && !(pathname.startsWith("/admin/reports") && user.role === "SUPERVISOR") && !(pathname.startsWith("/admin/tracking") && user.role === "SUPERVISOR")) ||
       (pathname.startsWith("/audit") && !["SUPERVISOR", "ADMIN"].includes(user.role));
     if (restricted) router.replace("/unauthorized");
   }, [pathname, router, user]);

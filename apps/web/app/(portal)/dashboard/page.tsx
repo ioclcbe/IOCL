@@ -18,12 +18,14 @@ import {
 import { toast } from "sonner";
 import type { DashboardSummary } from "@iocl/shared";
 import { getDashboard } from "../../../lib/api";
+import { useAuth } from "../../../lib/auth-context";
 import { formatIndiaDate, formatIndiaTime } from "../../../lib/utils";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { PageHeader } from "../../../components/ui/page-header";
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,9 +63,11 @@ export default function DashboardPage() {
         title="IN Gate Control Room"
         description="Live operational snapshot for today's lorry entries, verification alerts and vehicle movement status."
         action={
-          <Link href="/entries/new">
-            <Button icon={<Plus className="h-5 w-5" />} className="w-full sm:w-auto">Create IN Entry</Button>
-          </Link>
+          user?.role !== "ADMIN" ? (
+            <Link href="/entries/new">
+              <Button icon={<Plus className="h-5 w-5" />} className="w-full sm:w-auto">Create IN Entry</Button>
+            </Link>
+          ) : undefined
         }
       />
 
@@ -90,9 +94,96 @@ export default function DashboardPage() {
             </div>
           </div>
         ))}
-      </section>
+      </section>      <section className="mt-6 flex flex-col xl:grid gap-6 xl:grid-cols-[.85fr_1.5fr]">
+        <div className="space-y-6">
+          {user?.role !== "ADMIN" && (
+            <div className="panel relative overflow-hidden bg-iocl-navy p-6 text-white">
+              <div className="navy-grid absolute inset-0 opacity-60" />
+              <div className="relative">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-iocl-orange">
+                  <ScanLine className="h-6 w-6" />
+                </span>
+                <h2 className="mt-5 text-2xl font-black">Ready for next truck?</h2>
+                <p className="mt-2 text-sm leading-6 text-white/60">Scan the driver or crew pass and complete the safety verification in a guided workflow.</p>
+                <Link href="/entries/new" className="mt-6 block">
+                  <Button className="w-full bg-white text-iocl-navy shadow-none hover:bg-orange-50" icon={<ScanLine className="h-5 w-5" />}>
+                    Open QR Scanner
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1.55fr_.8fr]">
+          {["ADMIN", "SUPERVISOR"].includes(user?.role || "") && data && (
+            <div className="panel p-0 overflow-hidden">
+              <div className="bg-slate-50 border-b border-slate-100 px-5 py-4">
+                <h2 className="text-sm font-black text-iocl-navy">Daily Volume Outflow (Liters)</h2>
+              </div>
+              <div className="divide-y divide-slate-100">
+                <div className="p-5 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Petrol</p>
+                    <p className="text-2xl font-black text-iocl-orange">{data.quantities.petrol} L</p>
+                    <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
+                      <div className="flex justify-between border-b border-slate-50 pb-1"><span>MS</span> <span className="font-mono">{data.quantities.ms}</span></div>
+                      <div className="flex justify-between border-b border-slate-50 pb-1"><span>XP95</span> <span className="font-mono">{data.quantities.xpms}</span></div>
+                      <div className="flex justify-between pb-1"><span>EBMS</span> <span className="font-mono">{data.quantities.ebms}</span></div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Diesel</p>
+                    <p className="text-2xl font-black text-blue-600">{data.quantities.diesel} L</p>
+                    <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
+                      <div className="flex justify-between border-b border-slate-50 pb-1"><span>HSD</span> <span className="font-mono">{data.quantities.hsd}</span></div>
+                      <div className="flex justify-between pb-1"><span>BIO HSD</span> <span className="font-mono">{data.quantities.bioHsd}</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 bg-slate-50 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">Other Products</p>
+                    <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
+                      <div className="flex justify-between"><span>SKO</span> <span className="font-mono">{data.quantities.sko}</span></div>
+                      <div className="flex justify-between"><span>FO</span> <span className="font-mono">{data.quantities.fo}</span></div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">&nbsp;</p>
+                    <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
+                      <div className="flex justify-between"><span>LDO</span> <span className="font-mono">{data.quantities.ldo}</span></div>
+                      <div className="flex justify-between"><span>XG</span> <span className="font-mono">{data.quantities.xg}</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="panel p-5">
+            <div className="flex items-center gap-3">
+              <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${data && !error ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                {data && !error ? <CheckCircle2 className="h-6 w-6" /> : <AlertTriangle className="h-6 w-6" />}
+              </div>
+              <div>
+                <p className="font-black text-iocl-navy">{data && !error ? "Core services responding" : "Service check pending"}</p>
+                <p className="mt-0.5 text-xs text-slate-500">Status is based on the latest authenticated database response</p>
+              </div>
+            </div>
+            <div className="mt-5 space-y-3 text-sm">
+              {[
+                ["Authenticated API", data && !error ? "Responding" : "Unknown"],
+                ["PostgreSQL query", data && !error ? "Responding" : "Unknown"],
+                ["Audit policy", "Enabled"],
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-center justify-between border-t border-slate-100 pt-3">
+                  <span className="text-slate-500">{label}</span>
+                  <span className={`font-bold ${value === "Unknown" ? "text-amber-700" : "text-emerald-700"}`}>{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="panel overflow-hidden">
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-5 sm:px-6">
             <div>
@@ -137,48 +228,6 @@ export default function DashboardPage() {
                 <p className="mt-1 text-sm text-slate-400">Create the first IN entry from the scanner.</p>
               </div>
             ) : null}
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="panel relative overflow-hidden bg-iocl-navy p-6 text-white">
-            <div className="navy-grid absolute inset-0 opacity-60" />
-            <div className="relative">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-iocl-orange">
-                <ScanLine className="h-6 w-6" />
-              </span>
-              <h2 className="mt-5 text-2xl font-black">Ready for next truck?</h2>
-              <p className="mt-2 text-sm leading-6 text-white/60">Scan the driver or crew pass and complete the safety verification in a guided workflow.</p>
-              <Link href="/entries/new" className="mt-6 block">
-                <Button className="w-full bg-white text-iocl-navy shadow-none hover:bg-orange-50" icon={<ScanLine className="h-5 w-5" />}>
-                  Open QR Scanner
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="panel p-5">
-            <div className="flex items-center gap-3">
-              <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${data && !error ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                {data && !error ? <CheckCircle2 className="h-6 w-6" /> : <AlertTriangle className="h-6 w-6" />}
-              </div>
-              <div>
-                <p className="font-black text-iocl-navy">{data && !error ? "Core services responding" : "Service check pending"}</p>
-                <p className="mt-0.5 text-xs text-slate-500">Status is based on the latest authenticated database response</p>
-              </div>
-            </div>
-            <div className="mt-5 space-y-3 text-sm">
-              {[
-                ["Authenticated API", data && !error ? "Responding" : "Unknown"],
-                ["PostgreSQL query", data && !error ? "Responding" : "Unknown"],
-                ["Audit policy", "Enabled"],
-              ].map(([label, value]) => (
-                <div key={label} className="flex items-center justify-between border-t border-slate-100 pt-3">
-                  <span className="text-slate-500">{label}</span>
-                  <span className={`font-bold ${value === "Unknown" ? "text-amber-700" : "text-emerald-700"}`}>{value}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>

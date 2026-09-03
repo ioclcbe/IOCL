@@ -262,15 +262,19 @@ export async function downloadCsv(filter: Partial<EntryFilter> = {}) {
   const params = new URLSearchParams(); Object.entries(filter).forEach(([key, value]) => value !== undefined && params.set(key, String(value)));
   await download(`/gate-entries/export.csv?${params}`, `iocl-gate-${filter.date ?? new Date().toISOString().slice(0, 10)}.csv`);
 }
-export async function downloadExcel(date: string) {
+export async function downloadExcel(dateFrom?: string, dateTo?: string) {
   if (DEMO_MODE) throw new ApiClientError("Excel export is available in the connected build", "DEMO_EXPORT_DISABLED");
-  await download(`/gate-entries/export.xlsx?date=${encodeURIComponent(date)}`, `gate-log-${date}.xlsx`);
+  const params = new URLSearchParams();
+  if (dateFrom) params.set("dateFrom", dateFrom);
+  if (dateTo) params.set("dateTo", dateTo);
+  const fileName = dateFrom && dateTo && dateFrom !== dateTo ? `iocl-gate-${dateFrom}-to-${dateTo}.xlsx` : `iocl-gate-${dateFrom || new Date().toISOString().slice(0, 10)}.xlsx`;
+  await download(`/gate-entries/export.xlsx?${params}`, fileName);
 }
-export async function getReportSummary(date: string) {
+export async function getReportSummary(dateFrom: string, dateTo?: string) {
   if (DEMO_MODE) {
     const summary = getDemoDashboard();
     return {
-      date,
+      date: dateFrom,
       total: summary.total,
       in: summary.open,
       out: summary.exited,
@@ -278,7 +282,10 @@ export async function getReportSummary(date: string) {
       quantities: summary.quantities,
     };
   }
-  return apiFetch<{ date: string; total: number; in: number; out: number; cancelled: number; quantities: DashboardSummary["quantities"] }>(`/reports/summary?date=${encodeURIComponent(date)}`);
+  const params = new URLSearchParams();
+  params.set("dateFrom", dateFrom);
+  if (dateTo) params.set("dateTo", dateTo);
+  return apiFetch<{ date: string; total: number; in: number; out: number; cancelled: number; quantities: DashboardSummary["quantities"] }>(`/reports/summary?${params}`);
 }
 // ============================================================================
 // Master Data API

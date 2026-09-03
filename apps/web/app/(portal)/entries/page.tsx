@@ -174,12 +174,14 @@ export default function EntriesPage() {
         title={tab === "in" ? "IN-Gate Records" : tab === "out" ? "OUT-Gate Records" : "Gate Records"}
         description={tab === "in" ? "Vehicles currently inside the facility. Click any record to view details or edit." : tab === "out" ? "Vehicles that have completed the exit process. Click any record to view full details." : "Click any record to view full details or edit."}
         action={
-          <div className="flex flex-col gap-2 sm:flex-row">
-            {user?.role !== "EXIT_GATE_SECURITY"
-              ? <Link href="/entries/new"><Button icon={<ScanLine className="h-5 w-5" />}>IN Scanner</Button></Link>
-              : <Link href="/out"><Button icon={<Truck className="h-5 w-5" />}>Process Vehicle OUT</Button></Link>
-            }
-          </div>
+          user?.role !== "ADMIN" ? (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              {user?.role !== "EXIT_GATE_SECURITY"
+                ? <Link href="/entries/new"><Button icon={<ScanLine className="h-5 w-5" />}>IN Scanner</Button></Link>
+                : <Link href="/out"><Button icon={<Truck className="h-5 w-5" />}>Process Vehicle OUT</Button></Link>
+              }
+            </div>
+          ) : undefined
         }
       />
 

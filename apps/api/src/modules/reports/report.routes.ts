@@ -11,7 +11,7 @@ import { authenticate, authorize } from "../../middleware/auth.js";
 import { validateQuery } from "../../middleware/validate.js";
 import { listForExport } from "../gateEntry/gate-entry.service.js";
 
-const reportQuerySchema = z.object({ date: isoDateSchema }).strict();
+const reportQuerySchema = z.object({ dateFrom: isoDateSchema, dateTo: isoDateSchema.optional() }).strict();
 
 function asNumber(value: string | null) {
   return value == null ? null : Number(value);
@@ -28,24 +28,27 @@ reportRouter.get(
   "/summary",
   validateQuery(reportQuerySchema),
   asyncHandler(async (_req, res) => {
-    const date = parseIsoBusinessDate(res.locals.validatedQuery.date);
+    const from = parseIsoBusinessDate(res.locals.validatedQuery.dateFrom);
+    const toStr = res.locals.validatedQuery.dateTo || res.locals.validatedQuery.dateFrom;
+    const to = parseIsoBusinessDate(toStr);
+    
     const [counts, totals] = await prisma.$transaction([
       prisma.gateEntry.groupBy({
         by: ["status"],
-        where: { businessDate: date, isDeleted: false },
+        where: { businessDate: { gte: from, lte: to }, isDeleted: false },
         _count: true,
         orderBy: undefined,
       }),
       prisma.gateEntry.aggregate({
-        where: { businessDate: date, isDeleted: false, status: EntryStatus.OUT },
-        _sum: { qtyMs: true, qtyXpms: true, qtyEbms: true, qtyHsd: true },
+        where: { businessDate: { gte: from, lte: to }, isDeleted: false, status: EntryStatus.OUT },
+        _sum: { qtyMs: true, qtyXpms: true, qtyEbms: true, qtyHsd: true, qtySko: true, qtyXg: true, qtyBioHsd: true, qtyFo: true, qtyLdo: true },
       }),
     ]);
     const byStatus = Object.fromEntries(counts.map((item) => [item.status, item._count]));
     res.json({
       success: true,
       data: {
-        date: res.locals.validatedQuery.date,
+        date: res.locals.validatedQuery.dateFrom,
         total: Object.values(byStatus).reduce((sum, value) => sum + Number(value), 0),
         in: byStatus.IN ?? 0,
         out: byStatus.OUT ?? 0,
@@ -60,8 +63,9 @@ reportRouter.get(
   "/excel",
   validateQuery(reportQuerySchema),
   asyncHandler(async (req, res) => {
-    const date = res.locals.validatedQuery.date as string;
-    const filter = entryFilterSchema.parse({ date, page: 1, pageSize: 100, match: "all", includeDeleted: false });
+    const dateFrom = res.locals.validatedQuery.dateFrom as string;
+    const dateTo = res.locals.validatedQuery.dateTo as string | undefined;
+    const filter = entryFilterSchema.parse({ dateFrom, dateTo, page: 1, pageSize: 100, match: "all", includeDeleted: false });
     const items = await listForExport(filter, req.auth!);
 
     const columns = [
@@ -107,16 +111,18 @@ reportRouter.get(
       sumOrZero("H"), sumOrZero("I"), sumOrZero("J"), sumOrZero("K"),
       "PETROL TOTAL", sumOrZero("H", "J"), "DIESEL TOTAL", sumOrZero("K"),
     ];
+    const displayDate = dateFrom !== dateTo && dateTo ? `${dateFrom} to ${dateTo}` : dateFrom;
     const buffer = buildXlsx({
       title: "INDIAN OIL — TANK TRUCK GATE REGISTER",
-      subtitle: `Register Date: ${date}`,
+      subtitle: `Register Date: ${displayDate}`,
       headers: columns.map(([name]) => name),
       widths: columns.map(([, width]) => width),
       rows,
       totalsRow,
     });
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", `attachment; filename="gate-log-${date}.xlsx"`);
+    const fileSuffix = dateFrom !== dateTo && dateTo ? `${dateFrom}-to-${dateTo}` : dateFrom;
+    res.setHeader("Content-Disposition", `attachment; filename="gate-log-${fileSuffix}.xlsx"`);
     res.send(buffer);
   }),
 );

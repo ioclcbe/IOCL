@@ -229,7 +229,7 @@ export async function login(input: LoginInput, meta: RequestMeta) {
       },
     });
     return updated;
-  });
+  }, { maxWait: 20000, timeout: 30000 });
 
   return {
     accessToken: accessTokenFor(updatedUser, sessionId, sessionExpiresAt),

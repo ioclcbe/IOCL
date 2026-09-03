@@ -80,6 +80,14 @@ export function EntryWizard() {
   const [driverMode, setDriverMode] = useState<"scan" | "manual">("scan");
   const [manualDriver, setManualDriver] = useState(defaultManualDriver);
   const [manualDriverErrors, setManualDriverErrors] = useState<Record<string, string>>({});
+  
+  // Custom dropdown states
+  const [showDriverNameDrop, setShowDriverNameDrop] = useState(false);
+  const [showDriverDlDrop, setShowDriverDlDrop] = useState(false);
+  const [showHelperNameDrop, setShowHelperNameDrop] = useState(false);
+  const [showHelperPassDrop, setShowHelperPassDrop] = useState(false);
+  const [helperDocValidity, setHelperDocValidity] = useState("");
+  const [helperDocTt, setHelperDocTt] = useState("");
 
   // Helper mode: "scan" = QR scanner, "manual" = type name+pass
   const [helperMode, setHelperMode] = useState<"scan" | "manual">("manual");
@@ -341,85 +349,85 @@ export function EntryWizard() {
                 <p className="mb-4 font-black text-blue-900">Enter driver details manually</p>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <ManualField label="Driver Name *" error={manualDriverErrors.driverName}>
-                    <input
-                      list="master-drivers-list"
-                      className="field-input"
-                      placeholder="Type or select driver..."
-                      value={manualDriver.driverName}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setManualDriver((p) => ({ ...p, driverName: val }));
-                        const driver = masterDrivers.find((d) => d.name === val);
-                        if (driver) {
-                          setManualDriver((p) => ({
-                            ...p,
-                            drivingLicenseNumber: driver.drivingLicenseNumber,
-                            drivingLicenseExpiryDate: new Date(driver.drivingLicenseExpiryDate).toISOString().slice(0, 10),
-                            passValidUntil: new Date(driver.passValidUntil).toISOString().slice(0, 10),
-                            ttNumberOnPass: driver.defaultTruckNumber || p.ttNumberOnPass,
-                          }));
-                        }
-                      }}
-                    />
-                    <datalist id="master-drivers-list">
-                      {masterDrivers.map((d) => (
-                        <option key={d.id} value={d.name}>{d.drivingLicenseNumber}</option>
-                      ))}
-                    </datalist>
+                    <div className="relative">
+                      <input
+                        className="field-input"
+                        placeholder="Type to search..."
+                        value={manualDriver.driverName}
+                        onFocus={() => setShowDriverNameDrop(true)}
+                        onBlur={() => setTimeout(() => setShowDriverNameDrop(false), 200)}
+                        onChange={(e) => setManualDriver((p) => ({ ...p, driverName: e.target.value.toUpperCase() }))}
+                      />
+                      {showDriverNameDrop && manualDriver.driverName.length > 0 && (
+                        <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl">
+                          {masterDrivers.filter(d => d.name.toLowerCase().includes(manualDriver.driverName.toLowerCase())).map(d => (
+                            <li key={d.id} className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0" onClick={() => {
+                              setManualDriver(p => ({
+                                ...p,
+                                driverName: d.name,
+                                drivingLicenseNumber: d.drivingLicenseNumber,
+                                drivingLicenseExpiryDate: new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10),
+                                passValidUntil: new Date(d.passValidUntil).toISOString().slice(0, 10),
+                                ttNumberOnPass: d.defaultTruckNumber || p.ttNumberOnPass,
+                              }));
+                              setShowDriverNameDrop(false);
+                            }}>
+                              <div className="font-bold text-sm text-iocl-navy">{d.name}</div>
+                              <div className="text-[10px] font-mono text-slate-500">DL: {d.drivingLicenseNumber} {d.defaultTruckNumber ? `(TT: ${d.defaultTruckNumber})` : ''}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </ManualField>
+
+                  <ManualField label="Driving License Number *" error={manualDriverErrors.drivingLicenseNumber}>
+                    <div className="relative">
+                      <input
+                        className="field-input uppercase"
+                        placeholder="Type DL..."
+                        value={manualDriver.drivingLicenseNumber}
+                        onFocus={() => setShowDriverDlDrop(true)}
+                        onBlur={() => setTimeout(() => setShowDriverDlDrop(false), 200)}
+                        onChange={(e) => setManualDriver((p) => ({ ...p, drivingLicenseNumber: e.target.value.toUpperCase() }))}
+                      />
+                      {showDriverDlDrop && manualDriver.drivingLicenseNumber.length > 0 && (
+                        <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl">
+                          {masterDrivers.filter(d => d.drivingLicenseNumber.includes(manualDriver.drivingLicenseNumber)).map(d => (
+                            <li key={`dl-${d.id}`} className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0" onClick={() => {
+                              setManualDriver(p => ({
+                                ...p,
+                                driverName: d.name,
+                                drivingLicenseNumber: d.drivingLicenseNumber,
+                                drivingLicenseExpiryDate: new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10),
+                                passValidUntil: new Date(d.passValidUntil).toISOString().slice(0, 10),
+                                ttNumberOnPass: d.defaultTruckNumber || p.ttNumberOnPass,
+                              }));
+                              setShowDriverDlDrop(false);
+                            }}>
+                              <div className="font-bold text-sm text-iocl-navy">{d.drivingLicenseNumber}</div>
+                              <div className="text-[10px] font-mono text-slate-500">Name: {d.name}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </ManualField>
+
                   <ManualField label="TT Number on Pass *" error={manualDriverErrors.ttNumberOnPass}>
                     <input
-                      list="master-trucks-list"
-                      className="field-input uppercase font-black tracking-wider"
-                      placeholder="Type or select Tank Truck..."
+                      readOnly
+                      className="field-input bg-slate-100 cursor-not-allowed text-slate-600 font-mono uppercase"
                       value={manualDriver.ttNumberOnPass}
-                      onChange={(e) => setManualDriver((p) => ({ ...p, ttNumberOnPass: e.target.value.toUpperCase() }))}
                     />
-                    <datalist id="master-trucks-list">
-                      {masterTrucks.map((t) => (
-                        <option key={t.id} value={t.ttNumber}>{t.ttNumber}</option>
-                      ))}
-                    </datalist>
                   </ManualField>
-                  <ManualField label="Driving License Number *" error={manualDriverErrors.drivingLicenseNumber}>
-                    <input
-                      list="master-dls-list"
-                      className="field-input"
-                      placeholder="e.g. TN7420210005690"
-                      value={manualDriver.drivingLicenseNumber}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setManualDriver((p) => ({ ...p, drivingLicenseNumber: val }));
-                        const driver = masterDrivers.find((d) => d.drivingLicenseNumber === val);
-                        if (driver) {
-                          setManualDriver((p) => ({
-                            ...p,
-                            driverName: driver.name,
-                            drivingLicenseExpiryDate: new Date(driver.drivingLicenseExpiryDate).toISOString().slice(0, 10),
-                            passValidUntil: new Date(driver.passValidUntil).toISOString().slice(0, 10),
-                            ttNumberOnPass: driver.defaultTruckNumber || p.ttNumberOnPass,
-                          }));
-                        }
-                      }}
-                    />
-                    <datalist id="master-dls-list">
-                      {masterDrivers.map((d) => (
-                        <option key={`dl-${d.id}`} value={d.drivingLicenseNumber}>{d.name}</option>
-                      ))}
-                    </datalist>
-                  </ManualField>
+
                   <ManualField label="DL Expiry Date *" error={manualDriverErrors.drivingLicenseExpiryDate}>
-                    <input type="date" className="field-input" value={manualDriver.drivingLicenseExpiryDate} onChange={(e) => setManualDriver((p) => ({ ...p, drivingLicenseExpiryDate: e.target.value }))} />
+                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.drivingLicenseExpiryDate} />
                   </ManualField>
+
                   <ManualField label="Pass Valid Until *" error={manualDriverErrors.passValidUntil}>
-                    <input type="date" className="field-input" value={manualDriver.passValidUntil} onChange={(e) => setManualDriver((p) => ({ ...p, passValidUntil: e.target.value }))} />
-                  </ManualField>
-                  <ManualField label="Crew Type">
-                    <select className="field-input" value={manualDriver.crewType} onChange={(e) => setManualDriver((p) => ({ ...p, crewType: e.target.value as typeof manualDriver.crewType }))}>
-                      <option value="DRIVER">Driver only</option>
-                      <option value="DRIVER_WITH_HELPER">Driver with Helper</option>
-                      <option value="CONTRACT_CREW">Contract Crew</option>
-                    </select>
+                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.passValidUntil} />
                   </ManualField>
                 </div>
                 <Button type="button" loading={resolving} onClick={() => void submitManualDriver()} className="mt-4">Verify & Save Driver Details</Button>
@@ -455,50 +463,85 @@ export function EntryWizard() {
                   <p className="font-black text-indigo-900">{helperPass.driverName}</p>
                   <p className="text-xs text-slate-500 mt-1">Crew ID: {helperPass.crewId}</p>
                 </div> : null}
-              </> : <div className="grid gap-3 sm:grid-cols-2">
-                <Field label={`Helper Name ${pass?.crewType === 'DRIVER_WITH_HELPER' ? '*' : '(optional)'}`} error={errors.helperName?.message}>
-                  <input
-                    list="master-helpers-list"
-                    className="field-input"
-                    placeholder="Type or select Helper..."
-                    value={values.helperName ?? ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setValue("helperName", val, { shouldValidate: true });
-                      const helper = masterHelpers.find((h) => h.name === val);
-                      if (helper) {
-                        setValue("helperPassNumber", helper.helperPassNumber, { shouldValidate: true });
-                      }
-                    }}
-                  />
-                  <datalist id="master-helpers-list">
-                    {masterHelpers.map((h) => (
-                      <option key={h.id} value={h.name}>{h.helperPassNumber}</option>
-                    ))}
-                  </datalist>
-                </Field>
-                <Field label="Helper Pass Number" error={errors.helperPassNumber?.message}>
-                  <input
-                    list="master-hps-list"
-                    className="field-input"
-                    placeholder="Optional"
-                    value={values.helperPassNumber ?? ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setValue("helperPassNumber", val, { shouldValidate: true });
-                      const helper = masterHelpers.find((h) => h.helperPassNumber === val);
-                      if (helper) {
-                        setValue("helperName", helper.name, { shouldValidate: true });
-                      }
-                    }}
-                  />
-                  <datalist id="master-hps-list">
-                    {masterHelpers.map((h) => (
-                      <option key={`hp-${h.id}`} value={h.helperPassNumber}>{h.name}</option>
-                    ))}
-                  </datalist>
-                </Field>
-              </div>}
+              </> : <>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Field label={`Helper Name ${pass?.crewType === 'DRIVER_WITH_HELPER' ? '*' : '(optional)'}`} error={errors.helperName?.message}>
+                    <div className="relative">
+                      <input
+                        className="field-input"
+                        placeholder="Type to search Helper..."
+                        value={values.helperName ?? ""}
+                        onFocus={() => setShowHelperNameDrop(true)}
+                        onBlur={() => setTimeout(() => setShowHelperNameDrop(false), 200)}
+                        onChange={(e) => {
+                          const val = e.target.value.toUpperCase();
+                          setValue("helperName", val, { shouldValidate: true });
+                        }}
+                      />
+                      {showHelperNameDrop && (values.helperName || "").length > 0 && (
+                        <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl">
+                          {masterHelpers.filter(h => h.name.toLowerCase().includes((values.helperName || "").toLowerCase())).map(h => (
+                            <li key={h.id} className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0" onClick={() => {
+                              setValue("helperName", h.name, { shouldValidate: true });
+                              setValue("helperPassNumber", h.helperPassNumber, { shouldValidate: true });
+                              setHelperDocValidity(h.passValidUntil ? new Date(h.passValidUntil).toISOString().slice(0, 10) : "");
+                              setHelperDocTt(h.defaultTruckNumber || "");
+                              setShowHelperNameDrop(false);
+                            }}>
+                              <div className="font-bold text-sm text-iocl-navy">{h.name}</div>
+                              <div className="text-[10px] font-mono text-slate-500">Pass: {h.helperPassNumber} {h.defaultTruckNumber ? `(TT: ${h.defaultTruckNumber})` : ''}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </Field>
+                  <Field label="Helper Pass Number (Crew Id)" error={errors.helperPassNumber?.message}>
+                    <div className="relative">
+                      <input
+                        className="field-input uppercase"
+                        placeholder="Optional"
+                        value={values.helperPassNumber ?? ""}
+                        onFocus={() => setShowHelperPassDrop(true)}
+                        onBlur={() => setTimeout(() => setShowHelperPassDrop(false), 200)}
+                        onChange={(e) => {
+                          const val = e.target.value.toUpperCase();
+                          setValue("helperPassNumber", val, { shouldValidate: true });
+                        }}
+                      />
+                      {showHelperPassDrop && (values.helperPassNumber || "").length > 0 && (
+                        <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl">
+                          {masterHelpers.filter(h => h.helperPassNumber.includes(values.helperPassNumber || "")).map(h => (
+                            <li key={`hp-${h.id}`} className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0" onClick={() => {
+                              setValue("helperName", h.name, { shouldValidate: true });
+                              setValue("helperPassNumber", h.helperPassNumber, { shouldValidate: true });
+                              setHelperDocValidity(h.passValidUntil ? new Date(h.passValidUntil).toISOString().slice(0, 10) : "");
+                              setHelperDocTt(h.defaultTruckNumber || "");
+                              setShowHelperPassDrop(false);
+                            }}>
+                              <div className="font-bold text-sm text-iocl-navy">{h.helperPassNumber}</div>
+                              <div className="text-[10px] font-mono text-slate-500">Name: {h.name}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </Field>
+                  
+                  {/* Visual non-editable fields requested by user */}
+                  <Field label="Crew Type">
+                    <input readOnly className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value="Helper" />
+                  </Field>
+                  
+                  <Field label="TT No">
+                    <input readOnly className="field-input bg-slate-100 cursor-not-allowed text-slate-600 font-mono uppercase" value={helperDocTt} placeholder="-" />
+                  </Field>
+                  
+                  <Field label="Pass Valid Upto">
+                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={helperDocValidity} />
+                  </Field>
+                </div>
+              </>}
             </div>
 
             <Field label="Remarks" error={errors.remarks?.message} className="lg:col-span-2">

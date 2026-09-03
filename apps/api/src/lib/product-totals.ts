@@ -18,7 +18,13 @@ export function buildQuantitySummary(sums: QuantitySums) {
     xpms: values.XPMS.toString(),
     ebms: values.EBMS.toString(),
     hsd: values.HSD.toString(),
+    sko: values.SKO.toString(),
+    xg: values.XG.toString(),
+    bioHsd: values.BIO_HSD.toString(),
+    fo: values.FO.toString(),
+    ldo: values.LDO.toString(),
     petrol: groupTotal("PETROL").toString(),
     diesel: groupTotal("DIESEL").toString(),
+    other: groupTotal("OTHER").toString(),
   };
 }

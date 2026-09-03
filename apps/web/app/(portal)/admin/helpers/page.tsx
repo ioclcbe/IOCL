@@ -25,6 +25,34 @@ export default function HelpersPage() {
 
   useEffect(() => { load(); }, []);
 
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    setBusy(true);
+    try {
+      const token = localStorage.getItem("iocl_token");
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/masters/helpers/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Successfully imported ${data.inserted} helpers`);
+        load();
+      } else {
+        toast.error(data.error?.message || "Upload failed");
+      }
+    } catch (e) {
+      toast.error("Upload failed");
+    } finally {
+      setBusy(false);
+      e.target.value = ""; // Reset input
+    }
+  }
+
   async function addHelper() {
     if (!form.name || !form.helperPassNumber) {
       return toast.error("Please fill all fields");
@@ -57,7 +85,17 @@ export default function HelpersPage() {
         eyebrow="Admin · Master Data" 
         title="Helpers Database" 
         description="Manage the database of valid helpers for manual entry." 
-        action={<Button type="button" onClick={() => setShowCreate(!showCreate)} icon={<Plus className="h-5 w-5" />}>Add Helper</Button>} 
+        action={
+          <div className="flex gap-2">
+            <label className="cursor-pointer">
+              <span className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-emerald-700">
+                Upload Excel
+              </span>
+              <input type="file" className="hidden" accept=".xlsx" onChange={handleFileUpload} disabled={busy} />
+            </label>
+            <Button type="button" onClick={() => setShowCreate(!showCreate)} icon={<Plus className="h-5 w-5" />}>Add Helper</Button>
+          </div>
+        } 
       />
 
       {showCreate && (

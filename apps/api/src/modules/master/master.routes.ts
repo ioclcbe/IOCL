@@ -2,9 +2,14 @@ import { Router, type Request } from "express";
 import { UserRole } from "@prisma/client";
 import { z } from "zod";
 import { asyncHandler } from "../../lib/async-handler.js";
+import { ApiError } from "../../lib/api-error.js";
 import { authenticate, authorize } from "../../middleware/auth.js";
 import { prisma as db } from "../../lib/prisma.js";
 import { tankTruckSchema, driverSchema, helperSchema } from "@iocl/shared";
+import multer from "multer";
+import ExcelJS from "exceljs";
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 export const masterRouter = Router();
 
@@ -29,7 +34,7 @@ masterRouter.post(
   asyncHandler(async (req, res) => {
     const data = tankTruckSchema.parse(req.body);
     const exists = await db.tankTruck.findUnique({ where: { ttNumber: data.ttNumber } });
-    if (exists) throw new Error("Truck number already exists");
+    if (exists) throw new ApiError(400, "DUPLICATE_TRUCK", "Truck number already exists");
     
     const truck = await db.tankTruck.create({ data: { ttNumber: data.ttNumber, isActive: data.isActive } });
     res.status(201).json({ success: true, data: truck });
@@ -80,7 +85,7 @@ masterRouter.post(
   asyncHandler(async (req, res) => {
     const data = driverSchema.parse(req.body);
     const exists = await db.driver.findUnique({ where: { drivingLicenseNumber: data.drivingLicenseNumber } });
-    if (exists) throw new Error("Driving license number already exists");
+    if (exists) throw new ApiError(400, "DUPLICATE_DRIVER", "Driving license number already exists");
     
     const driver = await db.driver.create({
       data: {
@@ -144,7 +149,7 @@ masterRouter.post(
   asyncHandler(async (req, res) => {
     const data = helperSchema.parse(req.body);
     const exists = await db.helper.findUnique({ where: { helperPassNumber: data.helperPassNumber } });
-    if (exists) throw new Error("Helper pass number already exists");
+    if (exists) throw new ApiError(400, "DUPLICATE_HELPER", "Helper pass number already exists");
     
     const helper = await db.helper.create({
       data: {

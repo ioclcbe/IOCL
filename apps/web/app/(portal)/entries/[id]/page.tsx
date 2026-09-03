@@ -87,7 +87,9 @@ export default function EntryDetailPage() {
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <label className="field-label mb-0">Helper Name</label>
-              <button type="button" onClick={() => setShowHelperScanner(true)} className="flex items-center gap-1 text-[11px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-wider"><ScanLine className="h-3 w-3" /> Scan Pass</button>
+              {user?.role !== "ADMIN" && (
+                <button type="button" onClick={() => setShowHelperScanner(true)} className="flex items-center gap-1 text-[11px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-wider"><ScanLine className="h-3 w-3" /> Scan Pass</button>
+              )}
             </div>
             <input className="field-input" value={String(draft.helperName ?? "")} onChange={(e) => setDraft((curr) => ({ ...curr, helperName: e.target.value }))} />
             {showHelperScanner && (
