@@ -189,3 +189,15 @@ masterRouter.delete(
     res.json({ success: true });
   })
 );
+// ==========================================
+// DESTINATIONS
+// ==========================================
+
+masterRouter.get(
+  "/destinations",
+  authorize(UserRole.ADMIN, UserRole.SUPERVISOR, UserRole.ENTRY_GATE_SECURITY),
+  asyncHandler(async (req, res) => {
+    const destinations = await db.customerDestination.findMany({ where: { isActive: true }, orderBy: { displayOrder: "asc" } });
+    res.json({ success: true, data: destinations });
+  })
+);

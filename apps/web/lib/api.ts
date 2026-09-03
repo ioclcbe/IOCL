@@ -63,7 +63,7 @@ export function setAccessToken(value: string | null) {
     else sessionStorage.removeItem("iocl_access_token");
   }
 }
-function token() {
+export function getAccessToken() {
   if (accessTokenMemory) return accessTokenMemory;
   if (DEMO_MODE && typeof window !== "undefined") return sessionStorage.getItem("iocl_access_token");
   return null;
@@ -103,7 +103,7 @@ async function refreshAccess(): Promise<{ accessToken: string; user: SessionUser
 export async function apiFetch<T = any>(path: string, init: RequestInit = {}, canRefresh = true): Promise<T> {
   const headers = new Headers(init.headers);
   if (init.body) headers.set("content-type", "application/json");
-  const accessToken = token();
+  const accessToken = getAccessToken();
   if (accessToken) headers.set("authorization", `Bearer ${accessToken}`);
   let response: Response;
   try {
@@ -127,7 +127,7 @@ export async function apiFetch<T = any>(path: string, init: RequestInit = {}, ca
 
 async function download(path: string, filename: string) {
   async function run(canRefresh: boolean): Promise<Response> {
-    const accessToken = token();
+    const accessToken = getAccessToken();
     let response: Response;
     try {
       response = await fetch(`${API_URL}${path}`, {
@@ -303,3 +303,5 @@ export async function getMasterHelpers() {
   const res = await apiFetch('/masters/helpers');
   return res;
 }
+
+

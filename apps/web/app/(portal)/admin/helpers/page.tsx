@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { apiFetch } from "../../../../lib/api";
+import { apiFetch, getAccessToken } from "../../../../lib/api";
 import { Button } from "../../../../components/ui/button";
 import { PageHeader } from "../../../../components/ui/page-header";
 
@@ -32,7 +32,7 @@ export default function HelpersPage() {
     formData.append("file", file);
     setBusy(true);
     try {
-      const token = localStorage.getItem("iocl_token");
+      const token = getAccessToken();
       const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/masters/helpers/upload", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -146,3 +146,4 @@ export default function HelpersPage() {
     </div>
   );
 }
+
