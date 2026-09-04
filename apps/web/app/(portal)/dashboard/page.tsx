@@ -114,50 +114,7 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {["ADMIN", "SUPERVISOR"].includes(user?.role || "") && data && (
-            <div className="panel p-0 overflow-hidden">
-              <div className="bg-slate-50 border-b border-slate-100 px-5 py-4">
-                <h2 className="text-sm font-black text-iocl-navy">Daily Volume Outflow (Liters)</h2>
-              </div>
-              <div className="divide-y divide-slate-100">
-                <div className="p-5 grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Petrol</p>
-                    <p className="text-2xl font-black text-iocl-orange">{data.quantities.petrol} L</p>
-                    <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
-                      <div className="flex justify-between border-b border-slate-50 pb-1"><span>MS</span> <span className="font-mono">{data.quantities.ms}</span></div>
-                      <div className="flex justify-between border-b border-slate-50 pb-1"><span>XP95</span> <span className="font-mono">{data.quantities.xpms}</span></div>
-                      <div className="flex justify-between pb-1"><span>EBMS</span> <span className="font-mono">{data.quantities.ebms}</span></div>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Diesel</p>
-                    <p className="text-2xl font-black text-blue-600">{data.quantities.diesel} L</p>
-                    <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
-                      <div className="flex justify-between border-b border-slate-50 pb-1"><span>HSD</span> <span className="font-mono">{data.quantities.hsd}</span></div>
-                      <div className="flex justify-between pb-1"><span>BIO HSD</span> <span className="font-mono">{data.quantities.bioHsd}</span></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 bg-slate-50 grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Other Products</p>
-                    <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
-                      <div className="flex justify-between"><span>SKO</span> <span className="font-mono">{data.quantities.sko}</span></div>
-                      <div className="flex justify-between"><span>FO</span> <span className="font-mono">{data.quantities.fo}</span></div>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">&nbsp;</p>
-                    <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
-                      <div className="flex justify-between"><span>LDO</span> <span className="font-mono">{data.quantities.ldo}</span></div>
-                      <div className="flex justify-between"><span>XG</span> <span className="font-mono">{data.quantities.xg}</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           <div className="panel p-5">
             <div className="flex items-center gap-3">
