@@ -88,7 +88,9 @@ export default function DriversPage() {
         title="Drivers Database" 
         description="Manage the database of valid drivers for manual entry." 
         action={
-          <div className="flex gap-2">
+          <div className="flex items-center gap-4">
+            <span className="text-sm font-semibold text-slate-500">Total Drivers: <span className="font-black text-iocl-navy">{items.length}</span></span>
+            <div className="flex gap-2">
             <label className="cursor-pointer">
               <span className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-emerald-700">
                 Upload Excel
@@ -96,6 +98,7 @@ export default function DriversPage() {
               <input type="file" className="hidden" accept=".xlsx" onChange={handleFileUpload} disabled={busy} />
             </label>
             <Button type="button" onClick={() => setShowCreate(!showCreate)} icon={<Plus className="h-5 w-5" />}>Add Driver</Button>
+            </div>
           </div>
         } 
       />

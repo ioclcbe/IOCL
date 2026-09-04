@@ -89,6 +89,7 @@ export function EntryWizard() {
   const [showHelperPassDrop, setShowHelperPassDrop] = useState(false);
   const [helperDocValidity, setHelperDocValidity] = useState("");
   const [helperDocTt, setHelperDocTt] = useState("");
+  const [helperDocCrewType, setHelperDocCrewType] = useState("");
 
   // Helper mode: "scan" = QR scanner, "manual" = type name+pass
   const [helperMode, setHelperMode] = useState<"scan" | "manual">("manual");
@@ -166,7 +167,9 @@ export function EntryWizard() {
     if (!dName) errs.driverName = "Driver name is required";
     else if (!masterDrivers.find(d => d.name === dName)) errs.driverName = "Only registered drivers can be selected.";
     
-    if (!manualDriver.ttNumberOnPass.trim()) errs.ttNumberOnPass = "Truck number is required";
+    const dTT = manualDriver.ttNumberOnPass.trim().toUpperCase();
+      if (!dTT) errs.ttNumberOnPass = "Truck number is required";
+      else if (!masterTrucks.find(t => t.ttNumber === dTT)) errs.ttNumberOnPass = "Only registered trucks can be selected.";
     
     if (!dDL) errs.drivingLicenseNumber = "DL number is required";
     else if (!masterDrivers.find(d => d.drivingLicenseNumber === dDL)) errs.drivingLicenseNumber = "Invalid registered DL number.";
@@ -420,14 +423,7 @@ export function EntryWizard() {
                   </ManualField>
 
                   
-                    <ManualField label="Crew ID (optional)" error={manualDriverErrors.crewId}>
-                      <input
-                        className="field-input font-mono uppercase"
-                        placeholder="Type Crew ID..."
-                        value={manualDriver.crewId}
-                        onChange={(e) => setManualDriver(p => ({ ...p, crewId: e.target.value.toUpperCase() }))}
-                      />
-                    </ManualField>
+
 
                     <ManualField label="TT Number on Pass *" error={manualDriverErrors.ttNumberOnPass}>
                     <input
@@ -501,6 +497,7 @@ export function EntryWizard() {
                               setValue("helperPassNumber", h.helperPassNumber, { shouldValidate: true });
                               setHelperDocValidity(h.passValidUntil ? new Date(h.passValidUntil).toISOString().slice(0, 10) : "");
                               setHelperDocTt(h.defaultTruckNumber || "");
+                              setHelperDocCrewType(h.crewType || "Helper");
                               setShowHelperNameDrop(false);
                             }}>
                               <div className="font-bold text-sm text-iocl-navy">{h.name}</div>
@@ -532,6 +529,7 @@ export function EntryWizard() {
                               setValue("helperPassNumber", h.helperPassNumber, { shouldValidate: true });
                               setHelperDocValidity(h.passValidUntil ? new Date(h.passValidUntil).toISOString().slice(0, 10) : "");
                               setHelperDocTt(h.defaultTruckNumber || "");
+                              setHelperDocCrewType(h.crewType || "Helper");
                               setShowHelperPassDrop(false);
                             }}>
                               <div className="font-bold text-sm text-iocl-navy">{h.helperPassNumber}</div>
@@ -544,9 +542,7 @@ export function EntryWizard() {
                   </Field>
                   
                   {/* Visual non-editable fields requested by user */}
-                  <Field label="Crew Type">
-                    <input readOnly className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value="Helper" />
-                  </Field>
+                  
                   
                   <Field label="TT No">
                     <input readOnly className="field-input bg-slate-100 cursor-not-allowed text-slate-600 font-mono uppercase" value={helperDocTt} placeholder="-" />
@@ -559,10 +555,8 @@ export function EntryWizard() {
               </>}
             </div>
 
-            <Field label="Remarks" error={errors.remarks?.message} className="lg:col-span-2">
-              <textarea {...register("remarks")} className="field-textarea" placeholder="Operational notes" />
-            </Field>
-            {!ttMatch ? <div className="lg:col-span-2 flex gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><Info className="mt-0.5 h-5 w-5 shrink-0" /><div><p className="font-black">TT mismatch is flagged for review</p><p className="mt-1 text-xs leading-5">Both numbers are preserved in the audit trail. Record the physical verification reason in Remarks.</p></div></div> : null}
+            
+            {!ttMatch ? <div className="lg:col-span-2 flex gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><Info className="mt-0.5 h-5 w-5 shrink-0" /><div><p className="font-black">TT mismatch is flagged for review</p><p className="mt-1 text-xs leading-5">Both numbers are preserved in the audit trail.</p></div></div> : null}
           </div> : null}
 
           {/* ─── STEP 2: SAFETY CHECK ────────────────────────────────── */}

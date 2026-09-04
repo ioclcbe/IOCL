@@ -335,16 +335,36 @@ masterRouter.post(
     if (rows.length < 2) throw new ApiError(400, "NO_DATA", "The uploaded Excel file has no data rows");
 
     const headers = rows[1] || [];
-    let nameIdx = -1, passIdx = -1;
+    let nameIdx = -1, passIdx = -1, crewIdIdx = -1, crewTypeIdx = -1, passExpIdx = -1, ttIdx = -1;
     for (let i = 1; i < headers.length; i++) {
       const h = String(headers[i] || "").toLowerCase().replace(/[^a-z0-9]/g, "");
       if (h.includes("name")) nameIdx = i;
+      else if (h.includes("crew") && h.includes("type")) crewTypeIdx = i;
+      else if (h.includes("crew") && h.includes("id")) crewIdIdx = i;
+      else if (h.includes("exp") || h.includes("valid") || h.includes("upto")) passExpIdx = i;
+      else if (h.includes("truck") || h.includes("tt") || h.includes("vehicle")) ttIdx = i;
       else if (h.includes("pass") || h.includes("id") || h.includes("num") || h.includes("no")) passIdx = i;
     }
 
     if (nameIdx === -1 || passIdx === -1) {
-      throw new ApiError(400, "INVALID_FORMAT", "Excel must contain columns for Name and Pass Number");
+      throw new ApiError(400, "INVALID_FORMAT", "Excel must contain at least Name and Helper Pass Number columns");
     }
+
+    const parseDate = (val: any) => {
+      if (!val) return null;
+      if (val instanceof Date) return val;
+      if (val && typeof val === "object" && val.result) val = val.result;
+      if (val instanceof Date) return val;
+      if (typeof val === "number") return new Date(Math.round((val - 25569) * 86400 * 1000));
+      const s = String(val).trim();
+      if (!s) return null;
+      const parts = s.split(/[\/-]/);
+      if (parts.length === 3) {
+        if (parts[0]?.length === 4) return new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
+        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+      }
+      return new Date(s);
+    };
 
     const dataToInsert = [];
     for (let r = 2; r < rows.length; r++) {
@@ -352,12 +372,20 @@ masterRouter.post(
       if (!row) continue;
       const name = String(row[nameIdx] || "").trim();
       const passNumber = String(row[passIdx] || "").trim().toUpperCase();
-
       if (!name || !passNumber) continue;
+
+      const crewId = crewIdIdx !== -1 && row[crewIdIdx] ? String(row[crewIdIdx]).trim() : null;
+      const crewType = crewTypeIdx !== -1 && row[crewTypeIdx] ? String(row[crewTypeIdx]).trim() : null;
+      const passValidUntil = passExpIdx !== -1 ? parseDate(row[passExpIdx]) : null;
+      const defaultTruckNumber = ttIdx !== -1 && row[ttIdx] ? String(row[ttIdx]).trim().toUpperCase() : null;
 
       dataToInsert.push({
         name,
         helperPassNumber: passNumber,
+        crewId,
+        crewType,
+        passValidUntil,
+        defaultTruckNumber,
         isActive: true
       });
     }
