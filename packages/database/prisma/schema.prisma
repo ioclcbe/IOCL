@@ -172,6 +172,8 @@ model Helper {
   helperPassNumber   String    @unique @db.VarChar(50)
   passValidUntil     DateTime? @db.Date
   defaultTruckNumber String?   @db.VarChar(20)
+  crewId             String?   @db.VarChar(50)
+  crewType           String?   @db.VarChar(50)
   isActive           Boolean   @default(true)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
