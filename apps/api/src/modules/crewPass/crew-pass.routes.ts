@@ -81,12 +81,13 @@ const manualPassSchema = z.object({
   drivingLicenseExpiryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format"),
   passValidUntil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format"),
   crewType: z.enum(["DRIVER", "DRIVER_WITH_HELPER", "CONTRACT_CREW"]).default("DRIVER"),
+  crewId: z.string().trim().optional(),
 }).strict();
 
 crewPassRouter.post("/manual", validateBody(manualPassSchema), asyncHandler(async (req, res) => {
   const body = req.body as z.infer<typeof manualPassSchema>;
   // Use M-{TRUCKNO} as crewId so same truck coming in again same day is properly blocked
-  const crewId = `M-${body.ttNumberOnPass}`;
+  const crewId = body.crewId || `M-${body.ttNumberOnPass}`;
   // Unique token: based on crewId so same manual record upserts cleanly
   const qrToken = `MANUAL:${crewId}`;
   const dlExpiry = new Date(body.drivingLicenseExpiryDate);

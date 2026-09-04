@@ -65,6 +65,7 @@ const defaultManualDriver = {
   drivingLicenseExpiryDate: "",
   passValidUntil: "",
   crewType: "DRIVER" as "DRIVER" | "DRIVER_WITH_HELPER" | "CONTRACT_CREW",
+  crewId: "",
 };
 
 export function EntryWizard() {
@@ -369,6 +370,8 @@ export function EntryWizard() {
                                 drivingLicenseExpiryDate: new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10),
                                 passValidUntil: new Date(d.passValidUntil).toISOString().slice(0, 10),
                                 ttNumberOnPass: d.defaultTruckNumber || p.ttNumberOnPass,
+                                crewId: d.crewId || p.crewId,
+                                crewType: (d.crewType as any) || p.crewType,
                               }));
                               setShowDriverNameDrop(false);
                             }}>
@@ -402,6 +405,8 @@ export function EntryWizard() {
                                 drivingLicenseExpiryDate: new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10),
                                 passValidUntil: new Date(d.passValidUntil).toISOString().slice(0, 10),
                                 ttNumberOnPass: d.defaultTruckNumber || p.ttNumberOnPass,
+                                crewId: d.crewId || p.crewId,
+                                crewType: (d.crewType as any) || p.crewType,
                               }));
                               setShowDriverDlDrop(false);
                             }}>
@@ -414,7 +419,17 @@ export function EntryWizard() {
                     </div>
                   </ManualField>
 
-                  <ManualField label="TT Number on Pass *" error={manualDriverErrors.ttNumberOnPass}>
+                  
+                    <ManualField label="Crew ID (optional)" error={manualDriverErrors.crewId}>
+                      <input
+                        className="field-input font-mono uppercase"
+                        placeholder="Type Crew ID..."
+                        value={manualDriver.crewId}
+                        onChange={(e) => setManualDriver(p => ({ ...p, crewId: e.target.value.toUpperCase() }))}
+                      />
+                    </ManualField>
+
+                    <ManualField label="TT Number on Pass *" error={manualDriverErrors.ttNumberOnPass}>
                     <input
                       readOnly
                       className="field-input bg-slate-100 cursor-not-allowed text-slate-600 font-mono uppercase"

@@ -194,7 +194,7 @@ masterRouter.post(
     if (rows.length < 2) throw new ApiError(400, "NO_DATA", "The uploaded Excel file has no data rows");
 
     const headers = rows[1] || [];
-    let nameIdx = -1, dlIdx = -1, dlExpIdx = -1, passExpIdx = -1, ttIdx = -1;
+    let nameIdx = -1, dlIdx = -1, dlExpIdx = -1, passExpIdx = -1, ttIdx = -1, crewIdIdx = -1, crewTypeIdx = -1;
     for (let i = 1; i < headers.length; i++) {
       const h = String(headers[i] || "").toLowerCase().replace(/[^a-z0-9]/g, "");
       if (h.includes("name")) nameIdx = i;
@@ -202,6 +202,8 @@ masterRouter.post(
       else if (h.includes("pass") || h.includes("valid") || h.includes("upto")) passExpIdx = i;
       else if (h.includes("dl") || h.includes("lic")) dlIdx = i;
         else if (h.includes("truck") || h.includes("tt") || h.includes("vehicle")) ttIdx = i;
+        else if (h.includes("crew") && h.includes("id")) crewIdIdx = i;
+        else if (h.includes("crew") && h.includes("type")) crewTypeIdx = i;
     }
 
     if (nameIdx === -1 || dlIdx === -1 || dlExpIdx === -1 || passExpIdx === -1) {
@@ -217,6 +219,8 @@ masterRouter.post(
       const rawDlExp = row[dlExpIdx];
       const rawPassExp = row[passExpIdx];
         const defaultTruckNumber = ttIdx !== -1 && row[ttIdx] ? String(row[ttIdx]).trim().toUpperCase() : null;
+        const crewId = crewIdIdx !== -1 && row[crewIdIdx] ? String(row[crewIdIdx]).trim() : null;
+        const crewType = crewTypeIdx !== -1 && row[crewTypeIdx] ? String(row[crewTypeIdx]).trim() : null;
 
       if (!name || !dlNumber || !rawDlExp || !rawPassExp) continue;
 
@@ -238,6 +242,8 @@ masterRouter.post(
           drivingLicenseExpiryDate: parseDate(rawDlExp),
           passValidUntil: parseDate(rawPassExp),
           defaultTruckNumber: defaultTruckNumber || null,
+          crewId: crewId || null,
+          crewType: crewType || null,
           isActive: true
         });
       } catch {

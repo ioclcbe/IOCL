@@ -176,6 +176,7 @@ export async function createManualCrewPass(input: {
   drivingLicenseExpiryDate: string;
   passValidUntil: string;
   crewType: string;
+  crewId?: string;
 }): Promise<CrewPass> {
   if (DEMO_MODE) throw new ApiClientError("Manual driver entry is not available in demo mode", "DEMO_MANUAL_DISABLED");
   return apiFetch<CrewPass>("/crew-passes/manual", { method: "POST", body: JSON.stringify(input) });
