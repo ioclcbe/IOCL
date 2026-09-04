@@ -66,6 +66,54 @@ masterRouter.delete(
 );
 
 
+
+masterRouter.post(
+  "/trucks/upload",
+  authorize(UserRole.ADMIN),
+  upload.single("file"),
+  asyncHandler(async (req, res) => {
+    if (!req.file) throw new ApiError(400, "NO_FILE", "Please upload an Excel file");
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(req.file.buffer);
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) throw new ApiError(400, "EMPTY_FILE", "The uploaded Excel file is empty");
+
+    const rows = worksheet.getSheetValues() as any[][];
+    if (rows.length < 2) throw new ApiError(400, "NO_DATA", "The uploaded Excel file has no data rows");
+
+    const headers = rows[1] || [];
+    let ttIdx = -1;
+    for (let i = 1; i < headers.length; i++) {
+      const h = String(headers[i] || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (h.includes("truck") || h.includes("tt") || h.includes("vehicle")) ttIdx = i;
+    }
+
+    if (ttIdx === -1) {
+      throw new ApiError(400, "INVALID_FORMAT", "Excel must contain a column for Truck Number (e.g. TT Number)");
+    }
+
+    const dataToInsert = [];
+    for (let r = 2; r < rows.length; r++) {
+      const row = rows[r];
+      if (!row) continue;
+      const ttNumber = String(row[ttIdx] || "").trim().toUpperCase();
+      if (!ttNumber || ttNumber.length < 4) continue;
+
+      dataToInsert.push({
+        ttNumber,
+        isActive: true
+      });
+    }
+
+    const result = await db.tankTruck.createMany({
+      data: dataToInsert,
+      skipDuplicates: true
+    });
+
+    res.json({ success: true, inserted: result.count });
+  })
+);
+
 // ==========================================
 // DRIVERS
 // ==========================================

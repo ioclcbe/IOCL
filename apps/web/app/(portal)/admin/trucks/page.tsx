@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { apiFetch } from "../../../../lib/api";
+import { apiFetch, getAccessToken } from "../../../../lib/api";
 import { Button } from "../../../../components/ui/button";
 import { PageHeader } from "../../../../components/ui/page-header";
 import { Badge } from "../../../../components/ui/badge";
@@ -25,6 +25,35 @@ export default function TrucksPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    setBusy(true);
+    try {
+      const token = getAccessToken();
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + "/masters/trucks/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Successfully imported ${data.inserted} trucks`);
+        load();
+      } else {
+        toast.error(data.error?.message || "Upload failed");
+      }
+    } catch (e) {
+      toast.error("Upload failed");
+    } finally {
+      setBusy(false);
+      e.target.value = ""; // Reset input
+    }
+  }
+
 
   async function addTruck() {
     if (!ttNumber.trim()) return toast.error("Enter a truck number");
@@ -56,7 +85,19 @@ export default function TrucksPage() {
         eyebrow="Admin · Master Data" 
         title="Tank Trucks" 
         description="Manage the database of valid tank trucks for manual entry." 
-        action={<Button type="button" onClick={() => setShowCreate(!showCreate)} icon={<Plus className="h-5 w-5" />}>Add Truck</Button>} 
+        
+        action={
+          <div className="flex gap-2">
+            <label className="cursor-pointer">
+              <span className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-emerald-700">
+                Upload Excel
+              </span>
+              <input type="file" className="hidden" accept=".xlsx" onChange={handleFileUpload} disabled={busy} />
+            </label>
+            <Button type="button" onClick={() => setShowCreate(!showCreate)} icon={<Plus className="h-5 w-5" />}>Add Truck</Button>
+          </div>
+        }
+ 
       />
 
       {showCreate && (

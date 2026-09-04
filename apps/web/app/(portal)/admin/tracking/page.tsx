@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { GateEntryRecord } from "@iocl/shared";
+import type { GateEntryRecord, DashboardSummary } from "@iocl/shared";
 import { ArrowDownToLine, ArrowUpFromLine, RefreshCw, Truck } from "lucide-react";
 import { toast } from "sonner";
-import { listEntries } from "../../../../lib/api";
+import { listEntries, getDashboard } from "../../../../lib/api";
 import { formatIndiaDate, formatIndiaTime, todayIndiaKey } from "../../../../lib/utils";
 import { PageHeader } from "../../../../components/ui/page-header";
 import { Button } from "../../../../components/ui/button";
@@ -13,6 +13,7 @@ import { Badge } from "../../../../components/ui/badge";
 export default function LiveTrackingPage() {
   const [inEntries, setInEntries] = useState<GateEntryRecord[]>([]);
   const [outEntries, setOutEntries] = useState<GateEntryRecord[]>([]);
+  const [summaryData, setSummaryData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function load() {
@@ -20,13 +21,15 @@ export default function LiveTrackingPage() {
     try {
       const today = todayIndiaKey();
       // Fetch both IN and OUT status. The backend typically defaults to today's date
-      const [inRes, outRes] = await Promise.all([
+      const [inRes, outRes, dashRes] = await Promise.all([
         listEntries({ status: "IN", pageSize: 100, dateFrom: today, dateTo: today }),
-        listEntries({ status: "OUT", pageSize: 100, dateFrom: today, dateTo: today })
+        listEntries({ status: "OUT", pageSize: 100, dateFrom: today, dateTo: today }),
+        getDashboard()
       ]);
       
       setInEntries(inRes.items || []);
       setOutEntries(outRes.items || []);
+      setSummaryData(dashRes);
     } catch (err) {
       toast.error("Failed to load tracking data");
     } finally {
@@ -71,6 +74,53 @@ export default function LiveTrackingPage() {
         description={`Monitoring live gate activity for ${formatIndiaDate(new Date())}`}
         action={<Button onClick={load} loading={loading} icon={<RefreshCw className="h-4 w-4" />}>Refresh Data</Button>}
       />
+
+      
+      {summaryData && (
+        <div className="panel p-0 overflow-hidden mt-6">
+          <div className="bg-slate-50 border-b border-slate-100 px-5 py-4">
+            <h2 className="text-sm font-black text-iocl-navy">Daily Volume Outflow (Liters)</h2>
+          </div>
+          <div className="divide-y divide-slate-100">
+            <div className="p-5 grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Petrol</p>
+                <p className="text-2xl font-black text-iocl-orange">{summaryData.quantities.petrol} L</p>
+                <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
+                  <div className="flex justify-between border-b border-slate-50 pb-1"><span>MS</span> <span className="font-mono">{summaryData.quantities.ms}</span></div>
+                  <div className="flex justify-between border-b border-slate-50 pb-1"><span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms}</span></div>
+                  <div className="flex justify-between pb-1"><span>EBMS</span> <span className="font-mono">{summaryData.quantities.ebms}</span></div>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Diesel</p>
+                <p className="text-2xl font-black text-blue-600">{summaryData.quantities.diesel} L</p>
+                <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
+                  <div className="flex justify-between border-b border-slate-50 pb-1"><span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span></div>
+                  <div className="flex justify-between pb-1"><span>BIO HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd}</span></div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 bg-slate-50 grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Other Products</p>
+                <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
+                  <div className="flex justify-between"><span>SKO</span> <span className="font-mono">{summaryData.quantities.sko}</span></div>
+                  <div className="flex justify-between"><span>FO</span> <span className="font-mono">{summaryData.quantities.fo}</span></div>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">&nbsp;</p>
+                <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
+                  <div className="flex justify-between"><span>LDO</span> <span className="font-mono">{summaryData.quantities.ldo}</span></div>
+                  <div className="flex justify-between"><span>XG</span> <span className="font-mono">{summaryData.quantities.xg}</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       <div className="grid gap-6 lg:grid-cols-2 mt-4">
         {/* IN-GATE PANEL */}
