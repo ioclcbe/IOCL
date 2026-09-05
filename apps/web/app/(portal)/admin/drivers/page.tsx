@@ -57,25 +57,9 @@ export default function DriversPage() {
     }
   }
 
-  function parseDate(input: string) {
-    const parts = input.split(/[-/]/);
-    if (parts.length === 3 && parts[2] && parts[1] && parts[0] && parts[2].length === 4) {
-      return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-    }
-    return input;
-  }
+  
 
-  const handleDateInput = (val: string, field: 'drivingLicenseExpiryDate' | 'passValidUntil') => {
-    const digits = val.replace(/\D/g, '').substring(0, 8);
-    let formatted = digits;
-    if (digits.length > 4) {
-      formatted = `${digits.substring(0,2)}-${digits.substring(2,4)}-${digits.substring(4)}`;
-    } else if (digits.length > 2) {
-      formatted = `${digits.substring(0,2)}-${digits.substring(2)}`;
-    }
-    setForm(prev => ({ ...prev, [field]: formatted }));
-  };
-
+  
   async function addDriver() {
     if (!form.name || !form.drivingLicenseNumber || !form.drivingLicenseExpiryDate || !form.passValidUntil) {
       return toast.error("Please fill all fields");
@@ -157,8 +141,8 @@ export default function DriversPage() {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label><span className="field-label">Driver Name</span><input className="field-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="RAMESH KUMAR" /></label>
             <label><span className="field-label">DL Number</span><input className="field-input" value={form.drivingLicenseNumber} onChange={(e) => setForm({ ...form, drivingLicenseNumber: e.target.value })} placeholder="TN7420210005690" /></label>
-            <label><span className="field-label">DL Expiry Date </span><input type="text" inputMode="numeric" className="field-input" value={form.drivingLicenseExpiryDate} onChange={(e) => setForm({ ...form, drivingLicenseExpiryDate: e.target.value })} placeholder="31-12-2025" /></label>
-            <label><span className="field-label">Pass Valid Until </span><input type="text" inputMode="numeric" className="field-input" value={form.passValidUntil} onChange={(e) => setForm({ ...form, passValidUntil: e.target.value })} placeholder="31-12-2025" /></label>
+            <label><span className="field-label">DL Expiry Date </span><input type="text" inputMode="text" className="field-input" value={form.drivingLicenseExpiryDate} onChange={(e) => setForm({ ...form, drivingLicenseExpiryDate: e.target.value })} placeholder="e.g. 31-12-2025 or Any text" /></label>
+            <label><span className="field-label">Pass Valid Until </span><input type="text" inputMode="text" className="field-input" value={form.passValidUntil} onChange={(e) => setForm({ ...form, passValidUntil: e.target.value })} placeholder="e.g. 31-12-2025 or Any text" /></label>
             <label className="md:col-span-2"><span className="field-label">Crew ID (Optional)</span><input type="text" className="field-input uppercase" value={form.crewId} onChange={(e) => setForm({ ...form, crewId: e.target.value.toUpperCase() })} placeholder="e.g. M-TN74AZ8730" /></label>
           </div>
           <div className="mt-5 flex gap-2">
