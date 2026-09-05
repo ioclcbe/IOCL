@@ -430,11 +430,11 @@ export function EntryWizard() {
                   </ManualField>
 
                   <ManualField label="DL Expiry Date *" error={manualDriverErrors.drivingLicenseExpiryDate}>
-                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.drivingLicenseExpiryDate} />
+                    <input readOnly type="text" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.drivingLicenseExpiryDate} />
                   </ManualField>
 
                   <ManualField label="Pass Valid Until *" error={manualDriverErrors.passValidUntil}>
-                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.passValidUntil} />
+                    <input readOnly type="text" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.passValidUntil} />
                   </ManualField>
                 </div>
                 {(!manualDriver.drivingLicenseExpiryDate || !manualDriver.passValidUntil) && (
@@ -553,7 +553,7 @@ export function EntryWizard() {
                   </Field>
                   
                   <Field label="Pass Valid Upto">
-                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={helperDocValidity} />
+                    <input readOnly type="text" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={helperDocValidity} />
                   </Field>
                 </div>
               </>}
