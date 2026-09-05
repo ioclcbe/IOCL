@@ -48,10 +48,11 @@ function useEntriesPanel(status?: "IN" | "OUT") {
   return { entries, search, setSearch, loading, error, reload: () => setReload((v) => v + 1) };
 }
 
-function EntryRow({ entry, panel }: { entry: GateEntryRecord, panel: "in" | "out" | null }) {
-  // If we are in the IN panel, always display it as an IN record (blue LogIn icon) to represent the entry event.
-  // Otherwise, use the actual current status.
-  const isInView = panel === "in" || entry.status === "IN";
+function EntryRow({ entry, panel }: { entry: GateEntryRecord; panel: "in" | "out" | null }) {
+  // IN panel: always show blue "IN" arrow regardless of current status — this is the entry log
+  // OUT panel: always show green "OUT" arrow — this is the exit log
+  const isInView = panel === "in";
+
   return (
     <Link
       href={`/entries/${entry.id}`}
@@ -65,15 +66,15 @@ function EntryRow({ entry, panel }: { entry: GateEntryRecord, panel: "in" | "out
         <p className="truncate text-xs text-slate-500">{entry.driverName}</p>
         <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] text-slate-400">
           <Clock3 className="h-3 w-3 shrink-0" />
-          <span className="whitespace-nowrap">{formatIndiaTime(entry.timeIn)}</span>
-          {entry.timeOut && panel !== "in" ? <><span className="shrink-0">→</span><span className="whitespace-nowrap">{formatIndiaTime(entry.timeOut)}</span></> : null}
+          {/* IN panel shows entry time; OUT panel shows exit time */}
+          <span className="whitespace-nowrap">{isInView ? formatIndiaTime(entry.timeIn) : formatIndiaTime(entry.timeOut ?? entry.timeIn)}</span>
           <span className="ml-1 text-slate-300 shrink-0">•</span>
           <span className="whitespace-nowrap">{formatIndiaDate(entry.entryDate)}</span>
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
         {entry.invoiceNumber ? (
-          <Badge tone="slate">Inv: ...{entry.invoiceNumber.slice(-4)}</Badge>
+          <Badge tone={isInView ? "slate" : "green"}>Inv: ...{entry.invoiceNumber.slice(-4)}</Badge>
         ) : null}
         <p className="text-[10px] font-bold text-slate-400">{entry.displaySerial}</p>
       </div>
