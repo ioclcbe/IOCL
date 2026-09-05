@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { IN_GATE_SAFETY_ITEMS, type GateEntryRecord, type SafetyCheckKey, type UpdateGateEntryInput } from "@iocl/shared";
 import { AlertTriangle, ArrowLeft, CalendarDays, CheckCircle2, Clock3, Edit3, FileLock2, Printer, RefreshCw, Save, ShieldCheck, Truck, UserRound, X, ScanLine } from "lucide-react";
@@ -16,6 +16,8 @@ import { QRScanner } from "../../../../components/entry/qr-scanner";
 
 export default function EntryDetailPage() {
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const fromPanel = searchParams.get("from"); // "in" | "out" | null
   const { user } = useAuth();
   const [entry, setEntry] = useState<GateEntryRecord | null>(null);
   const [loadError, setLoadError] = useState("");
@@ -41,11 +43,13 @@ export default function EntryDetailPage() {
       user?.role === "ADMIN" ||
       user?.role === "SUPERVISOR" ||
       (user?.role === "ENTRY_GATE_SECURITY" && entry.status === "IN") ||
-      (user?.role === "EXIT_GATE_SECURITY" && entry.status === "OUT")
+      // EXIT_GATE_SECURITY can only edit OUT records AND only when coming from the OUT panel
+      // If they clicked a record from the IN panel (fromPanel === "in"), deny even if status is OUT
+      (user?.role === "EXIT_GATE_SECURITY" && entry.status === "OUT" && fromPanel !== "in")
     )
   );
   // OUT quantities can only be edited by exit gate or above — never by entry gate security
-  const canEditOut = entry?.status === "OUT" && (user?.role === "EXIT_GATE_SECURITY" || user?.role === "ADMIN" || user?.role === "SUPERVISOR");
+  const canEditOut = entry?.status === "OUT" && (user?.role === "EXIT_GATE_SECURITY" || user?.role === "ADMIN" || user?.role === "SUPERVISOR") && fromPanel !== "in";
   // Show a clear "locked" explanation when a security guard opens a record outside their gate
   const isLockedForRole = Boolean(
     entry && !entry.isDeleted && !canEditOperational &&
@@ -87,11 +91,15 @@ export default function EntryDetailPage() {
           <p className="font-black">
             {user?.role === "ENTRY_GATE_SECURITY"
               ? "You can only edit IN-Gate records"
+              : fromPanel === "in"
+              ? "This record is shown in the IN-Gate log"
               : "You can only edit OUT-Gate records"}
           </p>
           <p className="mt-1 text-xs text-amber-700">
             {user?.role === "ENTRY_GATE_SECURITY"
               ? "This vehicle has already exited the facility. OUT records can only be corrected by Exit Gate Security or Supervisors."
+              : fromPanel === "in"
+              ? "You are viewing this record from the IN-Gate log. To edit exit details, open it from the OUT-Gate Records tab."
               : "This vehicle is still inside the facility. IN records can only be edited by Entry Gate Security or Supervisors."}
           </p>
         </div>

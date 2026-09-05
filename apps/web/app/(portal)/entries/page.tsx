@@ -55,7 +55,7 @@ function EntryRow({ entry, panel }: { entry: GateEntryRecord; panel: "in" | "out
 
   return (
     <Link
-      href={`/entries/${entry.id}`}
+      href={`/entries/${entry.id}${panel ? `?from=${panel}` : ""}`}
       className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-sm"
     >
       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isInView ? "bg-blue-50 text-blue-600" : "bg-emerald-50 text-emerald-600"} transition group-hover:bg-iocl-orange group-hover:text-white`}>
