@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowDownToLine,
@@ -61,6 +61,7 @@ function Clock() {
 export function PortalShell({ children }: { children: React.ReactNode }) {
   const { user, ready, logout } = useAuth();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [online, setOnline] = useState(true);
@@ -116,7 +117,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
           <nav className="relative mt-5 flex-1 space-y-1.5 overflow-y-auto px-4" aria-label="Primary navigation">
             {visibleNav.map((item) => {
               const [itemPath, itemQuery] = item.href.split("?");
-              const activeExact = pathname === itemPath && (!itemQuery || (typeof window !== "undefined" && window.location.search === `?${itemQuery}`));
+              const activeExact = pathname === itemPath && (!itemQuery || searchParams.toString() === itemQuery);
               const activeFuzzy = !itemQuery && item.href !== "/dashboard" && pathname.startsWith(item.href);
               const active = activeExact || activeFuzzy;
               const Icon = item.icon;
@@ -147,8 +148,11 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
           .filter(item => !(user?.role === "ENTRY_GATE_SECURITY" && item.href === "/dashboard"))
           .slice(0, 3)
           .map((item) => { 
+            const [itemPath, itemQuery] = item.href.split("?");
+            const activeExact = pathname === itemPath && (!itemQuery || searchParams.toString() === itemQuery);
+            const activeFuzzy = !itemQuery && item.href !== "/dashboard" && pathname.startsWith(item.href);
+            const active = activeExact || activeFuzzy;
             const Icon = item.icon; 
-            const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href)); 
             return <Link key={item.href} href={item.href} className={cn("flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-bold", active ? "bg-iocl-orange text-white" : "text-slate-500")}><Icon className="h-5 w-5" />{item.label.replace("Gate ", "")}</Link>; 
           })}
       </nav>

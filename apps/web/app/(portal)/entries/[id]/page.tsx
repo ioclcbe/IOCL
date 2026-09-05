@@ -41,7 +41,7 @@ export default function EntryDetailPage() {
       user?.role === "ADMIN" ||
       user?.role === "SUPERVISOR" ||
       (user?.role === "ENTRY_GATE_SECURITY" && entry.status === "IN") ||
-      user?.role === "EXIT_GATE_SECURITY"
+      (user?.role === "EXIT_GATE_SECURITY" && entry.status === "OUT")
     )
   );
   const canEditOut = entry?.status === "OUT" && user?.role !== "ENTRY_GATE_SECURITY";

@@ -61,12 +61,12 @@ function EntryRow({ entry }: { entry: GateEntryRecord }) {
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-black tracking-wide text-iocl-navy">{entry.actualTankTruckNumber}</p>
         <p className="truncate text-xs text-slate-500">{entry.driverName}</p>
-        <div className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-400">
-          <Clock3 className="h-3 w-3" />
-          <span>{formatIndiaTime(entry.timeIn)}</span>
-          {entry.timeOut ? <><span>→</span><span>{formatIndiaTime(entry.timeOut)}</span></> : null}
-          <span className="ml-1 text-slate-300">·</span>
-          <span>{formatIndiaDate(entry.entryDate)}</span>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] text-slate-400">
+          <Clock3 className="h-3 w-3 shrink-0" />
+          <span className="whitespace-nowrap">{formatIndiaTime(entry.timeIn)}</span>
+          {entry.timeOut ? <><span className="shrink-0">→</span><span className="whitespace-nowrap">{formatIndiaTime(entry.timeOut)}</span></> : null}
+          <span className="ml-1 text-slate-300 shrink-0">•</span>
+          <span className="whitespace-nowrap">{formatIndiaDate(entry.entryDate)}</span>
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
