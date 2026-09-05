@@ -388,37 +388,11 @@ export function EntryWizard() {
                   </ManualField>
 
                   <ManualField label="Driving License Number *" error={manualDriverErrors.drivingLicenseNumber}>
-                    <div className="relative">
-                      <input
-                        className="field-input uppercase"
-                        placeholder="Type DL..."
-                        value={manualDriver.drivingLicenseNumber}
-                        onFocus={() => setShowDriverDlDrop(true)}
-                        onBlur={() => setTimeout(() => setShowDriverDlDrop(false), 200)}
-                        onChange={(e) => setManualDriver((p) => ({ ...p, drivingLicenseNumber: e.target.value.toUpperCase() }))}
-                      />
-                      {showDriverDlDrop && manualDriver.drivingLicenseNumber.length > 0 && (
-                        <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl">
-                          {masterDrivers.filter(d => d.drivingLicenseNumber.includes(manualDriver.drivingLicenseNumber)).map(d => (
-                            <li key={`dl-${d.id}`} className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0" onClick={() => {
-                              setManualDriver(p => ({
-                                ...p,
-                                driverName: d.name,
-                                drivingLicenseNumber: d.drivingLicenseNumber,
-                                drivingLicenseExpiryDate: new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10),
-                                passValidUntil: new Date(d.passValidUntil).toISOString().slice(0, 10),
-                                crewId: d.crewId || p.crewId,
-                                crewType: (d.crewType as any) || p.crewType,
-                              }));
-                              setShowDriverDlDrop(false);
-                            }}>
-                              <div className="font-bold text-sm text-iocl-navy">{d.drivingLicenseNumber}</div>
-                              <div className="text-[10px] font-mono text-slate-500">Name: {d.name}</div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
+                    <input
+                      readOnly
+                      className="field-input bg-slate-100 cursor-not-allowed text-slate-600 uppercase"
+                      value={manualDriver.drivingLicenseNumber}
+                    />
                   </ManualField>
 
                   
@@ -450,21 +424,11 @@ export function EntryWizard() {
                   </ManualField>
 
                   <ManualField label="DL Expiry Date *" error={manualDriverErrors.drivingLicenseExpiryDate}>
-                    <input
-                      type="date"
-                      className="field-input text-slate-700 focus:border-iocl-orange"
-                      value={manualDriver.drivingLicenseExpiryDate}
-                      onChange={(e) => setManualDriver((p) => ({ ...p, drivingLicenseExpiryDate: e.target.value }))}
-                    />
+                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.drivingLicenseExpiryDate} />
                   </ManualField>
 
                   <ManualField label="Pass Valid Until *" error={manualDriverErrors.passValidUntil}>
-                    <input
-                      type="date"
-                      className="field-input text-slate-700 focus:border-iocl-orange"
-                      value={manualDriver.passValidUntil}
-                      onChange={(e) => setManualDriver((p) => ({ ...p, passValidUntil: e.target.value }))}
-                    />
+                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.passValidUntil} />
                   </ManualField>
                 </div>
                 <Button type="button" loading={resolving} onClick={() => void submitManualDriver()} className="mt-4">Verify & Save Driver Details</Button>
