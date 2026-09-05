@@ -98,7 +98,7 @@ gateEntryRouter.get(
       entry.qtySko ?? "", entry.qtyXg ?? "", entry.qtyBioHsd ?? "", entry.qtyFo ?? "", entry.qtyLdo ?? "",
       entry.lockNumber ?? "",
       entry.driverName, entry.crewId, entry.drivingLicenseNumber,
-      entry.drivingLicenseExpiryDate.toISOString().slice(0, 10), entry.passValidUntil.toISOString().slice(0, 10), entry.ttNumberOnPass,
+      entry.drivingLicenseExpiryDate?.toISOString().slice(0, 10) ?? "", entry.passValidUntil?.toISOString().slice(0, 10) ?? "", entry.ttNumberOnPass,
       entry.ttNumberMatch ? "YES" : "NO",
       entry.helperName ?? "", maskPlaceholder(entry.helperPassNumber), entry.driverSignatureConfirmed ? "CONFIRMED" : "NOT CONFIRMED",
       entry.invoiceNumber ?? "", entry.invoiceDate?.toISOString().slice(0, 10) ?? "",

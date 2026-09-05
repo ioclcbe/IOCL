@@ -114,8 +114,8 @@ export const driverSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(3).max(120),
   drivingLicenseNumber: z.string().trim().min(5).max(40),
-  drivingLicenseExpiryDate: isoDateSchema,
-  passValidUntil: isoDateSchema,
+  drivingLicenseExpiryDate: isoDateSchema.optional().nullable(),
+  passValidUntil: isoDateSchema.optional().nullable(),
   crewId: z.string().trim().optional(),
   isActive: z.boolean().default(true),
 });

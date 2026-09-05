@@ -153,8 +153,8 @@ masterRouter.post(
       data: {
         name: data.name,
         drivingLicenseNumber: data.drivingLicenseNumber,
-        drivingLicenseExpiryDate: new Date(data.drivingLicenseExpiryDate),
-        passValidUntil: new Date(data.passValidUntil),
+        drivingLicenseExpiryDate: data.drivingLicenseExpiryDate ? new Date(data.drivingLicenseExpiryDate) : null,
+        passValidUntil: data.passValidUntil ? new Date(data.passValidUntil) : null,
         crewId: data.crewId || null,
         isActive: data.isActive,
       }
@@ -174,8 +174,8 @@ masterRouter.put(
       data: {
         name: data.name,
         drivingLicenseNumber: data.drivingLicenseNumber,
-        drivingLicenseExpiryDate: new Date(data.drivingLicenseExpiryDate),
-        passValidUntil: new Date(data.passValidUntil),
+        drivingLicenseExpiryDate: data.drivingLicenseExpiryDate ? new Date(data.drivingLicenseExpiryDate) : null,
+        passValidUntil: data.passValidUntil ? new Date(data.passValidUntil) : null,
         crewId: data.crewId || null,
         isActive: data.isActive,
       },

@@ -209,8 +209,8 @@ export async function createEntry(input: CreateGateEntryValue, actor: Actor, met
     if (!actorUser) throw new ApiError(401, "AUTH_REQUIRED", "Authenticated user was not found");
     // For manual entries the operator has already accepted the warning — don't hard-block on expiry
     if (pass.sourceSystem !== "MANUAL_ENTRY") {
-      if (pass.passValidUntil < businessDate) throw new ApiError(422, "PASS_EXPIRED", "Crew pass has expired");
-      if (pass.drivingLicenseExpiryDate < businessDate) throw new ApiError(422, "LICENCE_EXPIRED", "Driving licence has expired");
+      if (pass.passValidUntil && pass.passValidUntil < businessDate) throw new ApiError(422, "PASS_EXPIRED", "Crew pass has expired");
+      if (pass.drivingLicenseExpiryDate && pass.drivingLicenseExpiryDate < businessDate) throw new ApiError(422, "LICENCE_EXPIRED", "Driving licence has expired");
     }
 
     assertHelperData(pass.crewType, input.helperName, input.helperPassNumber);
@@ -450,8 +450,8 @@ export async function resolveInvoice(rawInvoiceQr: string) {
 
   const warnings: string[] = [];
   const today = getBusinessDate();
-  if (entry.passValidUntil < today) warnings.push("Crew pass is expired");
-  if (entry.drivingLicenseExpiryDate < today) warnings.push("Driving licence is expired");
+  if (entry.passValidUntil && entry.passValidUntil < today) warnings.push("Crew pass is expired");
+  if (entry.drivingLicenseExpiryDate && entry.drivingLicenseExpiryDate < today) warnings.push("Driving licence is expired");
   if (!entry.ttNumberMatch) warnings.push("TT number on pass did not match the physical lorry at entry");
   const failed = entry.safetyChecklist ? IN_GATE_SAFETY_ITEMS.filter(({ key }) => entry.safetyChecklist?.[key] === false) : [];
   if (failed.length > 0) warnings.push(`${failed.length} safety checklist item(s) were marked No`);
@@ -491,7 +491,7 @@ export async function submitExit(id: string, input: SubmitExitInput, actor: Acto
     if (duplicate) throw new ApiError(409, "DUPLICATE_INVOICE", "This invoice number has already been submitted today on a different entry");
 
     const today = getBusinessDate();
-    const hasExpiryWarning = before.passValidUntil < today || before.drivingLicenseExpiryDate < today;
+    const hasExpiryWarning = (before.passValidUntil && before.passValidUntil < today) || (before.drivingLicenseExpiryDate && before.drivingLicenseExpiryDate < today);
     if (hasExpiryWarning && !input.warningsAcknowledged) {
       throw new ApiError(422, "WARNINGS_ACK_REQUIRED", "Acknowledge the expired pass/licence warning before confirming exit");
     }

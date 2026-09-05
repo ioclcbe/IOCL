@@ -96,6 +96,9 @@ export function EntryWizard() {
   const [helperMode, setHelperMode] = useState<"scan" | "manual">("manual");
   const [helperScanResolving, setHelperScanResolving] = useState(false);
   const [helperPass, setHelperPass] = useState<CrewPass | null>(null);
+  
+  // Flag to allow submitting drivers missing dates in DB
+  const [allowMissingDates, setAllowMissingDates] = useState(false);
 
   // Master databases for manual mode
   const [masterTrucks, setMasterTrucks] = useState<any[]>([]);
@@ -175,8 +178,11 @@ export function EntryWizard() {
     if (!dDL) errs.drivingLicenseNumber = "DL number is required";
     else if (!masterDrivers.find(d => d.drivingLicenseNumber === dDL)) errs.drivingLicenseNumber = "Invalid registered DL number.";
 
-    if (!manualDriver.drivingLicenseExpiryDate) errs.drivingLicenseExpiryDate = "DL expiry date is required";
-    if (!manualDriver.passValidUntil) errs.passValidUntil = "Pass valid until date is required";
+    if (!allowMissingDates) {
+      if (!manualDriver.drivingLicenseExpiryDate) errs.drivingLicenseExpiryDate = "DL expiry date is missing from database. Check 'Allow entry with missing dates' below to bypass.";
+      if (!manualDriver.passValidUntil) errs.passValidUntil = "Pass valid until date is missing from database. Check 'Allow entry with missing dates' below to bypass.";
+    }
+
     if (Object.keys(errs).length > 0) { setManualDriverErrors(errs); return; }
     setManualDriverErrors({});
     setResolving(true);
@@ -371,8 +377,8 @@ export function EntryWizard() {
                                 ...p,
                                 driverName: d.name,
                                 drivingLicenseNumber: d.drivingLicenseNumber,
-                                drivingLicenseExpiryDate: new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10),
-                                passValidUntil: new Date(d.passValidUntil).toISOString().slice(0, 10),
+                                drivingLicenseExpiryDate: d.drivingLicenseExpiryDate ? new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10) : "",
+                                passValidUntil: d.passValidUntil ? new Date(d.passValidUntil).toISOString().slice(0, 10) : "",
                                 crewId: d.crewId || p.crewId,
                                 crewType: (d.crewType as any) || p.crewType,
                               }));
@@ -431,6 +437,14 @@ export function EntryWizard() {
                     <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.passValidUntil} />
                   </ManualField>
                 </div>
+                {(!manualDriver.drivingLicenseExpiryDate || !manualDriver.passValidUntil) && (
+                  <div className="mt-4 rounded-xl border border-orange-200 bg-orange-50 p-4">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" className="h-5 w-5 accent-orange-600" checked={allowMissingDates} onChange={(e) => setAllowMissingDates(e.target.checked)} />
+                      <span className="text-sm font-bold text-orange-900">Allow entry with missing dates (Driver dates are missing in master database)</span>
+                    </label>
+                  </div>
+                )}
                 <Button type="button" loading={resolving} onClick={() => void submitManualDriver()} className="mt-4">Verify & Save Driver Details</Button>
               </div>
               {pass ? <PassDetails pass={pass} /> : null}
