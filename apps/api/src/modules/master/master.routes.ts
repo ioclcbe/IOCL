@@ -155,6 +155,7 @@ masterRouter.post(
         drivingLicenseNumber: data.drivingLicenseNumber,
         drivingLicenseExpiryDate: new Date(data.drivingLicenseExpiryDate),
         passValidUntil: new Date(data.passValidUntil),
+        crewId: data.crewId || null,
         isActive: data.isActive,
       }
     });
@@ -175,6 +176,7 @@ masterRouter.put(
         drivingLicenseNumber: data.drivingLicenseNumber,
         drivingLicenseExpiryDate: new Date(data.drivingLicenseExpiryDate),
         passValidUntil: new Date(data.passValidUntil),
+        crewId: data.crewId || null,
         isActive: data.isActive,
       },
     });

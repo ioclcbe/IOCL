@@ -116,6 +116,7 @@ export const driverSchema = z.object({
   drivingLicenseNumber: z.string().trim().min(5).max(40),
   drivingLicenseExpiryDate: isoDateSchema,
   passValidUntil: isoDateSchema,
+  crewId: z.string().trim().optional(),
   isActive: z.boolean().default(true),
 });
 export type Driver = z.infer<typeof driverSchema>;

@@ -15,7 +15,7 @@ export default function DriversPage() {
   const [busy, setBusy] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ name: "", drivingLicenseNumber: "", drivingLicenseExpiryDate: "", passValidUntil: "" });
+  const [form, setForm] = useState({ name: "", drivingLicenseNumber: "", drivingLicenseExpiryDate: "", passValidUntil: "", crewId: "" });
 
   async function load() {
     setLoading(true);
@@ -65,7 +65,7 @@ export default function DriversPage() {
     try {
       await apiFetch("/masters/drivers", { method: "POST", body: JSON.stringify({ ...form, isActive: true }) });
       toast.success("Driver added");
-      setForm({ name: "", drivingLicenseNumber: "", drivingLicenseExpiryDate: "", passValidUntil: "" });
+      setForm({ name: "", drivingLicenseNumber: "", drivingLicenseExpiryDate: "", passValidUntil: "", crewId: "" });
       setShowCreate(false);
       load();
     } catch (e) { toast.error((e as Error).message); }
@@ -98,6 +98,9 @@ export default function DriversPage() {
 
   return (
     <div>
+      <h1 className="text-2xl font-black tracking-tight text-iocl-navy">Driver Management</h1>
+      <p className="mt-1 text-sm text-slate-500">Manage the master list of authorized drivers.</p>
+
       <PageHeader 
         eyebrow="Admin · Master Data" 
         title="Drivers Database" 
@@ -129,8 +132,9 @@ export default function DriversPage() {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label><span className="field-label">Driver Name</span><input className="field-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="RAMESH KUMAR" /></label>
             <label><span className="field-label">DL Number</span><input className="field-input" value={form.drivingLicenseNumber} onChange={(e) => setForm({ ...form, drivingLicenseNumber: e.target.value })} placeholder="TN7420210005690" /></label>
-            <label><span className="field-label">DL Expiry Date</span><input type="date" className="field-input" value={form.drivingLicenseExpiryDate} onChange={(e) => setForm({ ...form, drivingLicenseExpiryDate: e.target.value })} /></label>
-            <label><span className="field-label">Pass Valid Until</span><input type="date" className="field-input" value={form.passValidUntil} onChange={(e) => setForm({ ...form, passValidUntil: e.target.value })} /></label>
+            <label><span className="field-label">DL Expiry Date (YYYY-MM-DD)</span><input type="text" className="field-input" value={form.drivingLicenseExpiryDate} onChange={(e) => setForm({ ...form, drivingLicenseExpiryDate: e.target.value })} placeholder="2025-12-31" /></label>
+            <label><span className="field-label">Pass Valid Until (YYYY-MM-DD)</span><input type="text" className="field-input" value={form.passValidUntil} onChange={(e) => setForm({ ...form, passValidUntil: e.target.value })} placeholder="2025-12-31" /></label>
+            <label className="md:col-span-2"><span className="field-label">Crew ID (Optional)</span><input type="text" className="field-input uppercase" value={form.crewId} onChange={(e) => setForm({ ...form, crewId: e.target.value.toUpperCase() })} placeholder="e.g. M-TN74AZ8730" /></label>
           </div>
           <div className="mt-5 flex gap-2">
             <Button type="button" loading={busy} onClick={addDriver}>Save Driver</Button>
