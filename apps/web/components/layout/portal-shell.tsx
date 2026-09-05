@@ -75,6 +75,18 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
   const visibleNav = useMemo(() => user ? nav.filter((item) => item.roles.includes(user.role)) : [], [user]);
   useEffect(() => {
     if (!user || pathname === "/unauthorized") return;
+    
+    if (pathname === "/dashboard") {
+      if (user.role === "ENTRY_GATE_SECURITY") {
+        router.replace("/entries/new");
+        return;
+      }
+      if (user.role === "EXIT_GATE_SECURITY") {
+        router.replace("/out");
+        return;
+      }
+    }
+
     const restricted =
       (pathname === "/dashboard" && !["SUPERVISOR", "ADMIN"].includes(user.role)) ||
       (pathname.startsWith("/entries/new") && !["ENTRY_GATE_SECURITY", "SUPERVISOR", "ADMIN"].includes(user.role)) ||
