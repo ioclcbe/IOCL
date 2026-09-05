@@ -97,30 +97,26 @@ export function parseCrewPassQr(rawPayload: string) {
   const crewTypeRaw = extracted.get("crewType") ?? "";
   try { if (crewTypeRaw) crewType = mapCrewType(crewTypeRaw); } catch { /* ignore */ }
 
-  let passValidUntil = new Date("2099-12-31T23:59:59Z");
+  let passValidUntil = "";
   const passValidRaw = extracted.get("passValidUntil") ?? "";
   let passDateMissing = !passValidRaw;
-  try { if (passValidRaw) passValidUntil = parseStrictDate(passValidRaw, "Pass Valid Upto"); }
-  catch { passDateMissing = true; }
+  if (passValidRaw) passValidUntil = passValidRaw;
   if (passDateMissing) missingFields.push({ key: "passValidUntil", label: "Pass Valid Upto" });
 
-  let drivingLicenseExpiryDate = new Date("2099-12-31T23:59:59Z");
+  let drivingLicenseExpiryDate = "";
   const dlExpiryRaw = extracted.get("drivingLicenseExpiryDate") ?? "";
   let dlDateMissing = !dlExpiryRaw;
-  try { if (dlExpiryRaw) drivingLicenseExpiryDate = parseStrictDate(dlExpiryRaw, "DL Expiry Date"); }
-  catch { dlDateMissing = true; }
+  if (dlExpiryRaw) drivingLicenseExpiryDate = dlExpiryRaw;
   if (dlDateMissing) missingFields.push({ key: "drivingLicenseExpiryDate", label: "DL Expiry Date" });
 
-  const displayDate = (date: Date) =>
-    `${String(date.getUTCDate()).padStart(2, "0")}/${String(date.getUTCMonth() + 1).padStart(2, "0")}/${date.getUTCFullYear()}`;
   const normalizedRawPayload = [
     `Crew Id:${crewId}`,
     `Name:${driverName}`,
     `Crew Type:${crewType}`,
-    `Pass Valid Upto:${displayDate(passValidUntil)}`,
+    `Pass Valid Upto:${passValidUntil}`,
     `TT No:${ttNumberOnPass}`,
     `DL No:${drivingLicenseNumber.toUpperCase()}`,
-    `DL Expiry Date:${displayDate(drivingLicenseExpiryDate)}`,
+    `DL Expiry Date:${drivingLicenseExpiryDate}`,
   ].join("\n");
   return {
     crewId,

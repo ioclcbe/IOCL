@@ -153,8 +153,8 @@ masterRouter.post(
       data: {
         name: data.name,
         drivingLicenseNumber: data.drivingLicenseNumber,
-        drivingLicenseExpiryDate: data.drivingLicenseExpiryDate ? new Date(data.drivingLicenseExpiryDate) : null,
-        passValidUntil: data.passValidUntil ? new Date(data.passValidUntil) : null,
+        drivingLicenseExpiryDate: data.drivingLicenseExpiryDate || null,
+        passValidUntil: data.passValidUntil || null,
         crewId: data.crewId || null,
         isActive: data.isActive,
       }
@@ -174,8 +174,8 @@ masterRouter.put(
       data: {
         name: data.name,
         drivingLicenseNumber: data.drivingLicenseNumber,
-        drivingLicenseExpiryDate: data.drivingLicenseExpiryDate ? new Date(data.drivingLicenseExpiryDate) : null,
-        passValidUntil: data.passValidUntil ? new Date(data.passValidUntil) : null,
+        drivingLicenseExpiryDate: data.drivingLicenseExpiryDate || null,
+        passValidUntil: data.passValidUntil || null,
         crewId: data.crewId || null,
         isActive: data.isActive,
       },
@@ -236,8 +236,8 @@ masterRouter.post(
         else if (h.includes("crew") && h.includes("type")) crewTypeIdx = i;
     }
 
-    if (nameIdx === -1 || dlIdx === -1 || dlExpIdx === -1 || passExpIdx === -1) {
-      throw new ApiError(400, "INVALID_FORMAT", "Excel must contain columns for Name, DL Number, DL Expiry, and Pass Validity");
+    if (nameIdx === -1 || dlIdx === -1) {
+      throw new ApiError(400, "INVALID_FORMAT", "Excel must contain columns for Name and DL Number");
     }
 
     const dataToInsert = [];
@@ -246,23 +246,22 @@ masterRouter.post(
       if (!row) continue;
       const name = String(row[nameIdx] || "").trim();
       const dlNumber = String(row[dlIdx] || "").trim().toUpperCase();
-      const rawDlExp = row[dlExpIdx];
-      const rawPassExp = row[passExpIdx];
+      const rawDlExp = dlExpIdx !== -1 ? row[dlExpIdx] : null;
+      const rawPassExp = passExpIdx !== -1 ? row[passExpIdx] : null;
         const defaultTruckNumber = ttIdx !== -1 && row[ttIdx] ? String(row[ttIdx]).trim().toUpperCase() : null;
         const crewId = crewIdIdx !== -1 && row[crewIdIdx] ? String(row[crewIdIdx]).trim() : null;
         const crewType = crewTypeIdx !== -1 && row[crewTypeIdx] ? String(row[crewTypeIdx]).trim() : null;
 
-      if (!name || !dlNumber || !rawDlExp || !rawPassExp) continue;
+      if (!name || !dlNumber) continue;
 
       const parseDate = (val: any) => {
-        if (val instanceof Date) return val;
+        if (!val) return null;
+        if (val instanceof Date) return val.toISOString().slice(0, 10);
+        if (val && typeof val === "object" && val.result) val = val.result;
+        if (val instanceof Date) return val.toISOString().slice(0, 10);
+        if (typeof val === "number") return new Date(Math.round((val - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
         const s = String(val).trim();
-        const parts = s.split(/[/-]/);
-        if (parts.length === 3) {
-          if (parts[0]?.length === 4) return new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
-          return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-        }
-        return new Date(s);
+        return s || null;
       };
 
       try {
@@ -396,18 +395,12 @@ masterRouter.post(
 
     const parseDate = (val: any) => {
       if (!val) return null;
-      if (val instanceof Date) return val;
+      if (val instanceof Date) return val.toISOString().slice(0, 10);
       if (val && typeof val === "object" && val.result) val = val.result;
-      if (val instanceof Date) return val;
-      if (typeof val === "number") return new Date(Math.round((val - 25569) * 86400 * 1000));
+      if (val instanceof Date) return val.toISOString().slice(0, 10);
+      if (typeof val === "number") return new Date(Math.round((val - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
       const s = String(val).trim();
-      if (!s) return null;
-      const parts = s.split(/[\/-]/);
-      if (parts.length === 3) {
-        if (parts[0]?.length === 4) return new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
-        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-      }
-      return new Date(s);
+      return s || null;
     };
 
     const dataToInsert = [];

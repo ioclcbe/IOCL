@@ -114,8 +114,8 @@ export const driverSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(3).max(120),
   drivingLicenseNumber: z.string().trim().min(5).max(40),
-  drivingLicenseExpiryDate: isoDateSchema.optional().nullable(),
-  passValidUntil: isoDateSchema.optional().nullable(),
+  drivingLicenseExpiryDate: z.string().optional().nullable(),
+  passValidUntil: z.string().optional().nullable(),
   crewId: z.string().trim().optional(),
   isActive: z.boolean().default(true),
 });
@@ -123,8 +123,10 @@ export type Driver = z.infer<typeof driverSchema>;
 
 export const helperSchema = z.object({
   id: z.string().uuid().optional(),
-  name: z.string().trim().min(3).max(120),
+  name: z.string().trim().min(3).max(100),
   helperPassNumber: z.string().trim().min(5).max(50),
+  passValidUntil: z.string().optional().nullable(),
+  crewId: z.string().trim().optional(),
   isActive: z.boolean().default(true),
 });
 export type Helper = z.infer<typeof helperSchema>;

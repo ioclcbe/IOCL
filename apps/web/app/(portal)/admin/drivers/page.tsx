@@ -84,8 +84,8 @@ export default function DriversPage() {
     try {
       const payload = {
         ...form,
-        drivingLicenseExpiryDate: parseDate(form.drivingLicenseExpiryDate),
-        passValidUntil: parseDate(form.passValidUntil),
+        drivingLicenseExpiryDate: form.drivingLicenseExpiryDate,
+        passValidUntil: form.passValidUntil,
         isActive: true
       };
       await apiFetch("/masters/drivers", { method: "POST", body: JSON.stringify(payload) });
@@ -157,8 +157,8 @@ export default function DriversPage() {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label><span className="field-label">Driver Name</span><input className="field-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="RAMESH KUMAR" /></label>
             <label><span className="field-label">DL Number</span><input className="field-input" value={form.drivingLicenseNumber} onChange={(e) => setForm({ ...form, drivingLicenseNumber: e.target.value })} placeholder="TN7420210005690" /></label>
-            <label><span className="field-label">DL Expiry Date (DD-MM-YYYY)</span><input type="text" inputMode="numeric" className="field-input" value={form.drivingLicenseExpiryDate} onChange={(e) => handleDateInput(e.target.value, 'drivingLicenseExpiryDate')} placeholder="31-12-2025" /></label>
-            <label><span className="field-label">Pass Valid Until (DD-MM-YYYY)</span><input type="text" inputMode="numeric" className="field-input" value={form.passValidUntil} onChange={(e) => handleDateInput(e.target.value, 'passValidUntil')} placeholder="31-12-2025" /></label>
+            <label><span className="field-label">DL Expiry Date </span><input type="text" inputMode="numeric" className="field-input" value={form.drivingLicenseExpiryDate} onChange={(e) => setForm({ ...form, drivingLicenseExpiryDate: e.target.value })} placeholder="31-12-2025" /></label>
+            <label><span className="field-label">Pass Valid Until </span><input type="text" inputMode="numeric" className="field-input" value={form.passValidUntil} onChange={(e) => setForm({ ...form, passValidUntil: e.target.value })} placeholder="31-12-2025" /></label>
             <label className="md:col-span-2"><span className="field-label">Crew ID (Optional)</span><input type="text" className="field-input uppercase" value={form.crewId} onChange={(e) => setForm({ ...form, crewId: e.target.value.toUpperCase() })} placeholder="e.g. M-TN74AZ8730" /></label>
           </div>
           <div className="mt-5 flex gap-2">

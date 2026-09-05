@@ -8,6 +8,7 @@ import { prisma } from "../../lib/prisma.js";
 import { authenticate, authorize } from "../../middleware/auth.js";
 import { validateBody } from "../../middleware/validate.js";
 import { looksLikeCrewPassQr, parseCrewPassQr } from "./crew-pass-qr-parser.js";
+import { isPastDate } from "../gateEntry/gate-entry.service.js";
 
 const resolveSchema = z.object({ qrToken: z.string().min(5).max(2_000) }).strict();
 
@@ -61,8 +62,8 @@ crewPassRouter.post("/resolve", validateBody(resolveSchema), asyncHandler(async 
   const warnings: string[] = [];
   if (rawFormat) warnings.push("Locally parsed QR; official IOCL authenticity verification is not configured");
   const businessDate = getBusinessDate();
-  if (pass.passValidUntil && pass.passValidUntil < businessDate) warnings.push("Crew pass has expired");
-  if (pass.drivingLicenseExpiryDate && pass.drivingLicenseExpiryDate < businessDate) warnings.push("Driving licence has expired");
+  if (isPastDate(pass.passValidUntil)) warnings.push("Crew pass has expired");
+  if (isPastDate(pass.drivingLicenseExpiryDate)) warnings.push("Driving licence has expired");
   if (missingFields.length > 0) warnings.push(`${missingFields.length} field(s) could not be read from the QR — please fill them in manually`);
   res.json({ success: true, data: {
     id: pass.id, qrToken: pass.qrToken, crewId: pass.crewId, driverName: pass.driverName, crewType: pass.crewType,
@@ -78,8 +79,8 @@ const manualPassSchema = z.object({
   driverName: z.string().trim().min(2, "Driver name is required").max(120),
   ttNumberOnPass: z.string().trim().min(4, "Truck number is required").max(20).transform((v) => v.replace(/[^A-Za-z0-9]/g, "").toUpperCase()),
   drivingLicenseNumber: z.string().trim().min(2, "DL number is required").max(40),
-  drivingLicenseExpiryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format").optional().nullable().or(z.literal("")),
-  passValidUntil: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format").optional().nullable().or(z.literal("")),
+  drivingLicenseExpiryDate: z.string().optional().nullable(),
+  passValidUntil: z.string().optional().nullable(),
   crewType: z.enum(["DRIVER", "DRIVER_WITH_HELPER", "CONTRACT_CREW"]).default("DRIVER"),
   crewId: z.string().trim().optional(),
 }).strict();
@@ -90,8 +91,8 @@ crewPassRouter.post("/manual", validateBody(manualPassSchema), asyncHandler(asyn
   const crewId = body.crewId || `M-${body.ttNumberOnPass}`;
   // Unique token: based on crewId so same manual record upserts cleanly
   const qrToken = `MANUAL:${crewId}`;
-  const dlExpiry = body.drivingLicenseExpiryDate ? new Date(body.drivingLicenseExpiryDate) : null;
-  const passUntil = body.passValidUntil ? new Date(body.passValidUntil) : null;
+  const dlExpiry = body.drivingLicenseExpiryDate || null;
+  const passUntil = body.passValidUntil || null;
   const pass = await prisma.crewPass.upsert({
     where: { crewId },
     create: {
@@ -121,10 +122,10 @@ crewPassRouter.post("/manual", validateBody(manualPassSchema), asyncHandler(asyn
   const businessDate = getBusinessDate();
   const warnings: string[] = ["Manual entry — no QR scan; details entered by operator"];
   if (!pass.passValidUntil) warnings.push("Pass validity date is missing from master database");
-  else if (pass.passValidUntil && pass.passValidUntil < businessDate) warnings.push("Pass valid date has expired");
+  else if (isPastDate(pass.passValidUntil)) warnings.push("Pass valid date has expired");
   
   if (!pass.drivingLicenseExpiryDate) warnings.push("Driving licence expiry date is missing from master database");
-  else if (pass.drivingLicenseExpiryDate && pass.drivingLicenseExpiryDate < businessDate) warnings.push("Driving licence has expired");
+  else if (isPastDate(pass.drivingLicenseExpiryDate)) warnings.push("Driving licence has expired");
   
   res.json({ success: true, data: {
     id: pass.id, qrToken: pass.qrToken, crewId: pass.crewId, driverName: pass.driverName, crewType: pass.crewType,

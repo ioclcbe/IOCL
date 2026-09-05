@@ -122,10 +122,10 @@ model CrewPass {
   crewId                   String    @unique @db.VarChar(50)
   driverName               String    @db.VarChar(120)
   crewType                 CrewType
-  passValidUntil           DateTime? @db.Date
+  passValidUntil String? @db.VarChar(100)
   ttNumberOnPass           String    @db.VarChar(20)
   drivingLicenseNumber     String    @db.VarChar(40)
-  drivingLicenseExpiryDate DateTime? @db.Date
+  drivingLicenseExpiryDate String? @db.VarChar(100)
   isActive                 Boolean   @default(true)
   sourceSystem             String    @default("DEMO_MASTER") @db.VarChar(60)
   sourcePayload            Json?
@@ -153,8 +153,8 @@ model Driver {
   id                       String   @id @default(uuid()) @db.Uuid
   name                     String   @db.VarChar(120)
   drivingLicenseNumber     String   @unique @db.VarChar(40)
-  drivingLicenseExpiryDate DateTime? @db.Date
-  passValidUntil           DateTime? @db.Date
+  drivingLicenseExpiryDate String? @db.VarChar(100)
+  passValidUntil String? @db.VarChar(100)
   defaultTruckNumber       String?  @db.VarChar(20)
   crewId                   String?  @db.VarChar(50)
   crewType                 String?  @db.VarChar(50)
@@ -170,7 +170,7 @@ model Helper {
   id                 String    @id @default(uuid()) @db.Uuid
   name               String    @db.VarChar(120)
   helperPassNumber   String    @unique @db.VarChar(50)
-  passValidUntil     DateTime? @db.Date
+  passValidUntil String? @db.VarChar(100)
   defaultTruckNumber String?   @db.VarChar(20)
   crewId             String?   @db.VarChar(50)
   crewType           String?   @db.VarChar(50)
@@ -219,10 +219,10 @@ model GateEntry {
   crewId                   String          @db.VarChar(50)
   driverName               String          @db.VarChar(120)
   crewType                 CrewType
-  passValidUntil           DateTime?       @db.Date
+  passValidUntil String? @db.VarChar(100)
   ttNumberOnPass           String          @db.VarChar(20)
   drivingLicenseNumber     String          @db.VarChar(40)
-  drivingLicenseExpiryDate DateTime?       @db.Date
+  drivingLicenseExpiryDate String? @db.VarChar(100)
   customerDestination      String          @db.VarChar(160)
   actualTankTruckNumber    String          @db.VarChar(20)
   abs                      Boolean
@@ -335,3 +335,4 @@ model AuditLog {
   @@index([action, createdAt])
   @@map("audit_logs")
 }
+

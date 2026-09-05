@@ -377,8 +377,8 @@ export function EntryWizard() {
                                 ...p,
                                 driverName: d.name,
                                 drivingLicenseNumber: d.drivingLicenseNumber,
-                                drivingLicenseExpiryDate: d.drivingLicenseExpiryDate ? new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10) : "",
-                                passValidUntil: d.passValidUntil ? new Date(d.passValidUntil).toISOString().slice(0, 10) : "",
+                                drivingLicenseExpiryDate: d.drivingLicenseExpiryDate || "",
+                                passValidUntil: d.passValidUntil || "",
                                 crewId: d.crewId || p.crewId,
                                 crewType: (d.crewType as any) || p.crewType,
                               }));
