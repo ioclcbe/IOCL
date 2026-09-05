@@ -55,6 +55,20 @@ masterRouter.put(
   })
 );
 
+masterRouter.post(
+  "/trucks/bulk-delete",
+  authorize(UserRole.ADMIN),
+  asyncHandler(async (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) throw new ApiError(400, "INVALID_INPUT", "Expected a non-empty array of ids");
+    const uuidRe = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    const validIds = (ids as string[]).filter(id => uuidRe.test(id));
+    if (validIds.length === 0) { res.json({ success: true, count: 0 }); return; }
+    const result = await db.tankTruck.deleteMany({ where: { id: { in: validIds } } });
+    res.json({ success: true, count: result.count });
+  })
+);
+
 masterRouter.delete(
   "/trucks/:id",
   authorize(UserRole.ADMIN),
@@ -165,6 +179,20 @@ masterRouter.put(
       },
     });
     res.json({ success: true, data: driver });
+  })
+);
+
+masterRouter.post(
+  "/drivers/bulk-delete",
+  authorize(UserRole.ADMIN),
+  asyncHandler(async (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) throw new ApiError(400, "INVALID_INPUT", "Expected a non-empty array of ids");
+    const uuidRe = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    const validIds = (ids as string[]).filter(id => uuidRe.test(id));
+    if (validIds.length === 0) { res.json({ success: true, count: 0 }); return; }
+    const result = await db.driver.deleteMany({ where: { id: { in: validIds } } });
+    res.json({ success: true, count: result.count });
   })
 );
 
@@ -307,6 +335,20 @@ masterRouter.put(
       },
     });
     res.json({ success: true, data: helper });
+  })
+);
+
+masterRouter.post(
+  "/helpers/bulk-delete",
+  authorize(UserRole.ADMIN),
+  asyncHandler(async (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) throw new ApiError(400, "INVALID_INPUT", "Expected a non-empty array of ids");
+    const uuidRe = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    const validIds = (ids as string[]).filter(id => uuidRe.test(id));
+    if (validIds.length === 0) { res.json({ success: true, count: 0 }); return; }
+    const result = await db.helper.deleteMany({ where: { id: { in: validIds } } });
+    res.json({ success: true, count: result.count });
   })
 );
 

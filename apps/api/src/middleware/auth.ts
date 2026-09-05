@@ -14,6 +14,18 @@ interface AccessClaims extends jwt.JwtPayload {
   sessionId: string;
 }
 
+// In-memory cache: userId -> { user data, expiresAt }
+// Prevents repeated DB lookups on every request (critical for Neon serverless cold-starts)
+const userCache = new Map<string, { employeeCode: string; role: UserRole; isActive: boolean; authVersion: number; expiresAt: number }>();
+const USER_CACHE_TTL_MS = 60_000; // 60 seconds
+
+function getCachedUser(id: string) {
+  const entry = userCache.get(id);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) { userCache.delete(id); return null; }
+  return entry;
+}
+
 export function authenticate(req: Request, _res: Response, next: NextFunction) {
   const header = req.header("authorization");
   if (!header?.startsWith("Bearer ")) {
@@ -40,10 +52,19 @@ export function authenticate(req: Request, _res: Response, next: NextFunction) {
         throw new Error("Invalid access-token claims");
       }
 
-      const user = await prisma.user.findUnique({
-        where: { id: claims.sub },
-        select: { employeeCode: true, role: true, isActive: true, authVersion: true },
-      });
+      // Try cache first, only hit DB on cache miss
+      let user = getCachedUser(claims.sub);
+      if (!user) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: claims.sub },
+          select: { employeeCode: true, role: true, isActive: true, authVersion: true },
+        });
+        if (dbUser) {
+          userCache.set(claims.sub, { ...dbUser, expiresAt: Date.now() + USER_CACHE_TTL_MS });
+          user = getCachedUser(claims.sub);
+        }
+      }
+
       if (
         !user ||
         !user.isActive ||
@@ -51,6 +72,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction) {
         user.employeeCode !== claims.employeeCode ||
         user.role !== claims.role
       ) {
+        userCache.delete(claims.sub);
         throw new Error("Access token is no longer valid");
       }
 

@@ -12,6 +12,7 @@ export default function TrucksPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [ttNumber, setTtNumber] = useState("");
 
@@ -20,6 +21,7 @@ export default function TrucksPage() {
     try {
       const res = await apiFetch("/masters/trucks");
       setItems(res);
+      setSelectedIds([]);
     } catch (e) { toast.error("Could not load trucks"); }
     finally { setLoading(false); }
   }
@@ -68,6 +70,19 @@ export default function TrucksPage() {
     finally { setBusy(false); }
   }
 
+  async function bulkDelete() {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Are you sure you want to delete ${selectedIds.length} items?`)) return;
+    setBusy(true);
+    try {
+      await apiFetch('/masters/trucks/bulk-delete', { method: 'POST', body: JSON.stringify({ ids: selectedIds }) });
+      toast.success(`Deleted ${selectedIds.length} items`);
+      setSelectedIds([]);
+      load();
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
+  }
+
   async function deleteTruck(id: string) {
     if (!confirm("Are you sure you want to delete this truck?")) return;
     setBusy(true);
@@ -96,6 +111,11 @@ export default function TrucksPage() {
               </span>
               <input type="file" className="hidden" accept=".xlsx" onChange={handleFileUpload} disabled={busy} />
             </label>
+            {selectedIds.length > 0 && (
+              <Button type="button" variant="ghost" onClick={bulkDelete} disabled={busy} className="text-red-600 bg-red-50 hover:bg-red-100 border border-red-200">
+                <Trash2 className="h-4 w-4 mr-2" /> Delete Selected ({selectedIds.length})
+              </Button>
+            )}
             <Button type="button" onClick={() => setShowCreate(!showCreate)} icon={<Plus className="h-5 w-5" />}>Add Truck</Button>
             </div>
           </div>
@@ -121,9 +141,11 @@ export default function TrucksPage() {
 
       <div className="panel overflow-hidden">
         {loading ? <div className="p-10 text-center text-slate-500">Loading trucks...</div> : (
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-sm min-w-[600px]">
             <thead className="bg-slate-50 text-xs font-black uppercase text-slate-500 border-b border-slate-100">
               <tr>
+                <th className="p-4 w-12"><input type="checkbox" className="h-4 w-4 accent-iocl-orange" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => setSelectedIds(e.target.checked ? items.map(i => i.id) : [])} /></th>
                 <th className="p-4">Truck Number</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Actions</th>
@@ -132,6 +154,7 @@ export default function TrucksPage() {
             <tbody className="divide-y divide-slate-100">
               {items.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-50/50">
+                  <td className="p-4"><input type="checkbox" className="h-4 w-4 accent-iocl-orange" checked={selectedIds.includes(item.id)} onChange={(e) => { if (e.target.checked) setSelectedIds(s => [...s, item.id]); else setSelectedIds(s => s.filter(id => id !== item.id)); }} /></td>
                   <td className="p-4 font-bold text-iocl-navy">{item.ttNumber}</td>
                   <td className="p-4"><Badge tone={item.isActive ? "green" : "red"}>{item.isActive ? "Active" : "Inactive"}</Badge></td>
                   <td className="p-4 text-right">
@@ -143,11 +166,12 @@ export default function TrucksPage() {
               ))}
               {items.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="p-10 text-center text-slate-500">No trucks found in database.</td>
+                  <td colSpan={10} className="p-10 text-center text-slate-500">No trucks found in database.</td>
                 </tr>
               )}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

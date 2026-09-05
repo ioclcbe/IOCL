@@ -12,7 +12,7 @@ export const authRouter = Router();
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 20,
+  limit: 2000,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   skipSuccessfulRequests: true,

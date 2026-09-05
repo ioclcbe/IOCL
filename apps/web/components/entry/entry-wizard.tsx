@@ -85,6 +85,7 @@ export function EntryWizard() {
   // Custom dropdown states
   const [showDriverNameDrop, setShowDriverNameDrop] = useState(false);
   const [showDriverDlDrop, setShowDriverDlDrop] = useState(false);
+  const [showTtDrop, setShowTtDrop] = useState(false);
   const [showHelperNameDrop, setShowHelperNameDrop] = useState(false);
   const [showHelperPassDrop, setShowHelperPassDrop] = useState(false);
   const [helperDocValidity, setHelperDocValidity] = useState("");
@@ -372,14 +373,13 @@ export function EntryWizard() {
                                 drivingLicenseNumber: d.drivingLicenseNumber,
                                 drivingLicenseExpiryDate: new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10),
                                 passValidUntil: new Date(d.passValidUntil).toISOString().slice(0, 10),
-                                ttNumberOnPass: d.defaultTruckNumber || p.ttNumberOnPass,
                                 crewId: d.crewId || p.crewId,
                                 crewType: (d.crewType as any) || p.crewType,
                               }));
                               setShowDriverNameDrop(false);
                             }}>
                               <div className="font-bold text-sm text-iocl-navy">{d.name}</div>
-                              <div className="text-[10px] font-mono text-slate-500">DL: {d.drivingLicenseNumber} {d.defaultTruckNumber ? `(TT: ${d.defaultTruckNumber})` : ''}</div>
+                              <div className="text-[10px] font-mono text-slate-500">DL: {d.drivingLicenseNumber}</div>
                             </li>
                           ))}
                         </ul>
@@ -407,7 +407,6 @@ export function EntryWizard() {
                                 drivingLicenseNumber: d.drivingLicenseNumber,
                                 drivingLicenseExpiryDate: new Date(d.drivingLicenseExpiryDate).toISOString().slice(0, 10),
                                 passValidUntil: new Date(d.passValidUntil).toISOString().slice(0, 10),
-                                ttNumberOnPass: d.defaultTruckNumber || p.ttNumberOnPass,
                                 crewId: d.crewId || p.crewId,
                                 crewType: (d.crewType as any) || p.crewType,
                               }));
