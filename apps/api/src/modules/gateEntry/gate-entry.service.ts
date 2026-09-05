@@ -354,12 +354,12 @@ export async function updateEntry(id: string, input: UpdateGateEntryInput, actor
       throw new ApiError(403, "FORBIDDEN", "You can edit only your own open IN entries from today");
     }
     if (actor.role === UserRole.EXIT_GATE_SECURITY) {
+      // EXIT_GATE_SECURITY must NEVER be able to edit IN records
       if (before.status === EntryStatus.IN) {
-        if (before.businessDate.getTime() !== getBusinessDate().getTime()) throw new ApiError(403, "FORBIDDEN", "You can edit only entries from today");
-      } else {
-        if (before.exitCreatedById !== actor.userId || before.businessDate.getTime() !== getBusinessDate().getTime()) {
-          throw new ApiError(403, "FORBIDDEN", "You can edit only your own OUT entries from today");
-        }
+        throw new ApiError(403, "FORBIDDEN", "Exit Gate Security cannot edit IN records. Only Entry Gate Security or Supervisors may do this.");
+      }
+      if (before.exitCreatedById !== actor.userId || before.businessDate.getTime() !== getBusinessDate().getTime()) {
+        throw new ApiError(403, "FORBIDDEN", "You can edit only your own OUT entries from today");
       }
     }
     if (before.recordVersion !== input.expectedVersion) throw new ApiError(409, "VERSION_CONFLICT", "This record changed on another device. Reload and try again.");

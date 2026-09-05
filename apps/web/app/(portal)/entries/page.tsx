@@ -175,7 +175,11 @@ export default function EntriesPage() {
       <PageHeader
         eyebrow="Today's operations"
         title={tab === "in" ? "IN-Gate Records" : tab === "out" ? "OUT-Gate Records" : "Gate Records"}
-        description={tab === "in" ? "All vehicles that entered the facility today. Click any record to view details or edit." : tab === "out" ? "Vehicles that have completed the exit process. Click any record to view full details." : "Click any record to view full details or edit."}
+        description={tab === "in"
+          ? "All vehicles that entered the facility today. Click any record to view details."
+          : tab === "out"
+          ? "Vehicles that have completed the exit process. Click any record to view full details."
+          : "Click any record to view full details."}
         action={
           user?.role !== "ADMIN" ? (
             <div className="flex flex-col gap-2 sm:flex-row">
