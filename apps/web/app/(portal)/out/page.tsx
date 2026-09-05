@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type { ExitResolveResult, GateEntryRecord } from "@iocl/shared";
 import { CheckCircle2, ClipboardCheck, FileText, Keyboard, PencilLine, RefreshCw, ScanLine, ShieldAlert, Truck } from "lucide-react";
 import { toast } from "sonner";
-import { resolveExitInvoice, submitExit } from "../../../lib/api";
+import { resolveExitInvoice, submitExit, listEntries } from "../../../lib/api";
 import { formatIndiaDate, formatIndiaTime } from "../../../lib/utils";
 import { InvoiceScanner } from "../../../components/entry/invoice-scanner";
 import { Badge } from "../../../components/ui/badge";
@@ -44,6 +44,12 @@ function parsedToQuantities(parsed: Record<string, number>): Quantities {
 }
 
 export default function OutGatePage() {
+  const [inRecords, setInRecords] = useState<GateEntryRecord[]>([]);
+  const [showSearchDrop, setShowSearchDrop] = useState(false);
+
+  useEffect(() => {
+    listEntries({ status: "IN" }).then(res => setInRecords(res.items)).catch(console.error);
+  }, []);
   const [rawQr, setRawQr]           = useState("");
   const [resolved, setResolved]     = useState<ExitResolveResult | null>(null);
   const [quantities, setQuantities] = useState<Quantities>(zeroQuantities);
@@ -215,18 +221,36 @@ export default function OutGatePage() {
                 </div>
               </div>
               <div>
-                <label className="field-label">Tank Truck Number <span className="text-red-500">*</span></label>
-                <div className="flex gap-3">
+                <label className="field-label">Search Open IN Record <span className="text-red-500">*</span></label>
+                <div className="flex gap-3 relative">
                   <input
                     className="field-input flex-1 text-lg font-black uppercase"
-                    placeholder="e.g. TN74AZ8730"
+                    placeholder="e.g. TN74AZ8730 or DRIVER or DL"
                     value={manualTruck}
-                    onChange={(e) => setManualTruck(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase())}
+                    onFocus={() => setShowSearchDrop(true)}
+                    onBlur={() => setTimeout(() => setShowSearchDrop(false), 200)}
+                    onChange={(e) => setManualTruck(e.target.value.toUpperCase())}
                     onKeyDown={(e) => { if (e.key === "Enter") void lookupByTruck(); }}
                   />
                   <Button type="button" loading={loading} onClick={() => void lookupByTruck()} icon={<Truck className="h-5 w-5" />}>
                     Find IN Record
                   </Button>
+                  {showSearchDrop && manualTruck.length > 0 && (
+                    <ul className="absolute top-[105%] left-0 z-20 max-h-64 w-[calc(100%-180px)] overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-2xl">
+                      {inRecords.filter(r => r.actualTankTruckNumber.includes(manualTruck) || r.driverName.toUpperCase().includes(manualTruck) || (r.drivingLicenseNumber || "").toUpperCase().includes(manualTruck)).map(r => (
+                        <li key={r.id} className="cursor-pointer px-4 py-3 hover:bg-slate-50 border-b border-slate-100 last:border-0" onClick={() => {
+                          setManualTruck(r.actualTankTruckNumber);
+                          setShowSearchDrop(false);
+                        }}>
+                          <div className="font-bold text-sm text-iocl-navy">{r.actualTankTruckNumber}</div>
+                          <div className="text-[11px] font-mono text-slate-500">Driver: {r.driverName} | DL: {r.drivingLicenseNumber || "N/A"}</div>
+                        </li>
+                      ))}
+                      {inRecords.filter(r => r.actualTankTruckNumber.includes(manualTruck) || r.driverName.toUpperCase().includes(manualTruck) || (r.drivingLicenseNumber || "").toUpperCase().includes(manualTruck)).length === 0 && (
+                        <li className="px-4 py-3 text-sm text-slate-500 text-center">No open IN records found matching "{manualTruck}"</li>
+                      )}
+                    </ul>
+                  )}
                 </div>
                 <p className="mt-2 text-xs text-slate-400">Quantities cannot be auto-filled in manual mode — they must be entered from the physical invoice.</p>
               </div>

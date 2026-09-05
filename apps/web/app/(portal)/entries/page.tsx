@@ -164,7 +164,7 @@ export default function EntriesPage() {
     if (tab === "out") outRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [tab]);
 
-  const inPanel = useEntriesPanel(); // no status filter = shows both IN and OUT
+  const inPanel = useEntriesPanel("IN");
   const outPanel = useEntriesPanel("OUT");
 
   return (

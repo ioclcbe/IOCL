@@ -436,6 +436,10 @@ export function EntryWizard() {
                   <ManualField label="Pass Valid Until *" error={manualDriverErrors.passValidUntil}>
                     <input readOnly type="text" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.passValidUntil} />
                   </ManualField>
+                  
+                  <ManualField label="Crew ID" error={""}>
+                    <input readOnly type="text" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.crewId} placeholder="Not assigned" />
+                  </ManualField>
                 </div>
                 {(!manualDriver.drivingLicenseExpiryDate || !manualDriver.passValidUntil) && (
                   <div className="mt-4 rounded-xl border border-orange-200 bg-orange-50 p-4">
