@@ -44,7 +44,13 @@ export default function EntryDetailPage() {
       (user?.role === "EXIT_GATE_SECURITY" && entry.status === "OUT")
     )
   );
-  const canEditOut = entry?.status === "OUT" && user?.role !== "ENTRY_GATE_SECURITY";
+  // OUT quantities can only be edited by exit gate or above — never by entry gate security
+  const canEditOut = entry?.status === "OUT" && (user?.role === "EXIT_GATE_SECURITY" || user?.role === "ADMIN" || user?.role === "SUPERVISOR");
+  // Show a clear "locked" explanation when a security guard opens a record outside their gate
+  const isLockedForRole = Boolean(
+    entry && !entry.isDeleted && !canEditOperational &&
+    (user?.role === "ENTRY_GATE_SECURITY" || user?.role === "EXIT_GATE_SECURITY")
+  );
   const draftTruck = String(draft.actualTankTruckNumber ?? entry?.actualTankTruckNumber ?? "");
   const calculatedMatch = useMemo(() => entry ? normalizeTruck(entry.ttNumberOnPass) === normalizeTruck(draftTruck) : false, [entry, draftTruck]);
 
@@ -74,7 +80,31 @@ export default function EntryDetailPage() {
   return <div>
     <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><Link href="/entries" className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-iocl-orange"><ArrowLeft className="h-4 w-4" />Back to records</Link><div className="flex flex-wrap items-center gap-3"><h1 className="text-2xl font-black text-iocl-navy sm:text-3xl">{entry.displaySerial}</h1><Badge tone={entry.status === "IN" ? "blue" : entry.status === "OUT" ? "green" : "slate"}>{entry.status}</Badge><Badge tone={entry.ttNumberMatch ? "green" : "red"}>{entry.ttNumberMatch ? "TT Matched" : "TT Mismatch"}</Badge></div><p className="mt-2 text-sm text-slate-500">Created by {entry.createdBy.name} ({entry.createdBy.employeeCode})</p></div><div className="flex flex-wrap gap-2">{editing ? <><Button variant="secondary" onClick={() => { setDraft(toDraft(entry)); setQuantities(toQuantities(entry)); setEditing(false); }} icon={<X className="h-4 w-4" />}>Cancel</Button><Button loading={saving} onClick={() => void saveChanges()} icon={<Save className="h-4 w-4" />}>Save All</Button></> : <><Button variant="secondary" onClick={() => window.print()} icon={<Printer className="h-4 w-4" />}>Print</Button>{canEditOperational ? <Button onClick={() => setEditing(true)} icon={<Edit3 className="h-4 w-4" />}>{entry.status === "IN" ? "Edit Open IN" : user?.role === "ADMIN" ? "Admin Correct Record" : "Correct Record"}</Button> : null}</>}</div></div>
 
-    {entry.status !== "IN" && !canEditOperational ? <div className="mb-5 flex gap-3 rounded-2xl border border-slate-200 bg-slate-100 p-4 text-sm text-slate-700"><FileLock2 className="h-5 w-5 shrink-0" /><div><p className="font-black">Security editing is locked after exit</p><p className="mt-1 text-xs">OUT quantity corrections remain role-controlled. Administrators may make audited operational corrections without changing the immutable QR snapshot.</p></div></div> : null}
+    {isLockedForRole ? (
+      <div className="mb-5 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <FileLock2 className="h-5 w-5 shrink-0 mt-0.5" />
+        <div>
+          <p className="font-black">
+            {user?.role === "ENTRY_GATE_SECURITY"
+              ? "You can only edit IN-Gate records"
+              : "You can only edit OUT-Gate records"}
+          </p>
+          <p className="mt-1 text-xs text-amber-700">
+            {user?.role === "ENTRY_GATE_SECURITY"
+              ? "This vehicle has already exited the facility. OUT records can only be corrected by Exit Gate Security or Supervisors."
+              : "This vehicle is still inside the facility. IN records can only be edited by Entry Gate Security or Supervisors."}
+          </p>
+        </div>
+      </div>
+    ) : (entry.status !== "IN" && !canEditOperational) ? (
+      <div className="mb-5 flex gap-3 rounded-2xl border border-slate-200 bg-slate-100 p-4 text-sm text-slate-700">
+        <FileLock2 className="h-5 w-5 shrink-0" />
+        <div>
+          <p className="font-black">Security editing is locked after exit</p>
+          <p className="mt-1 text-xs">OUT quantity corrections remain role-controlled. Administrators may make audited operational corrections without changing the immutable QR snapshot.</p>
+        </div>
+      </div>
+    ) : null}
 
     <div className="grid gap-6 xl:grid-cols-[1fr_.82fr]"><div className="space-y-6">
       <Section title="Vehicle movement" icon={<Truck className="h-5 w-5" />}><div className="grid gap-4 sm:grid-cols-2">
