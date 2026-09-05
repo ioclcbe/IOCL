@@ -66,6 +66,25 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [online, setOnline] = useState(true);
 
+  const isNavActive = (itemHref: string) => {
+    const [itemPath, itemQuery] = itemHref.split("?");
+    if (pathname === itemPath) {
+      if (itemPath === "/entries") {
+        const targetTab = new URLSearchParams(itemQuery || "").get("tab");
+        const currentTab = searchParams.get("tab") || "in";
+        return targetTab === currentTab;
+      }
+      return !itemQuery || searchParams.toString() === itemQuery;
+    }
+    // If we are on an entry detail page (e.g. /entries/123) we could highlight it, but let's just avoid highlighting IN-Record if we are on /entries/new
+    if (pathname.startsWith("/entries/") && pathname !== "/entries/new" && itemPath === "/entries") {
+      // It's a detail page. We don't know if it's IN or OUT without fetching, so highlight IN by default or neither.
+      // We'll leave it unhighlighted or highlight IN-Record if targetTab is 'in' (fallback).
+      return new URLSearchParams(itemQuery || "").get("tab") === "in";
+    }
+    return !itemQuery && itemHref !== "/dashboard" && pathname.startsWith(itemHref);
+  };
+
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -116,10 +135,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
           </div>
           <nav className="relative mt-5 flex-1 space-y-1.5 overflow-y-auto px-4" aria-label="Primary navigation">
             {visibleNav.map((item) => {
-              const [itemPath, itemQuery] = item.href.split("?");
-              const activeExact = pathname === itemPath && (!itemQuery || searchParams.toString() === itemQuery);
-              const activeFuzzy = !itemQuery && item.href !== "/dashboard" && pathname.startsWith(item.href);
-              const active = activeExact || activeFuzzy;
+              const active = isNavActive(item.href);
               const Icon = item.icon;
               return <Link key={item.href} href={item.href} className={cn("flex min-h-13 items-center gap-3 rounded-2xl px-4 text-sm font-bold transition", active ? "bg-iocl-orange text-white shadow-lg shadow-orange-950/20" : "text-white/70 hover:bg-white/10 hover:text-white")}><Icon className="h-5 w-5" />{item.label}</Link>;
             })}
@@ -148,10 +164,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
           .filter(item => !(user?.role === "ENTRY_GATE_SECURITY" && item.href === "/dashboard"))
           .slice(0, 3)
           .map((item) => { 
-            const [itemPath, itemQuery] = item.href.split("?");
-            const activeExact = pathname === itemPath && (!itemQuery || searchParams.toString() === itemQuery);
-            const activeFuzzy = !itemQuery && item.href !== "/dashboard" && pathname.startsWith(item.href);
-            const active = activeExact || activeFuzzy;
+            const active = isNavActive(item.href);
             const Icon = item.icon; 
             return <Link key={item.href} href={item.href} className={cn("flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-bold", active ? "bg-iocl-orange text-white" : "text-slate-500")}><Icon className="h-5 w-5" />{item.label.replace("Gate ", "")}</Link>; 
           })}
