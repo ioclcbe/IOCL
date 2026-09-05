@@ -425,19 +425,46 @@ export function EntryWizard() {
 
 
                     <ManualField label="TT Number on Pass *" error={manualDriverErrors.ttNumberOnPass}>
-                    <input
-                      readOnly
-                      className="field-input bg-slate-100 cursor-not-allowed text-slate-600 font-mono uppercase"
-                      value={manualDriver.ttNumberOnPass}
-                    />
+                    <div className="relative">
+                      <input
+                        className="field-input uppercase font-mono"
+                        placeholder="Search TT Number..."
+                        value={manualDriver.ttNumberOnPass}
+                        onFocus={() => setShowTtDrop(true)}
+                        onBlur={() => setTimeout(() => setShowTtDrop(false), 200)}
+                        onChange={(e) => setManualDriver((p) => ({ ...p, ttNumberOnPass: e.target.value.toUpperCase() }))}
+                      />
+                      {showTtDrop && manualDriver.ttNumberOnPass.length > 0 && (
+                        <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl">
+                          {masterTrucks.filter(t => t.ttNumber.includes(manualDriver.ttNumberOnPass)).map(t => (
+                            <li key={t.id} className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0" onClick={() => {
+                              setManualDriver(p => ({ ...p, ttNumberOnPass: t.ttNumber }));
+                              setShowTtDrop(false);
+                            }}>
+                              <div className="font-bold text-sm text-iocl-navy">{t.ttNumber}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </ManualField>
 
                   <ManualField label="DL Expiry Date *" error={manualDriverErrors.drivingLicenseExpiryDate}>
-                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.drivingLicenseExpiryDate} />
+                    <input
+                      type="date"
+                      className="field-input text-slate-700 focus:border-iocl-orange"
+                      value={manualDriver.drivingLicenseExpiryDate}
+                      onChange={(e) => setManualDriver((p) => ({ ...p, drivingLicenseExpiryDate: e.target.value }))}
+                    />
                   </ManualField>
 
                   <ManualField label="Pass Valid Until *" error={manualDriverErrors.passValidUntil}>
-                    <input readOnly type="date" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={manualDriver.passValidUntil} />
+                    <input
+                      type="date"
+                      className="field-input text-slate-700 focus:border-iocl-orange"
+                      value={manualDriver.passValidUntil}
+                      onChange={(e) => setManualDriver((p) => ({ ...p, passValidUntil: e.target.value }))}
+                    />
                   </ManualField>
                 </div>
                 <Button type="button" loading={resolving} onClick={() => void submitManualDriver()} className="mt-4">Verify & Save Driver Details</Button>
