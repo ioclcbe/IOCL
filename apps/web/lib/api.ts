@@ -294,15 +294,15 @@ export async function getReportSummary(dateFrom: string, dateTo?: string) {
 
 export async function getMasterTrucks() {
   const res = await apiFetch('/masters/trucks');
-  return res;
+  return (res as any)?.data ?? res;
 }
 export async function getMasterDrivers() {
   const res = await apiFetch('/masters/drivers');
-  return res;
+  return (res as any)?.data ?? res;
 }
 export async function getMasterHelpers() {
   const res = await apiFetch('/masters/helpers');
-  return res;
+  return (res as any)?.data ?? res;
 }
 
 
