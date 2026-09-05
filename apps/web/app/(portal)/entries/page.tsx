@@ -48,15 +48,17 @@ function useEntriesPanel(status?: "IN" | "OUT") {
   return { entries, search, setSearch, loading, error, reload: () => setReload((v) => v + 1) };
 }
 
-function EntryRow({ entry }: { entry: GateEntryRecord }) {
-  const isIn = entry.status === "IN";
+function EntryRow({ entry, panel }: { entry: GateEntryRecord, panel: "in" | "out" | null }) {
+  // If we are in the IN panel, always display it as an IN record (blue LogIn icon) to represent the entry event.
+  // Otherwise, use the actual current status.
+  const isInView = panel === "in" || entry.status === "IN";
   return (
     <Link
       href={`/entries/${entry.id}`}
       className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-sm"
     >
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isIn ? "bg-blue-50 text-blue-600" : "bg-emerald-50 text-emerald-600"} transition group-hover:bg-iocl-orange group-hover:text-white`}>
-        {isIn ? <LogIn className="h-5 w-5" /> : <LogOut className="h-5 w-5" />}
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isInView ? "bg-blue-50 text-blue-600" : "bg-emerald-50 text-emerald-600"} transition group-hover:bg-iocl-orange group-hover:text-white`}>
+        {isInView ? <LogIn className="h-5 w-5" /> : <LogOut className="h-5 w-5" />}
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-black tracking-wide text-iocl-navy">{entry.actualTankTruckNumber}</p>
@@ -64,7 +66,7 @@ function EntryRow({ entry }: { entry: GateEntryRecord }) {
         <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] text-slate-400">
           <Clock3 className="h-3 w-3 shrink-0" />
           <span className="whitespace-nowrap">{formatIndiaTime(entry.timeIn)}</span>
-          {entry.timeOut ? <><span className="shrink-0">→</span><span className="whitespace-nowrap">{formatIndiaTime(entry.timeOut)}</span></> : null}
+          {entry.timeOut && panel !== "in" ? <><span className="shrink-0">→</span><span className="whitespace-nowrap">{formatIndiaTime(entry.timeOut)}</span></> : null}
           <span className="ml-1 text-slate-300 shrink-0">•</span>
           <span className="whitespace-nowrap">{formatIndiaDate(entry.entryDate)}</span>
         </div>
@@ -81,13 +83,13 @@ function EntryRow({ entry }: { entry: GateEntryRecord }) {
 }
 
 function Panel({
-  title, subtitle, icon, gradientFrom, gradientTo, borderColor, entries, search, onSearch, loading, error, onReload, emptyText, emptySubtext,
+  title, subtitle, icon, gradientFrom, gradientTo, borderColor, entries, search, onSearch, loading, error, onReload, emptyText, emptySubtext, panelType,
 }: {
   title: string; subtitle: string; icon: React.ReactNode;
   gradientFrom: string; gradientTo: string; borderColor: string;
   entries: GateEntryRecord[]; search: string; onSearch: (v: string) => void;
   loading: boolean; error: string | null; onReload: () => void;
-  emptyText: string; emptySubtext: string;
+  emptyText: string; emptySubtext: string; panelType: "in" | "out" | null;
 }) {
   return (
     <div className={`flex flex-col overflow-hidden rounded-3xl border-2 ${borderColor} bg-white shadow-sm`}>
@@ -144,7 +146,7 @@ function Panel({
               <p className="mt-1 text-xs text-slate-400">{emptySubtext}</p>
             </div>
           )
-          : entries.map((entry) => <EntryRow key={entry.id} entry={entry} />)
+          : entries.map((entry) => <EntryRow key={entry.id} entry={entry} panel={panelType} />)
         }
       </div>
     </div>
@@ -164,7 +166,7 @@ export default function EntriesPage() {
     if (tab === "out") outRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [tab]);
 
-  const inPanel = useEntriesPanel("IN");
+  const inPanel = useEntriesPanel();
   const outPanel = useEntriesPanel("OUT");
 
   return (
@@ -172,7 +174,7 @@ export default function EntriesPage() {
       <PageHeader
         eyebrow="Today's operations"
         title={tab === "in" ? "IN-Gate Records" : tab === "out" ? "OUT-Gate Records" : "Gate Records"}
-        description={tab === "in" ? "Vehicles currently inside the facility. Click any record to view details or edit." : tab === "out" ? "Vehicles that have completed the exit process. Click any record to view full details." : "Click any record to view full details or edit."}
+        description={tab === "in" ? "All vehicles that entered the facility today. Click any record to view details or edit." : tab === "out" ? "Vehicles that have completed the exit process. Click any record to view full details." : "Click any record to view full details or edit."}
         action={
           user?.role !== "ADMIN" ? (
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -190,6 +192,7 @@ export default function EntriesPage() {
         {(tab === "in" || !tab) && (
           <div ref={inRef} id="panel-in">
             <Panel
+              panelType="in"
               title="IN-Gate Records"
               subtitle="Vehicles that have entered the facility"
               icon={<ArrowDownToLine className="h-6 w-6" />}
@@ -212,6 +215,7 @@ export default function EntriesPage() {
         {(tab === "out" || !tab) && (
           <div ref={outRef} id="panel-out">
             <Panel
+              panelType="out"
               title="OUT-Gate Records"
               subtitle="Vehicles that have exited with invoice"
               icon={<ArrowUpFromLine className="h-6 w-6" />}
