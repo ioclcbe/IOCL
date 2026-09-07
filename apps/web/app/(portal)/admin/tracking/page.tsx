@@ -36,22 +36,26 @@ export default function LiveTrackingPage() {
   useEffect(() => { load(); }, []);
 
   const TrackingRow = ({ item }: { item: GateEntryRecord }) => (
-    <tr className="hover:bg-slate-50/50 group transition-colors">
+    <tr className="hover:bg-slate-50/50 group transition-colors even:bg-slate-50/30">
       <td className="p-3 border-b border-slate-100 font-mono text-xs">{item.displaySerial}</td>
+      <td className="p-3 border-b border-slate-100 font-mono text-xs text-slate-500">{formatIndiaDate(item.businessDate)}</td>
       <td className="p-3 border-b border-slate-100 font-black text-iocl-navy uppercase tracking-wider">{item.actualTankTruckNumber}</td>
-      <td className="p-3 border-b border-slate-100 text-sm text-slate-700">{item.driverName}</td>
+      <td className="p-3 border-b border-slate-100 text-sm text-slate-700 truncate max-w-[120px]" title={item.driverName}>{item.driverName}</td>
       <td className="p-3 border-b border-slate-100 text-sm text-slate-600 truncate max-w-[150px]" title={item.customerDestination || "N/A"}>{item.customerDestination || "N/A"}</td>
-      <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">
-        {formatIndiaTime(item.timeIn)}
-      </td>
-      <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">
-        {item.timeOut ? formatIndiaTime(item.timeOut) : "-"}
-      </td>
+      <td className="p-3 border-b border-slate-100 text-xs font-bold text-slate-500">{item.abs ? "YES" : "NO"}</td>
+      <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{formatIndiaTime(item.timeIn)}</td>
+      <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.timeOut ? formatIndiaTime(item.timeOut) : "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyMs || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyXpms || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyHsd || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtySko || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyXg || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyBioHsd || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyFo || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyLdo || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.lockNumber || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.invoiceNumber || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.invoiceDate ? formatIndiaDate(item.invoiceDate) : "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm text-slate-700 truncate max-w-[150px]" title={item.invoiceConsignee || "N/A"}>{item.invoiceConsignee || "N/A"}</td>
       <td className="p-3 border-b border-slate-100 text-right">
         {item.status === "OUT" ? (
@@ -143,16 +147,24 @@ export default function LiveTrackingPage() {
               <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
                 <tr>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">SL.NO</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Truck No</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Driver</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Destination</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">ABS</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time IN</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time OUT</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">MS</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XP95</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">HSD</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">SKO</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XG</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">BIO HSD</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">FO</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">LDO</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Lock No</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice No</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice Date</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Consignee</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Status</th>
                 </tr>
