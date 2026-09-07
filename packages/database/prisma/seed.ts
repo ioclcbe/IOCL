@@ -112,7 +112,7 @@ async function main() {
 
   const destinations = [
     ["VASUGI", "VASUGI AGENCIES", 10],
-    ["MDU-TML", "Madurai Smart Terminal", 20],
+    ["CBE-TML", "Coimbatore Smart Terminal", 20],
     ["TRI-DEP", "Trichy Retail Depot", 30],
     ["DGL-DEP", "Dindigul Depot", 40],
     ["TEN-DEP", "Tirunelveli Depot", 50],

@@ -118,7 +118,7 @@ export function seedDemoEntries() {
   const sample: GateEntryRecord[] = [{
     id: "a227b85b-0bf6-4296-968e-4c178caed9a1",
     recordVersion: 1,
-    facilityCode: "IOCL-MADURAI",
+    facilityCode: "IOCL-COIMBATORE",
     gateCode: "IN-GATE-01",
     serialNumber: 1,
     displaySerial: serial(1),
@@ -216,7 +216,7 @@ export function createDemoEntry(input: CreateGateEntryInput) {
   const now = new Date().toISOString();
   const index = entries.length + 1;
   const entry: GateEntryRecord = {
-    id: uid(), recordVersion: 1, facilityCode: "IOCL-MADURAI", gateCode: "IN-GATE-01", serialNumber: index,
+    id: uid(), recordVersion: 1, facilityCode: "IOCL-COIMBATORE", gateCode: "IN-GATE-01", serialNumber: index,
     displaySerial: serial(index), businessDate: todayKey(), entryDate: now, timeIn: now, timeOut: null, status: "IN",
     qrScanMethod: input.qrScanMethod ?? "MANUAL", crewId: pass.crewId, driverName: pass.driverName, crewType: pass.crewType,
     passValidUntil: pass.passValidUntil, ttNumberOnPass: pass.ttNumberOnPass, drivingLicenseNumber: pass.drivingLicenseNumber,
@@ -320,7 +320,7 @@ export function getDemoDashboard(): DashboardSummary {
   const sum = (key: "qtyMs" | "qtyXpms" | "qtyEbms" | "qtyHsd") => out.reduce((total, item) => total + Number(item[key] ?? 0), 0);
   const ms = sum("qtyMs"), xpms = sum("qtyXpms"), ebms = sum("qtyEbms"), hsd = sum("qtyHsd");
   return {
-    facilityCode: "IOCL-MADURAI", gateCode: "IN-GATE-01", businessDate: todayKey(), total: entries.length,
+    facilityCode: "IOCL-COIMBATORE", gateCode: "IN-GATE-01", businessDate: todayKey(), total: entries.length,
     open: entries.filter((item) => item.status === "IN").length, exited: out.length,
     mismatches: entries.filter((item) => !item.ttNumberMatch).length,
     safetyExceptions: entries.filter((item) => Object.entries(item.safetyChecklist).some(([key, value]) => key !== "checklistVersion" && value === false)).length,
@@ -331,6 +331,6 @@ export function getDemoDashboard(): DashboardSummary {
 
 export function getDemoAudits(): AuditLogRecord[] { return read<AuditLogRecord[]>(AUDIT_KEY, []); }
 export function getDemoDestinations() { return [
-  { id: "1", code: "VASUGI", name: "VASUGI AGENCIES" }, { id: "2", code: "MDU", name: "Madurai Retail Depot" }, { id: "3", code: "TRI", name: "Trichy Terminal" },
+  { id: "1", code: "VASUGI", name: "VASUGI AGENCIES" }, { id: "2", code: "CBE", name: "Coimbatore Retail Depot" }, { id: "3", code: "TRI", name: "Trichy Terminal" },
 ]; }
 export function getDemoUsers(): UserRecord[] { const now = new Date().toISOString(); return Object.values(demoUsers).map((user) => ({ ...user, isActive: true, failedLoginAttempts: 0, lockedUntil: null, lastLoginAt: now, createdAt: now, updatedAt: now })); }

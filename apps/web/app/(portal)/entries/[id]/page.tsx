@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
@@ -27,7 +27,7 @@ export default function EntryDetailPage() {
   const [showHelperScanner, setShowHelperScanner] = useState(false);
   const [helperScanResolving, setHelperScanResolving] = useState(false);
   const [draft, setDraft] = useState<UpdateGateEntryInput>({ expectedVersion: 1, remarks: "" });
-  const [quantities, setQuantities] = useState({ qtyMs: "0", qtyXpms: "0", qtyEbms: "0", qtyHsd: "0", qtySko: "0", qtyXg: "0", qtyBioHsd: "0", qtyFo: "0", qtyLdo: "0", lockNumber: "" });
+  const [quantities, setQuantities] = useState({ qtyMs: "0", qtyXpms: "0", qtyEbms: "0", qtyHsd: "0", qtySko: "0", qtyXg: "0", qtyBioHsd: "0", qtyFo: "0", qtyLdo: "0", lockNumber: "", invoiceConsignee: "" });
 
   useEffect(() => {
     let active = true; setLoadError(""); setEntry(null);
@@ -63,8 +63,8 @@ export default function EntryDetailPage() {
     try {
       let updated = await updateEntry(entry.id, draft);
       if (entry.status === "OUT" && canEditOut) {
-        const parsed = Object.fromEntries(Object.entries(quantities).map(([key, value]) => [key, key === "lockNumber" ? value : Number(value)])) as any;
-        const numericValues = Object.entries(parsed).filter(([key]) => key !== "lockNumber").map(([, value]) => value as number);
+        const parsed = Object.fromEntries(Object.entries(quantities).map(([key, value]) => [key, (key === "lockNumber" || key === "invoiceConsignee") ? value : Number(value)])) as any;
+        const numericValues = Object.entries(parsed).filter(([key]) => key !== "lockNumber" && key !== "invoiceConsignee").map(([, value]) => value as number);
         if (numericValues.some((value) => !Number.isFinite(value) || value < 0)) throw new Error("Enter valid non-negative quantities");
         updated = await updateExitQuantities(entry.id, { expectedVersion: updated.recordVersion, ...parsed });
       }
@@ -173,7 +173,7 @@ export default function EntryDetailPage() {
             <Data label="Invoice Number" value={entry.invoiceNumber ?? "—"} />
             <Data label="Invoice Date" value={entry.invoiceDate ? formatIndiaDate(entry.invoiceDate) : "—"} />
             <Data label="Invoice Vehicle" value={entry.invoiceVehicle ?? "—"} />
-            <Data label="Consignee" value={entry.invoiceConsignee ?? "—"} />
+            {editing ? ( <EditField label="Consignee" value={quantities.invoiceConsignee} onChange={(value) => setQuantities((current) => ({ ...current, invoiceConsignee: value }))} /> ) : ( <Data label="Consignee" value={entry.invoiceConsignee ?? "—"} /> )}
             <Data label="Product / Quantity Raw" value={entry.invoiceProductsRaw ?? "—"} wide />
             {editing ? (
               <>
@@ -218,7 +218,7 @@ function toDraft(entry: GateEntryRecord): UpdateGateEntryInput {
   for (const { key } of IN_GATE_SAFETY_ITEMS) if (entry.safetyChecklist[key] != null) safetyChecklist[key] = entry.safetyChecklist[key] as boolean;
   return { expectedVersion: entry.recordVersion, customerDestination: entry.customerDestination, actualTankTruckNumber: entry.actualTankTruckNumber, abs: entry.abs, driverAbt: entry.driverAbt, helperName: entry.helperName ?? "", helperPassNumber: entry.helperPassNumber ?? "", helperAbt: entry.helperAbt, driverSignatureConfirmed: entry.driverSignatureConfirmed ? true : undefined, remarks: entry.remarks ?? "", safetyChecklist };
 }
-function toQuantities(entry: GateEntryRecord) { return { qtyMs: entry.qtyMs ?? "0", qtyXpms: entry.qtyXpms ?? "0", qtyEbms: entry.qtyEbms ?? "0", qtyHsd: entry.qtyHsd ?? "0", qtySko: entry.qtySko ?? "0", qtyXg: entry.qtyXg ?? "0", qtyBioHsd: entry.qtyBioHsd ?? "0", qtyFo: entry.qtyFo ?? "0", qtyLdo: entry.qtyLdo ?? "0", lockNumber: entry.lockNumber ?? "" }; }
+function toQuantities(entry: GateEntryRecord) { return { qtyMs: entry.qtyMs ?? "0", qtyXpms: entry.qtyXpms ?? "0", qtyEbms: entry.qtyEbms ?? "0", qtyHsd: entry.qtyHsd ?? "0", qtySko: entry.qtySko ?? "0", qtyXg: entry.qtyXg ?? "0", qtyBioHsd: entry.qtyBioHsd ?? "0", qtyFo: entry.qtyFo ?? "0", qtyLdo: entry.qtyLdo ?? "0", lockNumber: entry.lockNumber ?? "", invoiceConsignee: entry.invoiceConsignee ?? "" }; }
 function setSafety(setDraft: React.Dispatch<React.SetStateAction<UpdateGateEntryInput>>, key: SafetyCheckKey, value: boolean) { setDraft((current) => ({ ...current, safetyChecklist: { ...current.safetyChecklist, [key]: value } })); }
 function yesNo(value: boolean) { return value ? "YES" : "NO"; }
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) { return <section className="panel overflow-hidden"><div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4 text-base font-black text-iocl-navy">{icon}{title}</div><div className="p-5">{children}</div></section>; }

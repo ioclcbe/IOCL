@@ -228,8 +228,8 @@ export async function createEntry(input: CreateGateEntryValue, actor: Actor, met
         select: { serialNumber: true, businessDate: true },
       }),
       tx.gateEntry.findFirst({
-        // Block re-entry for the ENTIRE business day — regardless of check-out status
-        where: { crewPassId: pass.id, isDeleted: false, businessDate },
+        // Block re-entry ONLY if currently IN. If they have exited, they can enter again.
+        where: { crewPassId: pass.id, isDeleted: false, status: EntryStatus.IN },
         select: { serialNumber: true, businessDate: true, status: true },
       }),
       Promise.resolve(null),
@@ -238,8 +238,7 @@ export async function createEntry(input: CreateGateEntryValue, actor: Actor, met
       throw new ApiError(409, "TRUCK_ALREADY_IN", `Truck already entered under ${formatDisplaySerial(openEntry.businessDate, openEntry.serialNumber)}`);
     }
     if (openCrewEntry) {
-      const alreadyOut = openCrewEntry.status === "OUT";
-      throw new ApiError(409, "CREW_ALREADY_IN", `This crew pass has already been used today under ${formatDisplaySerial(openCrewEntry.businessDate, openCrewEntry.serialNumber)}${alreadyOut ? " (checked out)" : ""}. One entry per pass per day is allowed.`);
+      throw new ApiError(409, "CREW_ALREADY_IN", `This crew is already inside under ${formatDisplaySerial(openCrewEntry.businessDate, openCrewEntry.serialNumber)}`);
     }
     // tokenUsed check removed — real tokens are enforced by DB unique index; placeholder tokens are unique per entry.
 
@@ -574,6 +573,7 @@ export async function updateExitQuantities(id: string, input: UpdateExitQuantiti
     if (input.qtyFo !== undefined) data.qtyFo = new Prisma.Decimal(input.qtyFo);
     if (input.qtyLdo !== undefined) data.qtyLdo = new Prisma.Decimal(input.qtyLdo);
     if (input.lockNumber !== undefined) data.lockNumber = input.lockNumber?.trim() || null;
+    if (input.invoiceConsignee !== undefined) data.invoiceConsignee = input.invoiceConsignee?.trim() || null;
 
     const entry = await tx.gateEntry.update({ where: { id_recordVersion: { id, recordVersion: input.expectedVersion } }, data, include: includeEntry });
     await tx.auditLog.create({

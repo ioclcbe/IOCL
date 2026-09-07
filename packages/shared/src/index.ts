@@ -285,6 +285,7 @@ const optionalQuantity = z.coerce.number().finite().min(0, "Quantity cannot be n
 export const updateExitQuantitiesSchema = z.object({
   expectedVersion: z.number().int().positive(),
   lockNumber: z.string().trim().max(50).optional(),
+  invoiceConsignee: z.string().trim().max(200).optional(),
   qtyMs: optionalQuantity,
   qtyXpms: optionalQuantity,
   qtyEbms: optionalQuantity,
@@ -295,8 +296,8 @@ export const updateExitQuantitiesSchema = z.object({
   qtyFo: optionalQuantity,
   qtyLdo: optionalQuantity,
 }).strict().refine(
-  (value) => [value.qtyMs, value.qtyXpms, value.qtyEbms, value.qtyHsd, value.qtySko, value.qtyXg, value.qtyBioHsd, value.qtyFo, value.qtyLdo, value.lockNumber].some((item) => item !== undefined),
-  "Provide at least one quantity or lock number to update",
+  (value) => [value.qtyMs, value.qtyXpms, value.qtyEbms, value.qtyHsd, value.qtySko, value.qtyXg, value.qtyBioHsd, value.qtyFo, value.qtyLdo, value.lockNumber, value.invoiceConsignee].some((item) => item !== undefined),
+  "Provide at least one quantity, lock number, or consignee to update",
 );
 export type UpdateExitQuantitiesInput = z.infer<typeof updateExitQuantitiesSchema>;
 
