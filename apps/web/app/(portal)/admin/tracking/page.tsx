@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { type DashboardSummary, type GateEntryRecord } from "@iocl/shared";
@@ -41,7 +41,7 @@ export default function LiveTrackingPage() {
       <td className="p-3 border-b border-slate-100 font-mono text-xs text-slate-500">{formatIndiaDate(item.businessDate)}</td>
       <td className="p-3 border-b border-slate-100 font-black text-iocl-navy uppercase tracking-wider">{item.actualTankTruckNumber}</td>
       <td className="p-3 border-b border-slate-100 text-sm text-slate-700 truncate max-w-[120px]" title={item.driverName}>{item.driverName}</td>
-      <td className="p-3 border-b border-slate-100 text-sm text-slate-600 truncate max-w-[150px]" title={item.customerDestination || "N/A"}>{item.customerDestination || "N/A"}</td>
+
       <td className="p-3 border-b border-slate-100 text-xs font-bold text-slate-500">{item.abs ? "YES" : "NO"}</td>
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{formatIndiaTime(item.timeIn)}</td>
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.timeOut ? formatIndiaTime(item.timeOut) : "-"}</td>
@@ -53,7 +53,7 @@ export default function LiveTrackingPage() {
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyBioHsd || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyFo || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyLdo || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.lockNumber || "-"}</td>
+
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.invoiceNumber || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.invoiceDate ? formatIndiaDate(item.invoiceDate) : "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm text-slate-700 truncate max-w-[150px]" title={item.invoiceConsignee || "N/A"}>{item.invoiceConsignee || "N/A"}</td>
@@ -150,7 +150,7 @@ export default function LiveTrackingPage() {
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Truck No</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Driver</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Destination</th>
+
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">ABS</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time IN</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time OUT</th>
@@ -162,7 +162,7 @@ export default function LiveTrackingPage() {
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">BIO HSD</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">FO</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">LDO</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Lock No</th>
+
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice No</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice Date</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Consignee</th>
