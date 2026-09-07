@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 
 const CONTROL_CHARACTERS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -123,7 +123,7 @@ export type Driver = z.infer<typeof driverSchema>;
 
 export const helperSchema = z.object({
   id: z.string().uuid().optional(),
-  name: z.string().trim().min(3).max(100),
+  name: z.string().trim().min(3).max(1000),
   helperPassNumber: z.string().trim().min(5).max(50),
   passValidUntil: z.string().optional().nullable(),
   crewId: z.string().trim().optional(),
@@ -168,9 +168,9 @@ export const safetyChecklistBase = z.object({
   batteryCutOffSwitchCondition: yesNo,
   handBrakeWorking: yesNo,
   earthCleatProvided: yesNo,
-  inspectionArea: z.string().trim().max(100).default("-"),
+  inspectionArea: z.string().trim().max(1000).default("-"),
   sealNumber: z.string().trim().max(80).default("-"),
-  verifiedBy: z.string().trim().max(100).default("-"),
+  verifiedBy: z.string().trim().max(1000).default("-"),
   verificationNotes: z.string().trim().max(500).default("-"),
   exceptionRemarks: optionalText(500),
 }).strict();
@@ -231,7 +231,7 @@ export const editableGateEntrySchema = z.object({
   challanNumber: z.string().optional(),
   driverPassNumber: operationalIdentifier(2, 50, "Driver pass number is required").optional(),
   driverAbt: yesNo.optional(),
-  helperName: z.string().trim().max(100).optional(),
+  helperName: z.string().trim().max(1000).optional(),
   helperPassNumber: z
     .string()
     .trim()
@@ -304,7 +304,7 @@ export type UpdateExitQuantitiesInput = z.infer<typeof updateExitQuantitiesSchem
 export const entryIdSchema = z.string().uuid("Invalid entry identifier");
 
 export const entryFilterSchema = z.object({
-  search: z.string().trim().max(100).optional(),
+  search: z.string().trim().max(1000).optional(),
   status: entryStatusSchema.optional(),
   match: z.enum(["all", "matched", "mismatched"]).default("all"),
   date: isoDateSchema.optional(),
@@ -313,7 +313,7 @@ export const entryFilterSchema = z.object({
   createdBy: z.string().trim().max(32).optional(),
   includeDeleted: queryBooleanSchema.default(false),
   page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  pageSize: z.coerce.number().int().min(1).max(1000).default(20),
 }).strict().superRefine((value, ctx) => {
   if (value.dateFrom && value.dateTo && value.dateFrom > value.dateTo) {
     ctx.addIssue({ code: "custom", path: ["dateTo"], message: "End date cannot be before start date" });
@@ -363,11 +363,11 @@ export const resetPasswordSchema = z.object({ password: passwordSchema }).strict
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
 export const userListFilterSchema = z.object({
-  search: z.string().trim().max(100).optional(),
+  search: z.string().trim().max(1000).optional(),
   role: userRoleSchema.optional(),
   active: z.enum(["all", "active", "disabled"]).default("all"),
   page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  pageSize: z.coerce.number().int().min(1).max(1000).default(20),
 }).strict();
 export type UserListFilter = z.infer<typeof userListFilterSchema>;
 
