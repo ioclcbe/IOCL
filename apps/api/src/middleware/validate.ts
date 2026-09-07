@@ -6,6 +6,7 @@ export function validateBody(schema: ZodType) {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
+      console.error("VALIDATION ERROR. Body:", req.body, "Errors:", result.error.flatten().fieldErrors);
       return next(
         new ApiError(422, "VALIDATION_ERROR", "Please correct the highlighted fields", {
           fieldErrors: result.error.flatten().fieldErrors,

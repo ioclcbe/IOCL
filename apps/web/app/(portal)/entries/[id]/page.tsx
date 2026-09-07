@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
@@ -213,10 +213,22 @@ function toDraft(entry: GateEntryRecord): UpdateGateEntryInput {
   const safetyChecklist: NonNullable<UpdateGateEntryInput["safetyChecklist"]> = {
     tlfNo: entry.safetyChecklist.tlfNo ?? undefined, accessMethod: entry.safetyChecklist.accessMethod ?? undefined,
     inspectionArea: entry.safetyChecklist.inspectionArea ?? undefined, sealNumber: entry.safetyChecklist.sealNumber ?? undefined,
-    verificationNotes: entry.safetyChecklist.verificationNotes ?? undefined, exceptionRemarks: entry.safetyChecklist.exceptionRemarks,
+    verificationNotes: entry.safetyChecklist.verificationNotes ?? undefined, exceptionRemarks: entry.safetyChecklist.exceptionRemarks ?? undefined,
   };
   for (const { key } of IN_GATE_SAFETY_ITEMS) if (entry.safetyChecklist[key] != null) safetyChecklist[key] = entry.safetyChecklist[key] as boolean;
-  return { expectedVersion: entry.recordVersion, customerDestination: entry.customerDestination, actualTankTruckNumber: entry.actualTankTruckNumber, abs: entry.abs, driverAbt: entry.driverAbt, helperName: entry.helperName ?? "", helperPassNumber: entry.helperPassNumber ?? "", helperAbt: entry.helperAbt, driverSignatureConfirmed: entry.driverSignatureConfirmed ? true : undefined, remarks: entry.remarks ?? "", safetyChecklist };
+  return {
+    expectedVersion: entry.recordVersion,
+    customerDestination: entry.customerDestination ?? undefined,
+    actualTankTruckNumber: entry.actualTankTruckNumber ?? undefined,
+    abs: entry.abs ?? undefined,
+    driverAbt: entry.driverAbt ?? undefined,
+    helperName: entry.helperName ?? undefined,
+    helperPassNumber: entry.helperPassNumber ?? undefined,
+    helperAbt: entry.helperAbt ?? undefined,
+    driverSignatureConfirmed: entry.driverSignatureConfirmed ? true : undefined,
+    remarks: entry.remarks ?? undefined,
+    safetyChecklist
+  };
 }
 function toQuantities(entry: GateEntryRecord) { return { qtyMs: entry.qtyMs ?? "0", qtyXpms: entry.qtyXpms ?? "0", qtyEbms: entry.qtyEbms ?? "0", qtyHsd: entry.qtyHsd ?? "0", qtySko: entry.qtySko ?? "0", qtyXg: entry.qtyXg ?? "0", qtyBioHsd: entry.qtyBioHsd ?? "0", qtyFo: entry.qtyFo ?? "0", qtyLdo: entry.qtyLdo ?? "0", lockNumber: entry.lockNumber ?? "", invoiceConsignee: entry.invoiceConsignee ?? "" }; }
 function setSafety(setDraft: React.Dispatch<React.SetStateAction<UpdateGateEntryInput>>, key: SafetyCheckKey, value: boolean) { setDraft((current) => ({ ...current, safetyChecklist: { ...current.safetyChecklist, [key]: value } })); }
