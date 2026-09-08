@@ -224,12 +224,12 @@ export async function createEntry(input: CreateGateEntryValue, actor: Actor, met
 
     const [openEntry, openCrewEntry, tokenUsed] = await Promise.all([
       tx.gateEntry.findFirst({
-        where: { actualTankTruckNumber: actualTruck, status: EntryStatus.IN, isDeleted: false },
+        where: { actualTankTruckNumber: actualTruck, status: EntryStatus.IN, isDeleted: false, businessDate },
         select: { serialNumber: true, businessDate: true },
       }),
       tx.gateEntry.findFirst({
-        // Block re-entry ONLY if currently IN. If they have exited, they can enter again.
-        where: { crewPassId: pass.id, isDeleted: false, status: EntryStatus.IN },
+        // Block re-entry ONLY if currently IN and from today. If they entered yesterday and didn't exit, allow a new entry today.
+        where: { crewPassId: pass.id, isDeleted: false, status: EntryStatus.IN, businessDate },
         select: { serialNumber: true, businessDate: true, status: true },
       }),
       Promise.resolve(null),

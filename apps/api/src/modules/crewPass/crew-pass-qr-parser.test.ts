@@ -10,7 +10,7 @@ describe("crew pass QR parser", () => {
     expect(value.driverName).toBe("RAGUPRABAHAR C");
     expect(value.ttNumberOnPass).toBe("TN74AZ8730");
     expect(value.drivingLicenseNumber).toBe("Tn7420210005690");
-    expect(value.passValidUntil.toISOString()).toBe("2025-08-03T00:00:00.000Z");
+    expect(value.passValidUntil).toBe("03-Aug-2025");
   });
   it("supports CRLF, case and label aliases with a stable canonical hash", () => {
     const alternate = sample.replaceAll("\n", "\r\n").replace("Crew Id", "crew ID").replace("pass valid Upto", "Pass Valid Up To").replace("DL No", "Driving License Number").replace("DL Expiry Date", "Driving License Expiry Date");
