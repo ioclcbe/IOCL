@@ -90,7 +90,7 @@ export function EntryWizard() {
   const [showHelperPassDrop, setShowHelperPassDrop] = useState(false);
   const [helperDocValidity, setHelperDocValidity] = useState("");
   const [helperDocTt, setHelperDocTt] = useState("");
-  const [helperDocCrewType, setHelperDocCrewType] = useState("");
+  const [helperDocCrewType, setHelperDocCrewType] = useState(""); useEffect(() => { if (helperMode === "manual" && values.helperPassNumber) { const h = masterHelpers.find(x => x.helperPassNumber === values.helperPassNumber); if (h && h.passValidUntil) setHelperDocValidity(h.passValidUntil); } }, [values.helperPassNumber, helperMode, masterHelpers]);
 
   // Helper mode: "scan" = QR scanner, "manual" = type name+pass
   const [helperMode, setHelperMode] = useState<"scan" | "manual">("manual");
@@ -207,6 +207,7 @@ export function EntryWizard() {
       setHelperPass(resolved);
       setValue("helperName", resolved.driverName, { shouldValidate: true });
       setValue("helperPassNumber", resolved.crewId, { shouldValidate: true });
+      setHelperDocValidity(resolved.passValidUntil || "");
       toast.success("Helper pass scanned successfully");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Helper pass verification failed");
