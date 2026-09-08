@@ -20,7 +20,7 @@ import {
 import { toast } from "sonner";
 import { listEntries } from "../../../lib/api";
 import { useAuth } from "../../../lib/auth-context";
-import { formatIndiaDate, formatIndiaTime } from "../../../lib/utils";
+import { formatIndiaDate, formatIndiaTime, todayIndiaKey } from "../../../lib/utils";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { PageHeader } from "../../../components/ui/page-header";
@@ -37,7 +37,7 @@ function useEntriesPanel(status?: "IN" | "OUT") {
     const timer = window.setTimeout(() => {
       setLoading(true);
       setError(null);
-      void listEntries({ search: search || undefined, status, page: 1, pageSize: 50 })
+      void listEntries({ date: todayIndiaKey(), search: search || undefined, status, page: 1, pageSize: 50 })
         .then((result) => { if (active) { setEntries(result.items); } })
         .catch((reason) => { if (active) { setError(reason instanceof Error ? reason.message : "Failed to load"); setEntries([]); } })
         .finally(() => active && setLoading(false));
