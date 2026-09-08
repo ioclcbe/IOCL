@@ -150,13 +150,13 @@ export default function OutGatePage() {
     return (
       <div className="mx-auto max-w-3xl">
         <div className="panel overflow-hidden">
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 px-6 py-10 text-white text-center">
+          <div className="bg-gradient-to-br from-red-600 to-red-800 px-6 py-10 text-white text-center">
             <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/15">
               <CheckCircle2 className="h-11 w-11" />
             </span>
-            <p className="mt-5 text-xs font-extrabold uppercase tracking-[.2em] text-emerald-100">Exit successfully recorded</p>
+            <p className="mt-5 text-xs font-extrabold uppercase tracking-[.2em] text-red-100">Exit successfully recorded</p>
             <h1 className="mt-2 text-3xl font-black">{completed.actualTankTruckNumber}</h1>
-            <p className="mt-2 text-sm text-emerald-100">
+            <p className="mt-2 text-sm text-red-100">
               {completed.displaySerial} · OUT at {completed.timeOut ? formatIndiaTime(completed.timeOut) : "—"}
             </p>
           </div>
@@ -267,7 +267,7 @@ export default function OutGatePage() {
                 <h2 className="mt-1 text-xl font-black text-iocl-navy">{resolved.entry.actualTankTruckNumber}</h2>
               </div>
               <div className="flex gap-2">
-                <Badge tone="blue">IN record found</Badge>
+                <Badge tone="green">IN record found</Badge>
                 <Badge tone={resolved.entry.ttNumberMatch ? "green" : "red"}>
                   {resolved.entry.ttNumberMatch ? "TT matched" : "TT mismatch"}
                 </Badge>
@@ -306,7 +306,7 @@ export default function OutGatePage() {
           <section className="panel p-5 sm:p-7">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50 text-red-700">
                   <ClipboardCheck className="h-6 w-6" />
                 </span>
                 <div>
@@ -323,7 +323,7 @@ export default function OutGatePage() {
                 <div className="shrink-0">
                   {!editingQty ? (
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-800">From Invoice QR ✓</span>
+                      <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-black text-red-800">From Invoice QR ✓</span>
                       <button
                         type="button"
                         onClick={() => setEditingQty(true)}
@@ -365,7 +365,7 @@ export default function OutGatePage() {
                   <label key={key}>
                     <span className="field-label">
                       {label} <span className="font-normal text-slate-400">({fullName})</span>
-                      {isFromQr && <span className="ml-1 text-[10px] font-black text-emerald-600">QR</span>}
+                      {isFromQr && <span className="ml-1 text-[10px] font-black text-red-600">QR</span>}
                     </span>
                     <div className="relative">
                       <input
@@ -373,7 +373,7 @@ export default function OutGatePage() {
                         min="0"
                         step="0.001"
                         inputMode="decimal"
-                        className={`field-input pr-10 text-lg font-black ${isFromQr ? "border-emerald-300 bg-emerald-50" : ""}`}
+                        className={`field-input pr-10 text-lg font-black ${isFromQr ? "border-red-300 bg-red-50" : ""}`}
                         value={quantities[key]}
                         readOnly={qtyFromQr && !editingQty}
                         onChange={(e) => setQuantities((cur) => ({ ...cur, [key]: e.target.value }))}
@@ -387,9 +387,9 @@ export default function OutGatePage() {
             </div>
 
             {/* Live total */}
-            <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-700">Total loaded</p>
-              <p className="mt-1 text-2xl font-black text-emerald-900">
+            <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4">
+              <p className="text-xs font-extrabold uppercase tracking-widest text-red-700">Total loaded</p>
+              <p className="mt-1 text-2xl font-black text-red-900">
                 {PRODUCTS.reduce((sum, { key }) => sum + (Number(quantities[key]) || 0), 0).toFixed(3)} L
               </p>
             </div>

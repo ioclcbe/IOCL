@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 const CONTROL_CHARACTERS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -207,17 +207,11 @@ export const createGateEntrySchema = z.object({
   challanNumber: z.string().default("-"),
   driverPassNumber: z.string().trim().max(50).default("-"),
   driverAbt: z.boolean().default(false),
-  helperName: optionalText(100),
-  helperPassNumber: z
-    .string()
-    .trim()
-    .max(50)
-    .default("")
-    .transform((value) => value.replace(/\s+/g, "").toUpperCase())
-    .refine((value) => value === "" || /^[A-Z0-9._\/-]+$/.test(value), "Helper pass number contains unsupported characters"),
+  helperName: cleanText(1, 100, "Helper name is required"),
+  helperPassNumber: cleanText(1, 50, "Helper pass number is required"),
   helperAbt: z.boolean().default(false),
   mobileTokenNumber: z.string().trim().max(40).default("-"),
-  driverSignatureConfirmed: z.literal(true, { error: "Driver confirmation is required" }),
+  driverSignatureConfirmed: z.boolean().default(true),
   remarks: optionalText(500),
   safetyChecklist: safetyChecklistSchema,
 }).strict();
@@ -225,23 +219,18 @@ export type CreateGateEntryInput = z.input<typeof createGateEntrySchema>;
 export type CreateGateEntryValue = z.output<typeof createGateEntrySchema>;
 
 export const editableGateEntrySchema = z.object({
-  customerDestination: cleanText(2, 160, "Customer / destination is required").optional(),
+  customerDestination: z.string().trim().max(160).optional(),
   actualTankTruckNumber: truckNumber.optional(),
   abs: yesNo.optional(),
   challanNumber: z.string().optional(),
-  driverPassNumber: operationalIdentifier(2, 50, "Driver pass number is required").optional(),
+  driverPassNumber: z.string().trim().max(50).optional(),
   driverAbt: yesNo.optional(),
-  helperName: z.string().trim().max(1000).optional(),
-  helperPassNumber: z
-    .string()
-    .trim()
-    .max(50)
-    .transform((value) => value.replace(/\s+/g, "").toUpperCase())
-    .refine((value) => value === "" || /^[A-Z0-9._\/-]+$/.test(value), "Helper pass number contains unsupported characters")
-    .optional(),
+  
+  helperName: z.string().trim().max(100).optional(),
+  helperPassNumber: z.string().trim().max(50).optional(),
   helperAbt: yesNo.optional(),
-  mobileTokenNumber: operationalIdentifier(3, 40, "Mobile token is required").optional(),
-  driverSignatureConfirmed: z.literal(true, { error: "Driver confirmation must remain confirmed" }).optional(),
+  mobileTokenNumber: z.string().trim().max(40).optional(),
+  driverSignatureConfirmed: z.boolean().optional(),
   remarks: z.string().trim().max(500).optional(),
   safetyChecklist: safetyChecklistBase.partial().strict().optional(),
 }).strict();

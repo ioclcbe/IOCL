@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { type DashboardSummary, type GateEntryRecord } from "@iocl/shared";
@@ -59,9 +59,9 @@ export default function LiveTrackingPage() {
       <td className="p-3 border-b border-slate-100 text-sm text-slate-700 truncate max-w-[150px]" title={item.invoiceConsignee || "N/A"}>{item.invoiceConsignee || "N/A"}</td>
       <td className="p-3 border-b border-slate-100 text-right">
         {item.status === "OUT" ? (
-          <Badge tone="slate">EXITED</Badge>
+          <Badge tone="red">EXITED</Badge>
         ) : (
-          <Badge tone="blue" className="animate-pulse">INSIDE</Badge>
+          <Badge tone="green" className="animate-pulse">INSIDE</Badge>
         )}
       </td>
     </tr>

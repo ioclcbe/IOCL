@@ -464,13 +464,10 @@ export function EntryWizard() {
             <div><label className="field-label">TT Number Match (automatic)</label><div className={`flex min-h-13 items-center justify-between rounded-2xl border px-4 ${ttMatch ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}`}><div><p className={`text-sm font-black ${ttMatch ? "text-emerald-800" : "text-red-800"}`}>{ttMatch ? "YES — Numbers match" : "NO — Mismatch detected"}</p><p className="text-[11px] text-slate-500">TT on pass: {pass?.ttNumberOnPass}</p></div><Badge tone={ttMatch ? "green" : "red"}>{ttMatch ? "Verified" : "Alert"}</Badge></div></div>
             <ToggleField label="ABS" value={typeof values.abs === "boolean" ? values.abs : undefined} error={errors.abs?.message} onChange={(value) => setValue("abs", value, { shouldValidate: true })} />
 
-            {/* Driver confirmation */}
-            <div className="lg:col-span-2 rounded-2xl border border-slate-200 p-4"><label className="flex min-h-11 cursor-pointer items-center gap-3"><input type="checkbox" className="h-5 w-5 accent-orange-600" checked={values.driverSignatureConfirmed === true} onChange={(event) => setValue("driverSignatureConfirmed", event.target.checked as true, { shouldValidate: true })} /><span className="text-sm font-black text-iocl-navy">Driver has reviewed and confirmed the gate entry information</span></label>{errors.driverSignatureConfirmed ? <ErrorText>{errors.driverSignatureConfirmed.message}</ErrorText> : null}</div>
-
             {/* Helper section */}
-            <div className={`lg:col-span-2 rounded-3xl border-2 p-5 space-y-4 ${pass?.crewType === 'DRIVER_WITH_HELPER' ? 'border-indigo-200 bg-indigo-50' : 'border-slate-200 bg-slate-50'}`}>
-              <p className={`font-black ${pass?.crewType === 'DRIVER_WITH_HELPER' ? 'text-indigo-900' : 'text-slate-900'}`}>
-                {pass?.crewType === 'DRIVER_WITH_HELPER' ? 'Helper details required' : 'Helper details (optional)'}
+            <div className="lg:col-span-2 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5 space-y-4">
+              <p className="font-black text-indigo-900">
+                Helper details required
               </p>
               <div className="flex gap-2 rounded-2xl border border-indigo-200 bg-white p-1.5">
                 <ModeTab active={helperMode === "scan"} icon={<ScanLine className="h-4 w-4" />} label="Scan Helper Pass" onClick={() => { setHelperMode("scan"); setHelperPass(null); setValue("helperName", ""); setValue("helperPassNumber", ""); }} />
@@ -484,7 +481,7 @@ export function EntryWizard() {
                 </div> : null}
               </> : <>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label={`Helper Name ${pass?.crewType === 'DRIVER_WITH_HELPER' ? '*' : '(optional)'}`} error={errors.helperName?.message}>
+                  <Field label="Helper Name *" error={errors.helperName?.message}>
                     <div className="relative">
                       <input
                         className="field-input"
@@ -503,29 +500,28 @@ export function EntryWizard() {
                             <li key={h.id} className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0" onClick={() => {
                               setValue("helperName", h.name, { shouldValidate: true });
                               setValue("helperPassNumber", h.helperPassNumber, { shouldValidate: true });
-                              setHelperDocValidity(h.passValidUntil ? new Date(h.passValidUntil).toISOString().slice(0, 10) : "");
-                              setHelperDocTt(h.defaultTruckNumber || "");
-                              setHelperDocCrewType(h.crewType || "Helper");
+                              setHelperDocValidity(h.passValidUntil || "");
                               setShowHelperNameDrop(false);
                             }}>
                               <div className="font-bold text-sm text-iocl-navy">{h.name}</div>
-                              <div className="text-[10px] font-mono text-slate-500">Pass: {h.helperPassNumber} {h.defaultTruckNumber ? `(TT: ${h.defaultTruckNumber})` : ''}</div>
+                              <div className="text-[10px] font-mono text-slate-500">ID: {h.helperPassNumber}</div>
                             </li>
                           ))}
                         </ul>
                       )}
                     </div>
                   </Field>
-                  <Field label="Helper Pass Number (Crew Id)" error={errors.helperPassNumber?.message}>
+                  
+                  <Field label="Helper Pass Number (Crew Id) *" error={errors.helperPassNumber?.message}>
                     <div className="relative">
                       <input
-                        className="field-input uppercase"
-                        placeholder="Optional"
+                        className="field-input font-mono uppercase"
+                        placeholder="REQUIRED"
                         value={values.helperPassNumber ?? ""}
                         onFocus={() => setShowHelperPassDrop(true)}
                         onBlur={() => setTimeout(() => setShowHelperPassDrop(false), 200)}
                         onChange={(e) => {
-                          const val = e.target.value.toUpperCase();
+                          const val = e.target.value.replace(/\s+/g, "").toUpperCase();
                           setValue("helperPassNumber", val, { shouldValidate: true });
                         }}
                       />
@@ -535,9 +531,7 @@ export function EntryWizard() {
                             <li key={`hp-${h.id}`} className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0" onClick={() => {
                               setValue("helperName", h.name, { shouldValidate: true });
                               setValue("helperPassNumber", h.helperPassNumber, { shouldValidate: true });
-                              setHelperDocValidity(h.passValidUntil ? new Date(h.passValidUntil).toISOString().slice(0, 10) : "");
-                              setHelperDocTt(h.defaultTruckNumber || "");
-                              setHelperDocCrewType(h.crewType || "Helper");
+                              setHelperDocValidity(h.passValidUntil || "");
                               setShowHelperPassDrop(false);
                             }}>
                               <div className="font-bold text-sm text-iocl-navy">{h.helperPassNumber}</div>
@@ -549,15 +543,8 @@ export function EntryWizard() {
                     </div>
                   </Field>
                   
-                  {/* Visual non-editable fields requested by user */}
-                  
-                  
-                  <Field label="TT No">
-                    <input readOnly className="field-input bg-slate-100 cursor-not-allowed text-slate-600 font-mono uppercase" value={helperDocTt} placeholder="-" />
-                  </Field>
-                  
                   <Field label="Pass Valid Upto">
-                    <input readOnly type="text" className="field-input bg-slate-100 cursor-not-allowed text-slate-600" value={helperDocValidity} />
+                    <input type="text" className="field-input" value={helperDocValidity} onChange={(e) => setHelperDocValidity(e.target.value)} placeholder="Type name, number, or date" />
                   </Field>
                 </div>
               </>}

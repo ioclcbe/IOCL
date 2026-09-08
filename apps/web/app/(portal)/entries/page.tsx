@@ -56,9 +56,19 @@ function EntryRow({ entry, panel }: { entry: GateEntryRecord; panel: "in" | "out
   return (
     <Link
       href={`/entries/${entry.id}${panel ? `?from=${panel}` : ""}`}
-      className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-sm"
+      className={`group flex items-center gap-3 rounded-2xl border transition hover:border-orange-200 hover:shadow-sm p-3 ${
+        isInView && !entry.invoiceNumber 
+          ? "border-blue-200 bg-blue-50 hover:bg-blue-100" 
+          : "border-slate-100 bg-white hover:bg-orange-50"
+      }`}
     >
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isInView ? "bg-blue-50 text-blue-600" : "bg-emerald-50 text-emerald-600"} transition group-hover:bg-iocl-orange group-hover:text-white`}>
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition group-hover:bg-iocl-orange group-hover:text-white ${
+        !isInView 
+          ? "bg-red-50 text-red-600" 
+          : !entry.invoiceNumber 
+            ? "bg-blue-50 text-blue-600" 
+            : "bg-emerald-50 text-emerald-600"
+      }`}>
         {isInView ? <LogIn className="h-5 w-5" /> : <LogOut className="h-5 w-5" />}
       </span>
       <div className="min-w-0 flex-1">
@@ -74,7 +84,7 @@ function EntryRow({ entry, panel }: { entry: GateEntryRecord; panel: "in" | "out
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
         {entry.invoiceNumber ? (
-          <Badge tone={isInView ? "slate" : "green"}>Inv: ...{entry.invoiceNumber.slice(-4)}</Badge>
+          <Badge tone="orange">Inv: ...{entry.invoiceNumber.slice(-4)}</Badge>
         ) : null}
         <p className="text-[10px] font-bold text-slate-400">{entry.displaySerial}</p>
       </div>
@@ -154,10 +164,10 @@ function Panel({
   );
 }
 
-export default function EntriesPage() {
+export default function EntriesPage() { console.log('RENDERED ENTRIES PAGE WITH RED AND ORANGE');
   const { user } = useAuth();
   const searchParams = useSearchParams();
-  const tab = searchParams.get("tab"); // "in" | "out" | null
+  const tab = searchParams.get("tab") || "in";
   const inRef = useRef<HTMLDivElement>(null);
   const outRef = useRef<HTMLDivElement>(null);
 
@@ -185,14 +195,16 @@ export default function EntriesPage() {
             <div className="flex flex-col gap-2 sm:flex-row">
               {user?.role !== "EXIT_GATE_SECURITY"
                 ? <Link href="/entries/new"><Button icon={<ScanLine className="h-5 w-5" />}>IN Scanner</Button></Link>
-                : <Link href="/out"><Button icon={<Truck className="h-5 w-5" />}>Process Vehicle OUT</Button></Link>
-              }
+                : null}
+              {user?.role !== "ENTRY_GATE_SECURITY"
+                ? <Link href="/out"><Button variant="secondary" icon={<ScanLine className="h-5 w-5" />}>OUT Scanner</Button></Link>
+                : null}
             </div>
-          ) : undefined
+          ) : null
         }
       />
 
-      <div className={tab ? "mx-auto max-w-5xl" : "grid gap-5 lg:grid-cols-2"}>
+      <div className="mt-8 space-y-10">
         {/* IN-GATE PANEL */}
         {(tab === "in" || !tab) && (
           <div ref={inRef} id="panel-in">
@@ -201,9 +213,9 @@ export default function EntriesPage() {
               title="IN-Gate Records"
               subtitle="Vehicles that have entered the facility"
               icon={<ArrowDownToLine className="h-6 w-6" />}
-              gradientFrom="from-blue-700"
-              gradientTo="to-blue-500"
-              borderColor="border-blue-200"
+              gradientFrom="from-emerald-700"
+              gradientTo="to-emerald-500"
+              borderColor="border-emerald-200"
               entries={inPanel.entries}
               search={inPanel.search}
               onSearch={inPanel.setSearch}
@@ -224,9 +236,9 @@ export default function EntriesPage() {
               title="OUT-Gate Records"
               subtitle="Vehicles that have exited with invoice"
               icon={<ArrowUpFromLine className="h-6 w-6" />}
-              gradientFrom="from-emerald-700"
-              gradientTo="to-emerald-500"
-              borderColor="border-emerald-200"
+              gradientFrom="from-red-700"
+              gradientTo="to-red-500"
+              borderColor="border-red-200"
               entries={outPanel.entries}
               search={outPanel.search}
               onSearch={outPanel.setSearch}
