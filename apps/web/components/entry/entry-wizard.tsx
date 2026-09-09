@@ -239,7 +239,7 @@ export function EntryWizard() {
       return;
     }
     const fieldsByStep: Record<number, FieldPath<CreateGateEntryInput>[]> = {
-      1: ["actualTankTruckNumber", "abs", "driverSignatureConfirmed"],
+      1: ["actualTankTruckNumber", "abs", "driverSignatureConfirmed", "helperName", "helperPassNumber"],
       2: IN_GATE_SAFETY_ITEMS.map(({ key }) => `safetyChecklist.${key}` as FieldPath<CreateGateEntryInput>),
     };
     const valid = await trigger(fieldsByStep[step] ?? []);
@@ -249,10 +249,12 @@ export function EntryWizard() {
     }
     if (step === 1) {
       const hName = (values.helperName ?? "").trim();
-      if (hName) {
-        if (!masterHelpers.find(h => h.name === hName)) return toast.error("Only registered helpers can be selected from the database.");
-      } else if (pass?.crewType === "DRIVER_WITH_HELPER") {
-        return toast.error("Helper name is required for this crew type");
+      const hPass = (values.helperPassNumber ?? "").trim();
+      if (!hName || !hPass) {
+        return toast.error("Helper name and pass number are mandatory");
+      }
+      if (!masterHelpers.find(h => h.name === hName)) {
+        return toast.error("Only registered helpers can be selected from the database.");
       }
     }
     setStep((value) => Math.min(3, value + 1));
@@ -477,7 +479,7 @@ export function EntryWizard() {
             {/* Helper section */}
             <div className="lg:col-span-2 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-5 space-y-4">
               <p className="font-black text-indigo-900">
-                {pass?.crewType === "DRIVER_WITH_HELPER" ? "Helper details required" : "Helper details (Optional)"}
+                Helper details required
               </p>
               <div className="flex gap-2 rounded-2xl border border-indigo-200 bg-white p-1.5">
                 <ModeTab active={helperMode === "scan"} icon={<ScanLine className="h-4 w-4" />} label="Scan Helper Pass" onClick={() => { setHelperMode("scan"); setHelperPass(null); setValue("helperName", ""); setValue("helperPassNumber", ""); }} />
@@ -491,7 +493,7 @@ export function EntryWizard() {
                 </div> : null}
               </> : <>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label={`Helper Name ${pass?.crewType === "DRIVER_WITH_HELPER" ? "*" : ""}`} error={errors.helperName?.message}>
+                  <Field label="Helper Name *" error={errors.helperName?.message}>
                     <div className="relative">
                       <input
                         className="field-input"
@@ -522,7 +524,7 @@ export function EntryWizard() {
                     </div>
                   </Field>
                   
-                  <Field label={`Helper Pass Number (Crew Id) ${pass?.crewType === "DRIVER_WITH_HELPER" ? "*" : ""}`} error={errors.helperPassNumber?.message}>
+                  <Field label="Helper Pass Number (Crew Id) *" error={errors.helperPassNumber?.message}>
                     <div className="relative">
                       <input
                         className="field-input font-mono uppercase"
