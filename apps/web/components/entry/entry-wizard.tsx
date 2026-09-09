@@ -90,7 +90,7 @@ export function EntryWizard() {
   const [showHelperPassDrop, setShowHelperPassDrop] = useState(false);
   const [helperDocValidity, setHelperDocValidity] = useState("");
   const [helperDocTt, setHelperDocTt] = useState("");
-  const [helperDocCrewType, setHelperDocCrewType] = useState(""); useEffect(() => { if (helperMode === "manual" && values.helperPassNumber) { const h = masterHelpers.find(x => x.helperPassNumber === values.helperPassNumber); if (h && h.passValidUntil) setHelperDocValidity(h.passValidUntil); } }, [values.helperPassNumber, helperMode, masterHelpers]);
+  const [helperDocCrewType, setHelperDocCrewType] = useState("");
 
   // Helper mode: "scan" = QR scanner, "manual" = type name+pass
   const [helperMode, setHelperMode] = useState<"scan" | "manual">("manual");
@@ -120,6 +120,15 @@ export function EntryWizard() {
 
   const values = watch();
   const actualTruck = watch("actualTankTruckNumber");
+
+  // Sync helper doc validity when helperPassNumber changes in manual mode
+  useEffect(() => {
+    if (helperMode === "manual" && values.helperPassNumber) {
+      const h = masterHelpers.find(x => x.helperPassNumber === values.helperPassNumber);
+      if (h && h.passValidUntil) setHelperDocValidity(h.passValidUntil);
+    }
+  }, [values.helperPassNumber, helperMode, masterHelpers]);
+
   const ttMatch = useMemo(() => Boolean(pass && normalizeTruck(pass.ttNumberOnPass) === normalizeTruck(actualTruck)), [pass, actualTruck]);
   const completedSafety = IN_GATE_SAFETY_ITEMS.filter(({ key }) => typeof values.safetyChecklist[key] === "boolean").length;
   const failedSafety = IN_GATE_SAFETY_ITEMS.filter(({ key }) => values.safetyChecklist[key] === false);
