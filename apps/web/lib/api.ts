@@ -212,7 +212,7 @@ export async function listEntries(filter: Partial<EntryFilter> = {}) {
     if (filter.status) items = items.filter((entry) => entry.status === filter.status);
     if (filter.match === "matched") items = items.filter((entry) => entry.ttNumberMatch);
     if (filter.match === "mismatched") items = items.filter((entry) => !entry.ttNumberMatch);
-    return { items, page: 1, pageSize: 100, total: items.length, totalPages: 1 };
+    return { items, page: 1, pageSize: 1000, total: items.length, totalPages: 1 };
   }
   const params = new URLSearchParams();
   Object.entries(filter).forEach(([key, value]) => value !== undefined && params.set(key, String(value)));
@@ -241,7 +241,7 @@ export async function bulkDeleteEntries(input: BulkDeleteInput) {
 }
 
 export async function listUsers(filter: Partial<UserListFilter> = {}) {
-  if (DEMO_MODE) { const items = getDemoUsers(); return { items, total: items.length, page: 1, pageSize: 100, totalPages: 1 }; }
+  if (DEMO_MODE) { const items = getDemoUsers(); return { items, total: items.length, page: 1, pageSize: 1000, totalPages: 1 }; }
   const params = new URLSearchParams(); Object.entries(filter).forEach(([key, value]) => value !== undefined && params.set(key, String(value)));
   return apiFetch<{ items: UserRecord[]; total: number; page: number; pageSize: number; totalPages: number }>(`/users?${params}`);
 }

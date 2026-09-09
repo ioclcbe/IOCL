@@ -37,7 +37,7 @@ function useEntriesPanel(status?: "IN" | "OUT") {
     const timer = window.setTimeout(() => {
       setLoading(true);
       setError(null);
-      void listEntries({ date: todayIndiaKey(), search: search || undefined, status, page: 1, pageSize: 50 })
+      void listEntries({ date: todayIndiaKey(), search: search || undefined, status, page: 1, pageSize: 1000 })
         .then((result) => { if (active) { setEntries(result.items); } })
         .catch((reason) => { if (active) { setError(reason instanceof Error ? reason.message : "Failed to load"); setEntries([]); } })
         .finally(() => active && setLoading(false));
