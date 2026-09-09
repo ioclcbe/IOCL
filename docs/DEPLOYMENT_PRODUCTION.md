@@ -1,4 +1,4 @@
-# Production Deployment — IOCL Madurai Lorry Gate
+# Production Deployment — IOCL Coimbatore Lorry Gate
 
 ## Recommended topology
 

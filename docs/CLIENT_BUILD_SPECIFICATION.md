@@ -1,6 +1,6 @@
 # Lorry Entry/Exit Gate Management System — Build Specification
 
-**Client:** Indian Oil (Madurai Smart Terminal) — Tank Truck Gate Register digitization
+**Client:** Indian Oil (Coimbatore Smart Terminal) — Tank Truck Gate Register digitization
 **Deployment:** Client's own domain, cloud-hosted
 **Tech stack:** Next.js (React) frontend + Node.js backend (Next.js API routes or a separate
 Express service) + PostgreSQL database + JWT-based auth

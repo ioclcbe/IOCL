@@ -1,6 +1,6 @@
 # IOCL Lorry Entry/Exit Gate Management System
 
-Production-structured, mobile-first release candidate for digitising the Tank Truck Gate Register at Indian Oil Madurai Smart Terminal.
+Production-structured, mobile-first release candidate for digitising the Tank Truck Gate Register at Indian Oil Coimbatore Smart Terminal.
 
 ## What is implemented
 
