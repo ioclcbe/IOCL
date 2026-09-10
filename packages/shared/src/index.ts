@@ -126,7 +126,8 @@ export const helperSchema = z.object({
   name: z.string().trim().min(3).max(1000),
   helperPassNumber: z.string().trim().min(5).max(50),
   passValidUntil: z.string().optional().nullable(),
-  crewId: z.string().trim().optional(),
+  crewId: z.string().trim().optional().nullable(),
+  defaultTruckNumber: z.string().trim().optional().nullable(),
   isActive: z.boolean().default(true),
 });
 export type Helper = z.infer<typeof helperSchema>;

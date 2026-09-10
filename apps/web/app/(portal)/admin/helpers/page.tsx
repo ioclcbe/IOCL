@@ -13,7 +13,7 @@ export default function HelpersPage() {
   const [busy, setBusy] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ name: "", helperPassNumber: "" });
+  const [form, setForm] = useState({ name: "", helperPassNumber: "", passValidUntil: "", crewId: "", defaultTruckNumber: "" });
 
   async function load() {
     setLoading(true);
@@ -63,7 +63,7 @@ export default function HelpersPage() {
     try {
       await apiFetch("/masters/helpers", { method: "POST", body: JSON.stringify({ ...form, isActive: true }) });
       toast.success("Helper added");
-      setForm({ name: "", helperPassNumber: "" });
+      setForm({ name: "", helperPassNumber: "", passValidUntil: "", crewId: "", defaultTruckNumber: "" });
       setShowCreate(false);
       load();
     } catch (e) { toast.error((e as Error).message); }
@@ -124,10 +124,13 @@ export default function HelpersPage() {
       {showCreate && (
         <section className="panel mb-6 p-5">
           <h2 className="text-lg font-black text-iocl-navy">Add New Helper</h2>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <label><span className="field-label">Helper Name</span><input className="field-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="SURESH KUMAR" /></label>
-            <label><span className="field-label">Helper Pass Number</span><input className="field-input uppercase" value={form.helperPassNumber} onChange={(e) => setForm({ ...form, helperPassNumber: e.target.value })} placeholder="H-10029" /></label>
-          </div>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <label><span className="field-label">Helper Name</span><input className="field-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="SURESH KUMAR" /></label>
+              <label><span className="field-label">Helper Pass Number</span><input className="field-input uppercase" value={form.helperPassNumber} onChange={(e) => setForm({ ...form, helperPassNumber: e.target.value })} placeholder="H-10029" /></label>
+              <label><span className="field-label">Pass Valid Until</span><input type="text" inputMode="text" className="field-input" value={form.passValidUntil} onChange={(e) => setForm({ ...form, passValidUntil: e.target.value })} placeholder="e.g. 31-12-2025 or Any text" /></label>
+              <label><span className="field-label">TT No. (Tank Truck Number)</span><input type="text" className="field-input uppercase" value={form.defaultTruckNumber} onChange={(e) => setForm({ ...form, defaultTruckNumber: e.target.value.toUpperCase() })} placeholder="e.g. TN38CB5959" /></label>
+              <label className="md:col-span-2"><span className="field-label">Crew ID (Optional)</span><input type="text" className="field-input uppercase" value={form.crewId} onChange={(e) => setForm({ ...form, crewId: e.target.value.toUpperCase() })} placeholder="e.g. M-TN74AZ8730" /></label>
+            </div>
           <div className="mt-5 flex gap-2">
             <Button type="button" loading={busy} onClick={addHelper}>Save Helper</Button>
             <Button type="button" variant="ghost" onClick={() => setShowCreate(false)}>Cancel</Button>

@@ -45,12 +45,11 @@ export default function LiveTrackingPage() {
       <td className="p-3 border-b border-slate-100 text-xs font-bold text-slate-500">{item.abs ? "YES" : "NO"}</td>
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{formatIndiaTime(item.timeIn)}</td>
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.timeOut ? formatIndiaTime(item.timeOut) : "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyMs || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyXpms || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyHsd || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtySko || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyXg || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-orange font-bold">{item.qtyMs || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-orange font-bold">{item.qtyXpms || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-blue-600 font-bold">{item.qtyHsd || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyBioHsd || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-blue-600 font-bold">{item.qtyXg || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyFo || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyLdo || "-"}</td>
 
@@ -96,17 +95,16 @@ export default function LiveTrackingPage() {
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Petrol</p>
                 <p className="text-2xl font-black text-iocl-orange">{summaryData.quantities.petrol} L</p>
                 <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
-                  <div className="flex justify-between border-b border-slate-50 pb-1"><span>MS</span> <span className="font-mono">{summaryData.quantities.ms}</span></div>
-                  <div className="flex justify-between border-b border-slate-50 pb-1"><span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms}</span></div>
-                  <div className="flex justify-between pb-1"><span>EBMS</span> <span className="font-mono">{summaryData.quantities.ebms}</span></div>
+                  <div className="flex justify-between border-b border-slate-50 pb-1 text-iocl-orange font-bold"><span>EBMS</span> <span className="font-mono">{summaryData.quantities.ms}</span></div>
+                  <div className="flex justify-between pb-1 text-iocl-orange font-bold"><span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms}</span></div>
                 </div>
               </div>
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Diesel</p>
                 <p className="text-2xl font-black text-blue-600">{summaryData.quantities.diesel} L</p>
                 <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
-                  <div className="flex justify-between border-b border-slate-50 pb-1"><span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span></div>
-                  <div className="flex justify-between pb-1"><span>BIO HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd}</span></div>
+                  <div className="flex justify-between border-b border-slate-50 pb-1 text-blue-600 font-bold"><span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span></div>
+                  <div className="flex justify-between pb-1 text-blue-600 font-bold"><span>XG</span> <span className="font-mono">{summaryData.quantities.xg}</span></div>
                 </div>
               </div>
             </div>
@@ -114,7 +112,6 @@ export default function LiveTrackingPage() {
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase">Other Products</p>
                 <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
-                  <div className="flex justify-between"><span>SKO</span> <span className="font-mono">{summaryData.quantities.sko}</span></div>
                   <div className="flex justify-between"><span>FO</span> <span className="font-mono">{summaryData.quantities.fo}</span></div>
                 </div>
               </div>
@@ -122,7 +119,7 @@ export default function LiveTrackingPage() {
                 <p className="text-[10px] font-bold text-slate-400 uppercase">&nbsp;</p>
                 <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
                   <div className="flex justify-between"><span>LDO</span> <span className="font-mono">{summaryData.quantities.ldo}</span></div>
-                  <div className="flex justify-between"><span>XG</span> <span className="font-mono">{summaryData.quantities.xg}</span></div>
+                  <div className="flex justify-between"><span>BIO HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd}</span></div>
                 </div>
               </div>
             </div>
@@ -154,12 +151,11 @@ export default function LiveTrackingPage() {
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">ABS</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time IN</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time OUT</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">MS</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">EBMS</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XP95</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">HSD</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">SKO</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XG</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">BIO HSD</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XG</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">FO</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">LDO</th>
 
