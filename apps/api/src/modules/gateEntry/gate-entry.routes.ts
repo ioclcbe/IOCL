@@ -1,5 +1,7 @@
 import { Router, type Request } from "express";
 import ExcelJS from "exceljs";
+import fs from "fs";
+import path from "path";
 import { UserRole } from "@prisma/client";
 import { z } from "zod";
 import {
@@ -198,7 +200,40 @@ gateEntryRouter.get(
       cell.alignment = { wrapText: true, vertical: "top" };
     });
 
-    const formatTime = (d: Date | null | undefined) => d ? `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}` : "";
+    sheet.spliceRows(1, 0, [], [], [], []);
+    
+    sheet.mergeCells("A1:AK1");
+    sheet.mergeCells("A2:AK2");
+    
+    const r1 = sheet.getRow(1);
+    r1.getCell(1).value = "INDIAN OIL CORPORATION LIMITED";
+    r1.getCell(1).font = { name: "Arial", size: 18, bold: true };
+    r1.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+        const r2 = sheet.getRow(2);
+      r2.getCell(1).value = "COIMBATORE TERMINAL";
+      r2.getCell(1).font = { name: "Arial", size: 16, bold: true };
+      r2.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+
+      try {
+        let logoPath = path.resolve(process.cwd(), "apps/web/public/indian-oil-logo.jpeg");
+        if (!fs.existsSync(logoPath)) {
+          logoPath = path.resolve(process.cwd(), "public/indian-oil-logo.jpeg");
+        }
+        if (fs.existsSync(logoPath)) {
+          const logoId = workbook.addImage({
+            buffer: fs.readFileSync(logoPath),
+            extension: "jpeg",
+          });
+          sheet.addImage(logoId, {
+            tl: { col: 0, row: 0 },
+            ext: { width: 90, height: 90 },
+          });
+        }
+      } catch (e) {
+        console.error("Failed to add logo to excel", e);
+      }
+
+      const formatTime = (d: Date | null | undefined) => d ? `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}` : "";
     const formatDate = (d: Date | null | undefined) => d ? `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}/${d.getFullYear()}` : "";
     const chk = (val: boolean | undefined | null) => val === true ? "YES" : val === false ? "NO" : "";
 
@@ -224,10 +259,10 @@ gateEntryRouter.get(
         batteryCutoff: chk(s.batteryCutOffSwitchCondition),
         handBrake: chk(s.handBrakeWorking),
         earthCleat: chk(s.earthCleatProvided),
-        vmuSwitch: chk(s.vmuWorking),
-        driverInfo: `${entry.driverName} (${entry.driverPassNumber || entry.crewId})`,
+        vmuSwitch: chk(s.vmuStatusSwitchOff),
+        driverInfo: entry.driverName ? `${entry.driverName} (${entry.driverPassNumber || "-"})` : "-",
         driverAbt: chk(entry.driverAbt),
-        helperInfo: entry.helperName ? `${entry.helperName} (${entry.helperPassNumber || ""})` : "N/A",
+        helperInfo: entry.helperName ? `${entry.helperName} (${entry.helperPassNumber || "-"})` : "-",
         helperAbt: chk(entry.helperAbt),
         timeOut: formatTime(entry.timeOut),
         ms: entry.qtyMs ? Number(entry.qtyMs) : null,
@@ -249,16 +284,23 @@ gateEntryRouter.get(
     const totalsRow = sheet.getRow(totalRowIndex);
     totalsRow.getCell("slNo").value = "TOTALS";
 
-    // Columns Z to AH are the product quantities
+    // Columns Z to AG are the product quantities
     const columnsToSum = ["Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG"];
     columnsToSum.forEach((col) => {
-      totalsRow.getCell(col).value = { formula: `SUM(${col}2:${col}${totalRowIndex - 1})`, date1904: false };
+      totalsRow.getCell(col).value = { formula: `SUM(${col}6:${col}${totalRowIndex - 1})`, date1904: false };
     });
 
     totalsRow.eachCell((cell) => {
       cell.font = { bold: true };
       cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF3CD" } };
     });
+
+    const sigRowIndex = totalRowIndex + 5;
+    sheet.mergeCells(`AG${sigRowIndex}:AK${sigRowIndex}`);
+    const sig = sheet.getCell(`AG${sigRowIndex}`);
+    sig.value = "Signature";
+    sig.font = { bold: true, size: 12 };
+    sig.alignment = { horizontal: "center" };
 
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     res.setHeader("Content-Disposition", `attachment; filename="gate-log-${dateFrom !== dateTo ? `${dateFrom}-to-${dateTo}` : dateFrom}.xlsx"`);
