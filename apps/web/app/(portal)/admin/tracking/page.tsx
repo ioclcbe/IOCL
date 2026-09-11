@@ -47,11 +47,12 @@ export default function LiveTrackingPage() {
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.timeOut ? formatIndiaTime(item.timeOut) : "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-orange font-bold">{item.qtyMs || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-orange font-bold">{item.qtyXpms || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-blue-600 font-bold">{item.qtyHsd || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyBioHsd || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-blue-600 font-bold">{item.qtyXg || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyFo || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.qtyLdo || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-navy font-bold">{item.qtyHsd || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-navy font-bold">{item.qtyBioHsd || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-navy font-bold">{item.qtyXg || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-yellow-600 font-bold">{item.qtySko || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-900 font-bold">{item.qtyFo || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-900 font-bold">{item.qtyLdo || "-"}</td>
 
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.invoiceNumber || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.invoiceDate ? formatIndiaDate(item.invoiceDate) : "-"}</td>
@@ -89,37 +90,40 @@ export default function LiveTrackingPage() {
           <div className="bg-slate-50 border-b border-slate-100 px-5 py-4">
             <h2 className="text-sm font-black text-iocl-navy">Daily Volume Outflow (Liters)</h2>
           </div>
-          <div className="divide-y divide-slate-100">
-            <div className="p-5 grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Petrol</p>
-                <p className="text-2xl font-black text-iocl-orange">{summaryData.quantities.petrol} L</p>
-                <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
-                  <div className="flex justify-between border-b border-slate-50 pb-1 text-iocl-orange font-bold"><span>EBMS</span> <span className="font-mono">{summaryData.quantities.ms}</span></div>
-                  <div className="flex justify-between pb-1 text-iocl-orange font-bold"><span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms}</span></div>
+          <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200">
+            {/* Left 4 */}
+            <div className="flex-1 p-6 flex flex-col">
+              <p className="text-3xl font-black text-iocl-orange mb-6">{summaryData.quantities.petrol} L</p>
+              <div className="flex flex-col gap-5 text-xl font-bold">
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-orange">
+                  <span>EBMG</span> <span className="font-mono">{summaryData.quantities.ms}</span>
                 </div>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Diesel</p>
-                <p className="text-2xl font-black text-blue-600">{summaryData.quantities.diesel} L</p>
-                <div className="mt-3 text-xs text-slate-600 flex flex-col gap-1.5">
-                  <div className="flex justify-between border-b border-slate-50 pb-1 text-blue-600 font-bold"><span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span></div>
-                  <div className="flex justify-between pb-1 text-blue-600 font-bold"><span>XG</span> <span className="font-mono">{summaryData.quantities.xg}</span></div>
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-orange">
+                  <span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-navy">
+                  <span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span>
+                </div>
+                <div className="flex justify-between pb-2 text-iocl-navy">
+                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd}</span>
                 </div>
               </div>
             </div>
-            <div className="p-4 bg-slate-50 grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Other Products</p>
-                <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
-                  <div className="flex justify-between"><span>FO</span> <span className="font-mono">{summaryData.quantities.fo}</span></div>
+            {/* Right 4 */}
+            <div className="flex-1 p-6 flex flex-col">
+              <p className="text-3xl font-black text-blue-600 mb-6">{summaryData.quantities.diesel} L</p>
+              <div className="flex flex-col gap-5 text-xl font-bold">
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-navy">
+                  <span>XG</span> <span className="font-mono">{summaryData.quantities.xg}</span>
                 </div>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">&nbsp;</p>
-                <div className="mt-1 text-xs text-slate-600 flex flex-col gap-1">
-                  <div className="flex justify-between"><span>LDO</span> <span className="font-mono">{summaryData.quantities.ldo}</span></div>
-                  <div className="flex justify-between"><span>BIO HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd}</span></div>
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-yellow-600">
+                  <span>SKO</span> <span className="font-mono">{summaryData.quantities.sko}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-slate-900">
+                  <span>FO</span> <span className="font-mono">{summaryData.quantities.fo}</span>
+                </div>
+                <div className="flex justify-between pb-2 text-slate-900">
+                  <span>LDO</span> <span className="font-mono">{summaryData.quantities.ldo}</span>
                 </div>
               </div>
             </div>
@@ -151,11 +155,12 @@ export default function LiveTrackingPage() {
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">ABS</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time IN</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time OUT</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">EBMS</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">EBMG</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XP95</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">HSD</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">BIO HSD</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">B-HSD</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XG</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">SKO</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">FO</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">LDO</th>
 
