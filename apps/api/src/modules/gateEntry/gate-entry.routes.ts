@@ -206,28 +206,39 @@ gateEntryRouter.get(
     sheet.mergeCells("A2:AK2");
     
     const r1 = sheet.getRow(1);
+    r1.height = 35;
     r1.getCell(1).value = "INDIAN OIL CORPORATION LIMITED";
     r1.getCell(1).font = { name: "Arial", size: 18, bold: true };
     r1.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
-        const r2 = sheet.getRow(2);
-      r2.getCell(1).value = "COIMBATORE TERMINAL";
-      r2.getCell(1).font = { name: "Arial", size: 16, bold: true };
-      r2.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
 
-      try {
-        let logoPath = path.resolve(process.cwd(), "apps/web/public/indian-oil-logo.jpeg");
-        if (!fs.existsSync(logoPath)) {
-          logoPath = path.resolve(process.cwd(), "public/indian-oil-logo.jpeg");
-        }
-        if (fs.existsSync(logoPath)) {
-          const logoId = workbook.addImage({
-            buffer: fs.readFileSync(logoPath),
-            extension: "jpeg",
-          });
-          sheet.addImage(logoId, {
-            tl: { col: 0, row: 0 },
-            ext: { width: 90, height: 90 },
-          });
+    const r2 = sheet.getRow(2);
+    r2.height = 30;
+    r2.getCell(1).value = "COIMBATORE TERMINAL";
+    r2.getCell(1).font = { name: "Arial", size: 16, bold: true };
+    r2.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+
+    try {
+      const cwd = process.cwd();
+      const possiblePaths = [
+        path.resolve(cwd, "../web/public/indian-oil-logo.jpeg"),
+        path.resolve(cwd, "apps/web/public/indian-oil-logo.jpeg"),
+        path.resolve(cwd, "../../apps/web/public/indian-oil-logo.jpeg"),
+        path.resolve(cwd, "public/indian-oil-logo.jpeg"),
+      ];
+      
+      const logoPath = possiblePaths.find(p => fs.existsSync(p));
+      
+      if (logoPath) {
+        const logoId = workbook.addImage({
+          buffer: fs.readFileSync(logoPath),
+          extension: "jpeg",
+        });
+        sheet.addImage(logoId, {
+          tl: { col: 15, row: 0 },
+          ext: { width: 70, height: 70 },
+        });
+        } else {
+          console.error("Logo file not found in any possible paths");
         }
       } catch (e) {
         console.error("Failed to add logo to excel", e);
@@ -296,6 +307,13 @@ gateEntryRouter.get(
     });
 
     const sigRowIndex = totalRowIndex + 5;
+
+    sheet.mergeCells(`A${sigRowIndex}:D${sigRowIndex}`);
+    const approved = sheet.getCell(`A${sigRowIndex}`);
+    approved.value = "Approved";
+    approved.font = { bold: true, size: 12 };
+    approved.alignment = { horizontal: "center" };
+
     sheet.mergeCells(`AG${sigRowIndex}:AK${sigRowIndex}`);
     const sig = sheet.getCell(`AG${sigRowIndex}`);
     sig.value = "Signature";
