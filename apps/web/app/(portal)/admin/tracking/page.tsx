@@ -47,12 +47,12 @@ export default function LiveTrackingPage() {
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.timeOut ? formatIndiaTime(item.timeOut) : "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-orange font-bold">{item.qtyMs || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-orange font-bold">{item.qtyXpms || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-navy font-bold">{item.qtyHsd || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-navy font-bold">{item.qtyBioHsd || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-iocl-navy font-bold">{item.qtyXg || "-"}</td>
-      <td className="p-3 border-b border-slate-100 text-sm font-mono text-yellow-600 font-bold">{item.qtySko || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-900 font-bold">{item.qtyFo || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-900 font-bold">{item.qtyLdo || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-blue-600 font-bold">{item.qtyHsd || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-blue-600 font-bold">{item.qtyBioHsd || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-blue-600 font-bold">{item.qtyXg || "-"}</td>
+      <td className="p-3 border-b border-slate-100 text-sm font-mono text-yellow-600 font-bold">{item.qtySko || "-"}</td>
 
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.invoiceNumber || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.invoiceDate ? formatIndiaDate(item.invoiceDate) : "-"}</td>
@@ -101,11 +101,11 @@ export default function LiveTrackingPage() {
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-orange">
                   <span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-navy">
-                  <span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span>
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-slate-900">
+                  <span>FO</span> <span className="font-mono">{summaryData.quantities.fo}</span>
                 </div>
-                <div className="flex justify-between pb-2 text-iocl-navy">
-                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd}</span>
+                <div className="flex justify-between pb-2 text-slate-900">
+                  <span>LDO</span> <span className="font-mono">{summaryData.quantities.ldo}</span>
                 </div>
               </div>
             </div>
@@ -113,17 +113,17 @@ export default function LiveTrackingPage() {
             <div className="flex-1 p-6 flex flex-col">
               <p className="text-3xl font-black text-blue-600 mb-6">{summaryData.quantities.diesel} L</p>
               <div className="flex flex-col gap-5 text-xl font-bold">
-                <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-navy">
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
+                  <span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
+                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
                   <span>XG</span> <span className="font-mono">{summaryData.quantities.xg}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2 text-yellow-600">
+                <div className="flex justify-between pb-2 text-yellow-600">
                   <span>SKO</span> <span className="font-mono">{summaryData.quantities.sko}</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2 text-slate-900">
-                  <span>FO</span> <span className="font-mono">{summaryData.quantities.fo}</span>
-                </div>
-                <div className="flex justify-between pb-2 text-slate-900">
-                  <span>LDO</span> <span className="font-mono">{summaryData.quantities.ldo}</span>
                 </div>
               </div>
             </div>
@@ -157,12 +157,12 @@ export default function LiveTrackingPage() {
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Time OUT</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">EBMG</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XP95</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">FO</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">LDO</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">HSD</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">B-HSD</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">XG</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">SKO</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">FO</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">LDO</th>
 
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice No</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice Date</th>
