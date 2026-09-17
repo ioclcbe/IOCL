@@ -46,7 +46,7 @@ export default function LoginPage() {
             <Image src="/indian-oil-logo.jpeg" alt="Indian Oil" width={62} height={62} className="rounded-full border-2 border-white/90" priority />
             <div>
               <p className="text-lg font-black tracking-tight">Indian Oil</p>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/55">Lorry Gate Management</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/55">Truck Gate Management</p>
             </div>
           </div>
 
@@ -55,7 +55,7 @@ export default function LoginPage() {
               <ShieldCheck className="h-4 w-4" /> Secure Operations Platform
             </span>
             <h1 className="mt-6 text-5xl font-black leading-[1.08] tracking-[-0.04em] xl:text-6xl">
-              Faster, safer lorry entry at every gate.
+              Faster, safer truck entry at every gate.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-white/65">
               Verify crew passes, inspect tank trucks, capture safety checks and create auditable IN records from one tablet-ready console.
@@ -82,14 +82,14 @@ export default function LoginPage() {
           <div className="w-full max-w-[520px] animate-fade-up">
             <div className="mb-8 flex flex-col items-center lg:hidden">
               <Image src="/indian-oil-logo.jpeg" alt="Indian Oil" width={96} height={96} className="rounded-full border-4 border-white shadow-xl" priority />
-              <p className="mt-4 text-sm font-extrabold uppercase tracking-[0.2em] text-iocl-orange">Lorry Gate System</p>
+              <p className="mt-4 text-sm font-extrabold uppercase tracking-[0.2em] text-iocl-orange">Truck Gate System</p>
             </div>
 
             <div className="panel overflow-hidden border-white bg-white/95 p-6 sm:p-9">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-iocl-orange">Security Login</p>
-                  <h2 className="mt-2 text-3xl font-black tracking-tight text-iocl-navy">Welcome to Lorry Gate</h2>
+                  <h2 className="mt-2 text-3xl font-black tracking-tight text-iocl-navy">Welcome to Truck Gate</h2>
                   <p className="mt-2 text-sm leading-6 text-slate-500">Sign in with your assigned employee credentials. Your role is resolved securely by the server.</p>
                 </div>
                 <div className="hidden h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-iocl-orange sm:flex">

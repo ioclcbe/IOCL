@@ -424,6 +424,8 @@ export interface GateEntryRecord {
   drivingLicenseExpiryDate: string;
   customerDestination: string;
   actualTankTruckNumber: string;
+  entryByName?: string;
+  exitByName?: string;
   abs: boolean;
   challanNumber: string;
   driverPassNumber: string;

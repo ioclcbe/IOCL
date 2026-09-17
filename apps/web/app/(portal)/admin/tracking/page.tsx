@@ -57,7 +57,7 @@ export default function LiveTrackingPage() {
       <td className="p-3 border-b border-slate-100 text-sm font-mono text-slate-700">{item.invoiceNumber || "-"}</td>
       <td className="p-3 border-b border-slate-100 text-xs font-mono text-slate-500 whitespace-nowrap">{item.invoiceDate ? formatIndiaDate(item.invoiceDate) : "-"}</td>
       <td className="p-3 border-b border-slate-100 text-sm text-slate-700 truncate max-w-[150px]" title={item.invoiceConsignee || "N/A"}>{item.invoiceConsignee || "N/A"}</td>
-      <td className="p-3 border-b border-slate-100 text-right">
+      <td className="p-3 border-b border-slate-100 text-xs text-slate-700">{item.createdBy?.name || "-"}</td><td className="p-3 border-b border-slate-100 text-xs text-slate-700">{item.exitCreatedBy?.name || "-"}</td><td className="p-3 border-b border-slate-100 text-right">
         {item.status === "OUT" ? (
           <Badge tone="red">EXITED</Badge>
         ) : (
@@ -167,7 +167,7 @@ export default function LiveTrackingPage() {
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice No</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Invoice Date</th>
                   <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Consignee</th>
-                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Status</th>
+                  <th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Entry By</th><th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Exit By</th><th className="p-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Status</th>
                 </tr>
               </thead>
               <tbody>

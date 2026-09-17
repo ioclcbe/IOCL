@@ -153,8 +153,7 @@ gateEntryRouter.get(
       { header: "Sl. No", key: "slNo", width: 8 },
       { header: "TT No.", key: "truckNo", width: 15 },
       { header: "ABS", key: "abs", width: 8 },
-      { header: "TLF No / Challan", key: "tlfNo", width: 15 },
-      { header: "Thru' / proxi-card / manual", key: "scanMethod", width: 15 },
+      { header: "Scan pass/Manual", key: "scanMethod", width: 15 },
       { header: "Time IN", key: "timeIn", width: 10 },
       { header: "ISI Marked DCP FE Available", key: "isiDcp", width: 15 },
       { header: "Driving License is endorsed as per CMV Rule 9", key: "dlEndorsed", width: 15 },
@@ -170,9 +169,11 @@ gateEntryRouter.get(
       { header: "Hand Break working", key: "handBrake", width: 15 },
       { header: "Earth Cleat Provided", key: "earthCleat", width: 15 },
       { header: "VMU Status Switch OFF", key: "vmuSwitch", width: 15 },
-      { header: "Driver Name with Pass No.", key: "driverInfo", width: 25 },
-      { header: "ABT", key: "driverAbt", width: 8 },
-      { header: "Cleaner Name with Pass No.", key: "helperInfo", width: 25 },
+      { header: "Driver Name", key: "driverName", width: 25 },
+      { header: "Driver Crew No.", key: "driverCrewNo", width: 20 },
+      { header: "ABAT", key: "driverAbt", width: 8 },
+      { header: "Helper Name", key: "helperName", width: 25 },
+      { header: "Helper Crew No.", key: "helperCrewNo", width: 20 },
       { header: "ABAT", key: "helperAbt", width: 8 },
       { header: "Time OUT", key: "timeOut", width: 10 },
       { header: "MS (L)", key: "ms", width: 10 },
@@ -183,9 +184,11 @@ gateEntryRouter.get(
       { header: "BIO HSD (L)", key: "bioHsd", width: 12 },
       { header: "FO (L)", key: "fo", width: 10 },
       { header: "LDO (L)", key: "ldo", width: 10 },
-      { header: "Invoice No", key: "invoiceNo", width: 15 },
+      { header: "Invoice No", key: "invoiceNo", width: 20 },
       { header: "Invoice Date", key: "invoiceDate", width: 12 },
-      { header: "Destination", key: "destination", width: 20 },
+      { header: "Consignee", key: "consignee", width: 20 },
+      { header: "Entry By", key: "entryBy", width: 20 },
+      { header: "Exit By", key: "exitBy", width: 20 },
       { header: "Status", key: "status", width: 12 },
     ];
 
@@ -254,8 +257,7 @@ gateEntryRouter.get(
         slNo: entry.serialNumber,
         truckNo: entry.actualTankTruckNumber,
         abs: chk(entry.abs),
-        tlfNo: entry.challanNumber || "",
-        scanMethod: entry.qrScanMethod === "MANUAL" ? "MANUAL" : "PROXI-CARD",
+        scanMethod: entry.qrScanMethod === "MANUAL" ? "MANUAL" : "SCAN PASS",
         timeIn: formatTime(entry.timeIn),
         isiDcp: chk(s.verifyRegisterColumn1),
         dlEndorsed: chk(s.drivingLicenseValidCmvRule9),
@@ -270,10 +272,12 @@ gateEntryRouter.get(
         batteryCutoff: chk(s.batteryCutOffSwitchCondition),
         handBrake: chk(s.handBrakeWorking),
         earthCleat: chk(s.earthCleatProvided),
-        vmuSwitch: chk(s.vmuStatusSwitchOff),
-        driverInfo: entry.driverName ? `${entry.driverName} (${entry.driverPassNumber || "-"})` : "-",
+        vmuSwitch: chk(s.vmuWorking),
+        driverName: entry.driverName || "-",
+        driverCrewNo: entry.crewId || "-",
         driverAbt: chk(entry.driverAbt),
-        helperInfo: entry.helperName ? `${entry.helperName} (${entry.helperPassNumber || "-"})` : "-",
+        helperName: entry.helperName || "-",
+        helperCrewNo: entry.helperPassNumber || "-",
         helperAbt: chk(entry.helperAbt),
         timeOut: formatTime(entry.timeOut),
         ms: entry.qtyMs ? Number(entry.qtyMs) : null,
@@ -284,9 +288,11 @@ gateEntryRouter.get(
         bioHsd: entry.qtyBioHsd ? Number(entry.qtyBioHsd) : null,
         fo: entry.qtyFo ? Number(entry.qtyFo) : null,
         ldo: entry.qtyLdo ? Number(entry.qtyLdo) : null,
-        invoiceNo: entry.invoiceNumber ?? "",
+        invoiceNo: (entry.invoiceNumber?.startsWith("MANUAL-") || entry.invoiceProductsRaw === "MANUAL") ? `${entry.invoiceNumber} (Manual)` : (entry.invoiceNumber || ""),
         invoiceDate: formatDate(entry.invoiceDate),
-        destination: entry.customerDestination ?? "",
+        consignee: entry.invoiceConsignee || "",
+        entryBy: entry.createdBy?.name || "",
+        exitBy: entry.exitCreatedBy?.name || "",
         status: entry.status,
       });
     });
@@ -296,7 +302,7 @@ gateEntryRouter.get(
     totalsRow.getCell("slNo").value = "TOTALS";
 
     // Columns Z to AG are the product quantities
-    const columnsToSum = ["Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG"];
+    const columnsToSum = ["AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH"];
     columnsToSum.forEach((col) => {
       totalsRow.getCell(col).value = { formula: `SUM(${col}6:${col}${totalRowIndex - 1})`, date1904: false };
     });
@@ -308,15 +314,15 @@ gateEntryRouter.get(
 
     const sigRowIndex = totalRowIndex + 5;
 
-    sheet.mergeCells(`A${sigRowIndex}:D${sigRowIndex}`);
-    const approved = sheet.getCell(`A${sigRowIndex}`);
-    approved.value = "Approved";
-    approved.font = { bold: true, size: 12 };
-    approved.alignment = { horizontal: "center" };
+    sheet.mergeCells(`Q${sigRowIndex}:T${sigRowIndex}`);
+    const reviewed = sheet.getCell(`Q${sigRowIndex}`);
+    reviewed.value = "Reviewed By";
+    reviewed.font = { bold: true, size: 12 };
+    reviewed.alignment = { horizontal: "center" };
 
     sheet.mergeCells(`AG${sigRowIndex}:AK${sigRowIndex}`);
     const sig = sheet.getCell(`AG${sigRowIndex}`);
-    sig.value = "Signature";
+    sig.value = "LIC Signature";
     sig.font = { bold: true, size: 12 };
     sig.alignment = { horizontal: "center" };
 

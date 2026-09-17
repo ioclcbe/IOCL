@@ -61,7 +61,7 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow={data ? `${data.facilityCode} · ${data.gateCode} · ${formatIndiaDate(data.businessDate)}` : "Operations overview"}
         title="IN Gate Control Room"
-        description="Live operational snapshot for today's lorry entries, verification alerts and vehicle movement status."
+        description="Live operational snapshot for today's truck entries, verification alerts and vehicle movement status."
         action={
           user?.role !== "ADMIN" ? (
             <Link href="/entries/new">

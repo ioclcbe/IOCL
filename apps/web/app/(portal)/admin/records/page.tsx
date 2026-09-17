@@ -83,7 +83,7 @@ export default function AdminRecordsPage() {
 
   const cards = [
     ["Total movements", summary?.total ?? 0], ["Open IN", summary?.in ?? 0], ["Completed OUT", summary?.out ?? 0],
-    ["Petrol (MS+XPMS+EBMS)", summary?.quantities.petrol ?? "0"], ["Diesel (HSD)", summary?.quantities.diesel ?? "0"],
+    
   ];
 
   return <div>
