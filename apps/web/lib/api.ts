@@ -306,3 +306,8 @@ export async function getMasterHelpers() {
 }
 
 
+
+export async function deleteUser(id: string) {
+  if (DEMO_MODE) throw new ApiClientError("User deletion is disabled in the standalone demo", "DEMO_USERS_READ_ONLY");
+  return apiFetch<{ success: boolean; message: string }>(/users/ + id, { method: "DELETE" });
+}

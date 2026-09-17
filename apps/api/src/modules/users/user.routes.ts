@@ -194,3 +194,38 @@ userRouter.post(
     res.json({ success: true, data: user, message: "Password reset and all sessions revoked" });
   }),
 );
+
+userRouter.delete(
+  "/:id",
+  validateParams(idParams),
+  asyncHandler(async (req, res) => {
+    const id = res.locals.validatedParams.id;
+    if (id === req.auth!.userId) {
+      throw new ApiError(422, "SELF_DELETE", "You cannot delete yourself");
+    }
+    const user = await serializable(async (tx) => {
+      const before = await tx.user.findUnique({ where: { id } });
+      if (!before) throw new ApiError(404, "USER_NOT_FOUND", "User was not found");
+
+      await tx.auditLog.deleteMany({ where: { actorId: id } });
+      await tx.securityEvent.deleteMany({ where: { actorId: id } });
+      await tx.refreshToken.deleteMany({ where: { userId: id } });
+      
+      const deleted = await tx.user.delete({ where: { id } });
+      
+      await tx.auditLog.create({
+        data: {
+          actorId: req.auth!.userId,
+          actorRole: req.auth!.role,
+          entityType: "USER",
+          entityId: id,
+          action: AuditAction.DELETE,
+          beforeData: before as any,
+          ...requestMeta(req),
+        },
+      });
+      return deleted;
+    });
+    res.json({ success: true, message: "User deleted successfully" });
+  })
+);

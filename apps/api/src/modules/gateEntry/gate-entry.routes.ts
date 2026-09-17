@@ -244,8 +244,8 @@ gateEntryRouter.get(
         console.error("Failed to add logo to excel", e);
       }
 
-      const formatTime = (d: Date | null | undefined) => d ? `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}` : "";
-    const formatDate = (d: Date | null | undefined) => d ? `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}/${d.getFullYear()}` : "";
+      const formatTime = (d: Date | null | undefined) => d ? new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit' }).format(d) : "";
+      const formatDate = (d: Date | null | undefined) => d ? new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' }).format(d) : "";
     const chk = (val: boolean | undefined | null) => val === true ? "YES" : val === false ? "NO" : "";
 
     items.forEach((entry) => {
