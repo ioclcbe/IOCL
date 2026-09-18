@@ -88,12 +88,12 @@ export default function LiveTrackingPage() {
       {summaryData && (
         <div className="panel p-0 overflow-hidden mt-6 mb-6">
           <div className="bg-slate-50 border-b border-slate-100 px-5 py-4">
-            <h2 className="text-sm font-black text-iocl-navy">Daily Volume Outflow (Liters)</h2>
+            <h2 className="text-sm font-black text-iocl-navy">Daily Volume Outflow (Kiloliters)</h2>
           </div>
           <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200">
             {/* Left 4 */}
             <div className="flex-1 p-6 flex flex-col">
-              <p className="text-3xl font-black text-iocl-orange mb-6">{summaryData.quantities.petrol} L</p>
+              <p className="text-3xl font-black text-iocl-orange mb-6">{(Number(summaryData.quantities.ms || 0) + Number(summaryData.quantities.xpms || 0)).toFixed(3)} KL</p>
               <div className="flex flex-col gap-5 text-xl font-bold">
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-orange">
                   <span>EBMG</span> <span className="font-mono">{summaryData.quantities.ms}</span>
@@ -111,13 +111,13 @@ export default function LiveTrackingPage() {
             </div>
             {/* Right 4 */}
             <div className="flex-1 p-6 flex flex-col">
-              <p className="text-3xl font-black text-blue-600 mb-6">{summaryData.quantities.diesel} L</p>
+              <p className="text-3xl font-black text-blue-600 mb-6">{(Number(summaryData.quantities.hsd || 0) + Number(summaryData.quantities.sko || 0) + Number(summaryData.quantities.xg || 0) + Number(summaryData.quantities.bhsd || 0)).toFixed(3)} KL</p>
               <div className="flex flex-col gap-5 text-xl font-bold">
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
                   <span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
-                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd}</span>
+                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bhsd}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
                   <span>XG</span> <span className="font-mono">{summaryData.quantities.xg}</span>

@@ -288,7 +288,7 @@ export function EntryWizard() {
           <p className="mt-2 text-sm text-emerald-100">Status: IN · Time: {formatIndiaTime(submitted.timeIn)}</p>
         </div>
         <div className="grid gap-px bg-slate-100 sm:grid-cols-3">
-          <Summary label="Tank Truck" value={submitted.actualTankTruckNumber} />
+          <Summary label="Truck" value={submitted.actualTankTruckNumber} />
           <Summary label="Driver" value={submitted.driverName} />
           <div className="bg-white p-5"><p className="text-xs font-bold uppercase text-slate-400">TT Verification</p><div className="mt-2"><Badge tone={submitted.ttNumberMatch ? "green" : "red"}>{submitted.ttNumberMatch ? "Matched" : "Mismatch"}</Badge></div></div>
         </div>
@@ -470,7 +470,7 @@ export function EntryWizard() {
 
           {/* ─── STEP 1: VEHICLE & HELPER ────────────────────────────── */}
           {step === 1 ? <div className="grid gap-5 lg:grid-cols-2">
-            <Field label="Actual Physical Tank Truck Number" error={errors.actualTankTruckNumber?.message}>
+            <Field label="Actual Physical Truck Number" error={errors.actualTankTruckNumber?.message}>
               <input {...register("actualTankTruckNumber")} className="field-input font-black uppercase tracking-wider" placeholder="TN74AZ8730" />
             </Field>
             <div><label className="field-label">TT Number Match (automatic)</label><div className={`flex min-h-13 items-center justify-between rounded-2xl border px-4 ${ttMatch ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}`}><div><p className={`text-sm font-black ${ttMatch ? "text-emerald-800" : "text-red-800"}`}>{ttMatch ? "YES — Numbers match" : "NO — Mismatch detected"}</p><p className="text-[11px] text-slate-500">TT on pass: {pass?.ttNumberOnPass}</p></div><Badge tone={ttMatch ? "green" : "red"}>{ttMatch ? "Verified" : "Alert"}</Badge></div></div>

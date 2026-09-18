@@ -106,6 +106,7 @@ export type CrewPass = z.infer<typeof crewPassSchema>;
 export const tankTruckSchema = z.object({
   id: z.string().uuid().optional(),
   ttNumber: z.string().trim().min(3).max(20).toUpperCase(),
+  expireDate: z.string().trim().nullable().optional(),
   isActive: z.boolean().default(true),
 });
 export type TankTruck = z.infer<typeof tankTruckSchema>;
@@ -483,16 +484,13 @@ export interface ExitResolveResult {
 export interface QuantitySummary {
   ms: string;
   xpms: string;
-  ebms: string;
+  ebmg: string;
   hsd: string;
   sko: string;
   xg: string;
-  bioHsd: string;
+  bhsd: string;
   fo: string;
   ldo: string;
-  petrol: string;
-  diesel: string;
-  other: string;
 }
 
 export interface DashboardSummary {

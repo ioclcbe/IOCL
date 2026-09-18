@@ -56,12 +56,14 @@ export default function AdminReportsPage() {
 
   const qty = summary?.quantities;
   const products = qty ? [
-    { label: "MS",      value: Number(qty.ms)     },
-    { label: "XP 95",  value: Number(qty.xpms)   },
-    { label: "EBMS",   value: Number(qty.ebms)    },
-    { label: "HSD",    value: Number(qty.hsd)     },
-    { label: "Petrol", value: Number(qty.petrol)  },
-    { label: "Diesel", value: Number(qty.diesel)  },
+    { label: "EBMG",    value: Number(qty.ms || 0)     },
+    { label: "XP95",    value: Number(qty.xpms || 0)   },
+    { label: "FO",      value: Number(qty.fo || 0)     },
+    { label: "LDO",     value: Number(qty.ldo || 0)    },
+    { label: "HSD",     value: Number(qty.hsd || 0)    },
+    { label: "B-HSD",   value: Number(qty.bhsd || 0)   },
+    { label: "XG",      value: Number(qty.xg || 0)     },
+    { label: "SKO",     value: Number(qty.sko || 0)    },
   ] : [];
   const grandTotal = products.reduce((s, p) => s + p.value, 0);
 
@@ -125,7 +127,7 @@ export default function AdminReportsPage() {
             <StatCard label="Total Entries"    value={summary.total}     color="bg-blue-600"    />
             <StatCard label="Currently IN"     value={summary.in}        color="bg-amber-500"   />
             <StatCard label="Exited (OUT)"     value={summary.out}       color="bg-emerald-600" />
-            <StatCard label="Grand Total (L)"  value={grandTotal.toFixed(2)} color="bg-iocl-orange" suffix="L" />
+            <StatCard label="Grand Total (KL)"  value={grandTotal.toFixed(2)} color="bg-iocl-orange" suffix="KL" />
           </div>
 
           {/* Product quantities table */}
@@ -139,7 +141,7 @@ export default function AdminReportsPage() {
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50 text-left">
                     <th className="px-5 py-3 text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Product</th>
-                    <th className="px-5 py-3 text-right text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Total Quantity (L)</th>
+                    <th className="px-5 py-3 text-right text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Total Quantity (KL)</th>
                     <th className="px-5 py-3 text-right text-[11px] font-extrabold uppercase tracking-wider text-slate-400">% of Total</th>
                   </tr>
                 </thead>

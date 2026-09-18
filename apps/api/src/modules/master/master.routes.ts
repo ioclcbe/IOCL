@@ -36,7 +36,7 @@ masterRouter.post(
     const exists = await db.tankTruck.findUnique({ where: { ttNumber: data.ttNumber } });
     if (exists) throw new ApiError(400, "DUPLICATE_TRUCK", "Truck number already exists");
     
-    const truck = await db.tankTruck.create({ data: { ttNumber: data.ttNumber, isActive: data.isActive } });
+    const truck = await db.tankTruck.create({ data: { ttNumber: data.ttNumber, isActive: data.isActive, expireDate: data.expireDate || null } });
     res.status(201).json({ success: true, data: truck });
   })
 );
@@ -49,7 +49,7 @@ masterRouter.put(
     const data = tankTruckSchema.parse(req.body);
     const truck = await db.tankTruck.update({
       where: { id: id as string },
-      data: { ttNumber: data.ttNumber, isActive: data.isActive },
+      data: { ttNumber: data.ttNumber, isActive: data.isActive, expireDate: data.expireDate || null },
     });
     res.json({ success: true, data: truck });
   })
@@ -97,9 +97,11 @@ masterRouter.post(
 
     const headers = rows[1] || [];
     let ttIdx = -1;
+    let expIdx = -1;
     for (let i = 1; i < headers.length; i++) {
       const h = String(headers[i] || "").toLowerCase().replace(/[^a-z0-9]/g, "");
       if (h.includes("truck") || h.includes("tt") || h.includes("vehicle")) ttIdx = i;
+      if (h.includes("expire") || h.includes("valid") || h.includes("expiry")) expIdx = i;
     }
 
     if (ttIdx === -1) {
@@ -113,8 +115,16 @@ masterRouter.post(
       const ttNumber = String(row[ttIdx] || "").trim().toUpperCase();
       if (!ttNumber || ttNumber.length < 4) continue;
 
+      let expireDate = null;
+      if (expIdx !== -1) {
+         let rawDate = row[expIdx];
+         if (rawDate instanceof Date) expireDate = rawDate.toISOString().slice(0, 10);
+         else if (rawDate) expireDate = String(rawDate).trim();
+      }
+
       dataToInsert.push({
         ttNumber,
+        expireDate,
         isActive: true
       });
     }

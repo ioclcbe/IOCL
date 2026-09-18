@@ -5,11 +5,11 @@ import { PwaRegistration } from "../components/pwa-registration";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "IOCL Truck Gate Management",
-  description: "Indian Oil Truck Gate Management for secure IN, OUT and administrative terminal operations",
+  title: "IOCL Truck Management",
+  description: "Indian Oil Truck Management for secure IN, OUT and administrative terminal operations",
   manifest: "/manifest.webmanifest",
-  applicationName: "IOCL Truck Gate Management",
-  appleWebApp: { capable: true, title: "IOCL Truck Gate", statusBarStyle: "black-translucent" },
+  applicationName: "IOCL Truck Management",
+  appleWebApp: { capable: true, title: "IOCL Truck Management", statusBarStyle: "black-translucent" },
   icons: { icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }], apple: "/icon-192.png" },
   robots: { index: false, follow: false, nocache: true },
 };

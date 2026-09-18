@@ -117,7 +117,7 @@ export default function EntryDetailPage() {
     <div className="grid gap-6 xl:grid-cols-[1fr_.82fr]"><div className="space-y-6">
       <Section title="Vehicle movement" icon={<Truck className="h-5 w-5" />}><div className="grid gap-4 sm:grid-cols-2">
         {editing ? <>
-          <EditField label="Actual Tank Truck Number" value={draftTruck} onChange={(value) => setDraft((current) => ({ ...current, actualTankTruckNumber: value.toUpperCase() }))} />
+          <EditField label="Actual Truck Number" value={draftTruck} onChange={(value) => setDraft((current) => ({ ...current, actualTankTruckNumber: value.toUpperCase() }))} />
           <Data label="TT Number on Pass (locked)" value={entry.ttNumberOnPass} />
           <div><label className="field-label">TT Match (automatic)</label><div className={`flex min-h-13 items-center justify-between rounded-2xl border px-4 ${calculatedMatch ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50"}`}><span className="font-black">{calculatedMatch ? "YES — Matched" : "NO — Mismatch"}</span><Badge tone={calculatedMatch ? "green" : "red"}>{calculatedMatch ? "Verified" : "Alert"}</Badge></div></div>
             <Toggle label="ABS" value={draft.abs} onChange={(value) => setDraft((current) => ({ ...current, abs: value }))} />

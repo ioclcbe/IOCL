@@ -15,6 +15,7 @@ export default function TrucksPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [ttNumber, setTtNumber] = useState("");
+  const [expireDate, setExpireDate] = useState("");
 
   async function load() {
     setLoading(true);
@@ -61,7 +62,7 @@ export default function TrucksPage() {
     if (!ttNumber.trim()) return toast.error("Enter a truck number");
     setBusy(true);
     try {
-      await apiFetch("/masters/trucks", { method: "POST", body: JSON.stringify({ ttNumber: ttNumber.trim().toUpperCase(), isActive: true }) });
+      await apiFetch("/masters/trucks", { method: "POST", body: JSON.stringify({ ttNumber: ttNumber.trim().toUpperCase(), expireDate: expireDate.trim() || null, isActive: true }) });
       toast.success("Truck added");
       setTtNumber("");
       setShowCreate(false);
@@ -98,7 +99,7 @@ export default function TrucksPage() {
     <div>
       <PageHeader 
         eyebrow="Admin · Master Data" 
-        title="Tank Trucks" 
+        title="Trucks" 
         description="Manage the database of valid tank trucks for manual entry." 
         
         action={
@@ -128,8 +129,12 @@ export default function TrucksPage() {
           <h2 className="text-lg font-black text-iocl-navy">Add New Truck</h2>
           <div className="mt-5 grid gap-4 max-w-sm">
             <label>
-              <span className="field-label">Tank Truck Number</span>
+              <span className="field-label">Truck Number</span>
               <input className="field-input uppercase" value={ttNumber} onChange={(e) => setTtNumber(e.target.value)} placeholder="TN74AZ8730" />
+            </label>
+            <label>
+              <span className="field-label">Expire Date</span>
+              <input type="date" className="field-input" value={expireDate} onChange={(e) => setExpireDate(e.target.value)} />
             </label>
           </div>
           <div className="mt-5 flex gap-2">
@@ -147,6 +152,7 @@ export default function TrucksPage() {
               <tr>
                 <th className="p-4 w-12"><input type="checkbox" className="h-4 w-4 accent-iocl-orange" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => setSelectedIds(e.target.checked ? items.map(i => i.id) : [])} /></th>
                 <th className="p-4">Truck Number</th>
+                <th className="p-4">Expire Date</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
@@ -156,6 +162,7 @@ export default function TrucksPage() {
                 <tr key={item.id} className="hover:bg-slate-50/50">
                   <td className="p-4"><input type="checkbox" className="h-4 w-4 accent-iocl-orange" checked={selectedIds.includes(item.id)} onChange={(e) => { if (e.target.checked) setSelectedIds(s => [...s, item.id]); else setSelectedIds(s => s.filter(id => id !== item.id)); }} /></td>
                   <td className="p-4 font-bold text-iocl-navy">{item.ttNumber}</td>
+                  <td className="p-4 text-slate-500">{item.expireDate || "-"}</td>
                   <td className="p-4"><Badge tone={item.isActive ? "green" : "red"}>{item.isActive ? "Active" : "Inactive"}</Badge></td>
                   <td className="p-4 text-right">
                     <button type="button" onClick={() => deleteTruck(item.id)} className="text-red-500 hover:text-red-700 transition" disabled={busy}>
