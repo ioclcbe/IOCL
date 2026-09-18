@@ -135,7 +135,7 @@ export default function TrucksPage() {
             </label>
             <label>
               <span className="field-label">Expire Date</span>
-              <input type="date" className="field-input" value={expireDate} onChange={(e) => setExpireDate(e.target.value)} />
+              <input type="text" inputMode="text" className="field-input" value={expireDate} onChange={(e) => setExpireDate(e.target.value)} placeholder="e.g. 31-12-2025 or Any text" />
             </label>
           </div>
           <div className="mt-5 flex gap-2">
