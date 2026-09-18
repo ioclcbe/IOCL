@@ -146,7 +146,7 @@ export default function AdminReportsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {products.filter((p) => p.value > 0).map((p) => (
+                  {products.map((p) => (
                     <tr key={p.label} className="hover:bg-slate-50">
                       <td className="px-5 py-3 font-bold text-iocl-navy">{p.label}</td>
                       <td className="px-5 py-3 text-right font-black text-slate-700">{p.value.toFixed(3)}</td>
@@ -155,13 +155,7 @@ export default function AdminReportsPage() {
                       </td>
                     </tr>
                   ))}
-                  {products.every((p) => p.value === 0) && (
-                    <tr>
-                      <td colSpan={3} className="px-5 py-8 text-center text-slate-400">
-                        No product quantities recorded for this date
-                      </td>
-                    </tr>
-                  )}
+                  
                 </tbody>
                 {grandTotal > 0 && (
                   <tfoot>
