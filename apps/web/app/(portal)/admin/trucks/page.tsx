@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatIndiaDate } from "../../../../lib/utils";
 import { apiFetch, getAccessToken } from "../../../../lib/api";
 import { Button } from "../../../../components/ui/button";
 import { PageHeader } from "../../../../components/ui/page-header";
@@ -162,7 +163,7 @@ export default function TrucksPage() {
                 <tr key={item.id} className="hover:bg-slate-50/50">
                   <td className="p-4"><input type="checkbox" className="h-4 w-4 accent-iocl-orange" checked={selectedIds.includes(item.id)} onChange={(e) => { if (e.target.checked) setSelectedIds(s => [...s, item.id]); else setSelectedIds(s => s.filter(id => id !== item.id)); }} /></td>
                   <td className="p-4 font-bold text-iocl-navy">{item.ttNumber}</td>
-                  <td className="p-4 text-slate-500">{item.expireDate || "-"}</td>
+                  <td className="p-4 text-slate-500">{item.expireDate ? formatIndiaDate(item.expireDate) : "-"}</td>
                   <td className="p-4"><Badge tone={item.isActive ? "green" : "red"}>{item.isActive ? "Active" : "Inactive"}</Badge></td>
                   <td className="p-4 text-right">
                     <button type="button" onClick={() => deleteTruck(item.id)} className="text-red-500 hover:text-red-700 transition" disabled={busy}>

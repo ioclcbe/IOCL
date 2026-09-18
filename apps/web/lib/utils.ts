@@ -7,6 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatIndiaDate(value: string | Date | null | undefined, withTime = false) {
   if (!value) return "Missing";
+  if (typeof value === "string" && !value.match(/^\d{4}-\d{2}-\d{2}/)) return value;
   const date = new Date(value);
   if (isNaN(date.getTime())) return String(value); // If it's plain text like 'ram', return it directly
   return new Intl.DateTimeFormat("en-IN", {
