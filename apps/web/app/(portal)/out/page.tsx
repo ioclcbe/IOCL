@@ -14,23 +14,22 @@ import { PageHeader } from "../../../components/ui/page-header";
 
 // Products matching the physical logbook columns
 const PRODUCTS = [
-  { key: "qtyMs",     label: "MS",      fullName: "Bulk MS (Motor Spirit)"        },
-  { key: "qtyXpms",  label: "XP 95",   fullName: "XP 95 (Extra Premium)"         },
-  { key: "qtyHsd",   label: "HSD",     fullName: "Bulk HSD (High Speed Diesel)"  },
-  { key: "qtySko",   label: "SKO",     fullName: "SKO (Superior Kerosene)"       },
-  { key: "qtyXg",    label: "XG",      fullName: "XG (Xtra Green)"               },
-  { key: "qtyBioHsd",label: "BIO HSD", fullName: "Bio HSD"                       },
-  { key: "qtyFo",    label: "FO",      fullName: "FO (Furnace Oil)"              },
-  { key: "qtyLdo",   label: "LDO",     fullName: "LDO (Light Diesel Oil)"        },
-  { key: "qtyEbms",  label: "EBMS",    fullName: "EBMS"                          },
-] as const;
+    { key: "qtyMs",     label: "EBMG",    fullName: "EBMG"                          },
+    { key: "qtyXpms",   label: "XP95",    fullName: "XP95"                          },
+    { key: "qtyFo",     label: "FO",      fullName: "FO"                            },
+    { key: "qtyLdo",    label: "LDO",     fullName: "LDO"                           },
+    { key: "qtyHsd",    label: "HSD",     fullName: "HSD"                           },
+    { key: "qtyBioHsd", label: "B-HSD",   fullName: "B-HSD"                         },
+    { key: "qtyXg",     label: "XG",      fullName: "XG"                            },
+    { key: "qtySko",    label: "SKO",     fullName: "SKO"                           },
+  ] as const;
 
 type ProductKey = typeof PRODUCTS[number]["key"];
 type Quantities = Record<ProductKey, string>;
 
 const zeroQuantities: Quantities = {
   qtyMs: "", qtyXpms: "", qtyHsd: "", qtySko: "",
-  qtyXg: "", qtyBioHsd: "", qtyFo: "", qtyLdo: "", qtyEbms: "",
+  qtyXg: "", qtyBioHsd: "", qtyFo: "", qtyLdo: "", 
 };
 
 function parsedToQuantities(parsed: Record<string, number>): Quantities {
@@ -104,7 +103,7 @@ export default function OutGatePage() {
       const result = await submitExit(resolved.entry.id, {
         rawInvoiceQr: rawQr,
         expectedVersion: resolved.entry.recordVersion,
-        ...values,
+        ...values, qtyEbms: 0,
         lockNumber,
         warningsAcknowledged: acknowledged,
       });

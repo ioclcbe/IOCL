@@ -87,7 +87,7 @@ export default function AdminRecordsPage() {
   ];
 
   return <div>
-    <PageHeader eyebrow="Administrator · Full history" title="Truck Management Register" description="Review any day, export the physical-register layout, make audited record corrections, and perform recoverable soft deletion." action={<div className="flex flex-wrap gap-2"><Button type="button" disabled={busy} onClick={() => void exportFile()} icon={<FileSpreadsheet className="h-4 w-4" />}>Download Excel</Button></div>} />
+    <PageHeader eyebrow="Administrator · Full history" title="Tank Truck Register" description="Review any day, export the physical-register layout, make audited record corrections, and perform recoverable soft deletion." action={<div className="flex flex-wrap gap-2"><Button type="button" disabled={busy} onClick={() => void exportFile()} icon={<FileSpreadsheet className="h-4 w-4" />}>Download Excel</Button></div>} />
 
     <section className="panel mt-6 mb-6 p-4">
       <div className="grid gap-3 lg:grid-cols-[1fr_1fr_2fr_200px_auto]">

@@ -63,7 +63,7 @@ export default function TrucksPage() {
     setBusy(true);
     try {
       await apiFetch("/masters/trucks", { method: "POST", body: JSON.stringify({ ttNumber: ttNumber.trim().toUpperCase(), expireDate: expireDate.trim() || null, isActive: true }) });
-      toast.success("Truck added");
+      toast.success("Tank Truck added");
       setTtNumber("");
       setShowCreate(false);
       load();
@@ -85,11 +85,11 @@ export default function TrucksPage() {
   }
 
   async function deleteTruck(id: string) {
-    if (!confirm("Are you sure you want to delete this truck?")) return;
+    if (!confirm("Are you sure you want to delete this tank truck?")) return;
     setBusy(true);
     try {
       await apiFetch(`/masters/trucks/${id}`, { method: "DELETE" });
-      toast.success("Truck deleted");
+      toast.success("Tank Truck deleted");
       load();
     } catch (e) { toast.error((e as Error).message); }
     finally { setBusy(false); }
@@ -99,12 +99,12 @@ export default function TrucksPage() {
     <div>
       <PageHeader 
         eyebrow="Admin · Master Data" 
-        title="Trucks" 
+        title="Tank Trucks" 
         description="Manage the database of valid tank trucks for manual entry." 
         
         action={
           <div className="flex items-center gap-4">
-            <span className="text-sm font-semibold text-slate-500">Total Trucks: <span className="font-black text-iocl-navy">{items.length}</span></span>
+            <span className="text-sm font-semibold text-slate-500">Total Tank Trucks: <span className="font-black text-iocl-navy">{items.length}</span></span>
             <div className="flex gap-2">
             <label className="cursor-pointer">
               <span className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-emerald-700">
@@ -117,7 +117,7 @@ export default function TrucksPage() {
                 <Trash2 className="h-4 w-4 mr-2" /> Delete Selected ({selectedIds.length})
               </Button>
             )}
-            <Button type="button" onClick={() => setShowCreate(!showCreate)} icon={<Plus className="h-5 w-5" />}>Add Truck</Button>
+            <Button type="button" onClick={() => setShowCreate(!showCreate)} icon={<Plus className="h-5 w-5" />}>Add Tank Truck</Button>
             </div>
           </div>
         }
@@ -126,10 +126,10 @@ export default function TrucksPage() {
 
       {showCreate && (
         <section className="panel mb-6 p-5">
-          <h2 className="text-lg font-black text-iocl-navy">Add New Truck</h2>
+          <h2 className="text-lg font-black text-iocl-navy">Add New Tank Truck</h2>
           <div className="mt-5 grid gap-4 max-w-sm">
             <label>
-              <span className="field-label">Truck Number</span>
+              <span className="field-label">Tank Truck Number</span>
               <input className="field-input uppercase" value={ttNumber} onChange={(e) => setTtNumber(e.target.value)} placeholder="TN74AZ8730" />
             </label>
             <label>
@@ -138,7 +138,7 @@ export default function TrucksPage() {
             </label>
           </div>
           <div className="mt-5 flex gap-2">
-            <Button type="button" loading={busy} onClick={addTruck}>Save Truck</Button>
+            <Button type="button" loading={busy} onClick={addTruck}>Save Tank Truck</Button>
             <Button type="button" variant="ghost" onClick={() => setShowCreate(false)}>Cancel</Button>
           </div>
         </section>
@@ -151,7 +151,7 @@ export default function TrucksPage() {
             <thead className="bg-slate-50 text-xs font-black uppercase text-slate-500 border-b border-slate-100">
               <tr>
                 <th className="p-4 w-12"><input type="checkbox" className="h-4 w-4 accent-iocl-orange" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => setSelectedIds(e.target.checked ? items.map(i => i.id) : [])} /></th>
-                <th className="p-4">Truck Number</th>
+                <th className="p-4">Tank Truck Number</th>
                 <th className="p-4">Expire Date</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Actions</th>
@@ -173,7 +173,7 @@ export default function TrucksPage() {
               ))}
               {items.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="p-10 text-center text-slate-500">No trucks found in database.</td>
+                  <td colSpan={10} className="p-10 text-center text-slate-500">No tank trucks found in database.</td>
                 </tr>
               )}
             </tbody>

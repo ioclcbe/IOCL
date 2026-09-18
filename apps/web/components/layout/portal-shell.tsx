@@ -36,7 +36,7 @@ const nav: NavItem[] = [
   { href: "/entries?tab=out", label: "OUT-Gate Record",  icon: ArrowUpFromLine,  roles: ["ENTRY_GATE_SECURITY", "EXIT_GATE_SECURITY", "SUPERVISOR", "ADMIN"] },
   { href: "/admin/tracking",label: "Live Tracking",    icon: Truck,            roles: ["ADMIN", "SUPERVISOR"] },
   { href: "/admin/records", label: "Admin Register",   icon: FileSpreadsheet,  roles: ["ADMIN"] },
-  { href: "/admin/trucks",  label: "Truck Database",   icon: Truck,            roles: ["ADMIN"] },
+  { href: "/admin/trucks",  label: "Tank Truck Database",   icon: Truck,            roles: ["ADMIN"] },
   { href: "/admin/drivers", label: "Driver Database",  icon: Users,            roles: ["ADMIN"] },
   { href: "/admin/helpers", label: "Helper Database",  icon: Users,            roles: ["ADMIN"] },
   { href: "/admin/reports", label: "Reports & Export", icon: DownloadCloud,    roles: ["ADMIN", "SUPERVISOR"] },
@@ -126,7 +126,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
           <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-iocl-orange/20 blur-3xl" />
           <div className="relative flex h-24 items-center gap-3 border-b border-white/10 px-6">
             <Image src="/indian-oil-logo.jpeg" alt="Indian Oil" width={58} height={58} className="rounded-full border-2 border-white/80" priority />
-            <div><p className="text-lg font-black tracking-tight">Truck</p><p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-200">Management System</p></div>
+            <div><p className="text-lg font-black tracking-tight">Tank Truck</p><p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-200">Management System</p></div>
             <button type="button" aria-label="Close navigation" className="ml-auto rounded-xl p-2 text-white/70 hover:bg-white/10 lg:hidden" onClick={() => setOpen(false)}><X className="h-5 w-5" /></button>
           </div>
           <div className="mx-5 mt-5 rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur">

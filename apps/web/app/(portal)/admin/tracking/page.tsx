@@ -96,16 +96,16 @@ export default function LiveTrackingPage() {
               <p className="text-3xl font-black text-iocl-orange mb-6">{(Number(summaryData.quantities.ms || 0) + Number(summaryData.quantities.xpms || 0)).toFixed(3)} KL</p>
               <div className="flex flex-col gap-5 text-xl font-bold">
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-orange">
-                  <span>EBMG</span> <span className="font-mono">{summaryData.quantities.ms}</span>
+                  <span>EBMG</span> <span className="font-mono">{summaryData.quantities.ms || "0"}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-orange">
-                  <span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms}</span>
+                  <span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms || "0"}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-slate-900">
-                  <span>FO</span> <span className="font-mono">{summaryData.quantities.fo}</span>
+                  <span>FO</span> <span className="font-mono">{summaryData.quantities.fo || "0"}</span>
                 </div>
                 <div className="flex justify-between pb-2 text-slate-900">
-                  <span>LDO</span> <span className="font-mono">{summaryData.quantities.ldo}</span>
+                  <span>LDO</span> <span className="font-mono">{summaryData.quantities.ldo || "0"}</span>
                 </div>
               </div>
             </div>
@@ -114,16 +114,16 @@ export default function LiveTrackingPage() {
               <p className="text-3xl font-black text-blue-600 mb-6">{(Number(summaryData.quantities.hsd || 0) + Number(summaryData.quantities.sko || 0) + Number(summaryData.quantities.xg || 0) + Number(summaryData.quantities.bhsd || 0)).toFixed(3)} KL</p>
               <div className="flex flex-col gap-5 text-xl font-bold">
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
-                  <span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd}</span>
+                  <span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd || "0"}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
-                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bhsd}</span>
+                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bhsd || "0"}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
-                  <span>XG</span> <span className="font-mono">{summaryData.quantities.xg}</span>
+                  <span>XG</span> <span className="font-mono">{summaryData.quantities.xg || "0"}</span>
                 </div>
                 <div className="flex justify-between pb-2 text-yellow-600">
-                  <span>SKO</span> <span className="font-mono">{summaryData.quantities.sko}</span>
+                  <span>SKO</span> <span className="font-mono">{summaryData.quantities.sko || "0"}</span>
                 </div>
               </div>
             </div>

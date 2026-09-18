@@ -46,7 +46,7 @@ export default function LoginPage() {
             <Image src="/indian-oil-logo.jpeg" alt="Indian Oil" width={62} height={62} className="rounded-full border-2 border-white/90" priority />
             <div>
               <p className="text-lg font-black tracking-tight">Indian Oil</p>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/55">Truck Management</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/55">Tank Truck</p>
             </div>
           </div>
 
@@ -89,7 +89,7 @@ export default function LoginPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-iocl-orange">Security Login</p>
-                  <h2 className="mt-2 text-3xl font-black tracking-tight text-iocl-navy">Welcome to Truck Management</h2>
+                  <h2 className="mt-2 text-3xl font-black tracking-tight text-iocl-navy">Welcome to Tank Truck</h2>
                   <p className="mt-2 text-sm leading-6 text-slate-500">Sign in with your assigned employee credentials. Your role is resolved securely by the server.</p>
                 </div>
                 <div className="hidden h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-iocl-orange sm:flex">

@@ -145,6 +145,7 @@ export default function HelpersPage() {
                 <th className="p-4 w-12"><input type="checkbox" className="h-4 w-4 accent-iocl-orange" checked={items.length > 0 && selectedIds.length === items.length} onChange={(e) => setSelectedIds(e.target.checked ? items.map(i => i.id) : [])} /></th>
                 <th className="p-4">Helper Name</th>
                 <th className="p-4">Helper Pass Number</th>
+                <th className="p-4">Pass Valid Until</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -154,7 +155,8 @@ export default function HelpersPage() {
                   <td className="p-4"><input type="checkbox" className="h-4 w-4 accent-iocl-orange" checked={selectedIds.includes(item.id)} onChange={(e) => { if (e.target.checked) setSelectedIds(s => [...s, item.id]); else setSelectedIds(s => s.filter(id => id !== item.id)); }} /></td>
                   <td className="p-4 font-bold text-iocl-navy">{item.name}</td>
                   <td className="p-4 font-mono text-xs">{item.helperPassNumber}</td>
-                  <td className="p-4 text-right">
+                    <td className="p-4 text-sm text-slate-600">{item.passValidUntil || "-"}</td>
+                    <td className="p-4 text-right">
                     <button type="button" onClick={() => deleteHelper(item.id)} className="text-red-500 hover:text-red-700 transition" disabled={busy}>
                       <Trash2 className="h-4 w-4 inline-block" />
                     </button>

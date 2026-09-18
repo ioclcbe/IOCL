@@ -188,7 +188,7 @@ export default function EntryDetailPage() {
               <>
                 <Data label="MS" value={entry.qtyMs ?? "0"} />
                 <Data label="XPMS" value={entry.qtyXpms ?? "0"} />
-                <Data label="EBMS" value={entry.qtyEbms ?? "0"} />
+                
                 <Data label="HSD" value={entry.qtyHsd ?? "0"} />
                 <Data label="SKO" value={entry.qtySko ?? "0"} />
                 <Data label="XG" value={entry.qtyXg ?? "0"} />
