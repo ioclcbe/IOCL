@@ -321,12 +321,15 @@ masterRouter.post(
     if (exists) throw new ApiError(400, "DUPLICATE_HELPER", "Helper pass number already exists");
     
     const helper = await db.helper.create({
-      data: {
-        name: data.name,
-        helperPassNumber: data.helperPassNumber,
-        isActive: data.isActive,
-      }
-    });
+        data: {
+          name: data.name,
+          helperPassNumber: data.helperPassNumber,
+          passValidUntil: data.passValidUntil || null,
+          defaultTruckNumber: data.defaultTruckNumber || null,
+          crewId: data.crewId || null,
+          isActive: data.isActive,
+        }
+      });
     res.status(201).json({ success: true, data: helper });
   })
 );
@@ -340,11 +343,14 @@ masterRouter.put(
     const helper = await db.helper.update({
       where: { id: id as string },
       data: {
-        name: data.name,
-        helperPassNumber: data.helperPassNumber,
-        isActive: data.isActive,
-      },
-    });
+          name: data.name,
+          helperPassNumber: data.helperPassNumber,
+          passValidUntil: data.passValidUntil || null,
+          defaultTruckNumber: data.defaultTruckNumber || null,
+          crewId: data.crewId || null,
+          isActive: data.isActive,
+        },
+      });
     res.json({ success: true, data: helper });
   })
 );

@@ -26,6 +26,8 @@ export default function UsersPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState(empty);
   const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
+  const [resetTarget, setResetTarget] = useState<UserRecord | null>(null);
+  const [newPassword, setNewPassword] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -93,12 +95,27 @@ export default function UsersPage() {
     finally { setBusy(false); }
   }
   async function resetPassword(user: UserRecord) {
-    const password = window.prompt(`Enter a new strong password for ${user.employeeCode}:`);
-    if (!password) return;
+    setResetTarget(user);
+    setNewPassword("");
+  }
+
+  async function confirmResetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!resetTarget || !newPassword) return;
     setBusy(true);
-    try { await resetUserPassword(user.id, { password }); toast.success("Password reset; all sessions revoked"); }
-    catch (error) { toast.error(error instanceof Error ? error.message : "Password reset failed"); }
-    finally { setBusy(false); }
+    try {
+      await resetUserPassword(resetTarget.id, { password: newPassword });
+      toast.success("Password reset successfully; all active sessions revoked.");
+      setResetTarget(null);
+    } catch (error) {
+      if (error instanceof ApiClientError && error.fieldErrors?.password) {
+        toast.error(error.fieldErrors.password[0]);
+      } else {
+        toast.error(error instanceof Error ? error.message : "Password reset failed");
+      }
+    } finally {
+      setBusy(false);
+    }
   }
   async function unlock(user: UserRecord) {
     setBusy(true);
