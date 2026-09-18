@@ -1,7 +1,7 @@
 import { Router } from "express";
 import rateLimitPkg from "express-rate-limit";
 const rateLimit = (rateLimitPkg as any).default || rateLimitPkg;
-import { loginSchema } from "@iocl/shared";
+import { loginSchema, changePasswordSchema } from "@iocl/shared";
 import { asyncHandler } from "../../lib/async-handler.js";
 import { authenticate } from "../../middleware/auth.js";
 import { requireTrustedOrigin } from "../../middleware/origin-guard.js";
@@ -35,3 +35,5 @@ authRouter.post("/logout", requireTrustedOrigin, asyncHandler(controller.logout)
 authRouter.get("/me", authenticate, (req, res) => {
   res.json({ success: true, data: req.auth });
 });
+
+authRouter.post("/change-password", authenticate, validateBody(changePasswordSchema), asyncHandler(controller.changePassword));

@@ -46,3 +46,10 @@ export async function logout(req: Request, res: Response) {
   res.setHeader("Cache-Control", "no-store");
   res.json({ success: true, data: null, message: "Logged out" });
 }
+
+export async function changePassword(req: Request, res: Response) {
+  await authService.changePassword(req.auth!.userId, req.body, requestMeta(req));
+  res.clearCookie(env.COOKIE_NAME, cookieBase);
+  res.setHeader("Cache-Control", "no-store");
+  res.json({ success: true, data: null, message: "Password changed successfully. Please log in again." });
+}

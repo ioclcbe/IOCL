@@ -12,6 +12,7 @@ import {
   FileSpreadsheet,
   Gauge,
   LogOut,
+  KeyRound,
   Menu,
   Plus,
   ScanLine,
@@ -25,6 +26,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../lib/auth-context";
 import { cn } from "../../lib/utils";
+import { toast } from "sonner";
+import { changePassword } from "../../lib/api";
 import { LoadingScreen } from "../ui/loading-screen";
 
 interface NavItem { href: string; label: string; icon: LucideIcon; roles: string[]; exact?: boolean }
@@ -65,6 +68,25 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [online, setOnline] = useState(true);
+  const [showPwd, setShowPwd] = useState(false);
+  const [pwdBusy, setPwdBusy] = useState(false);
+  const [pwdForm, setPwdForm] = useState({ currentPassword: "", newPassword: "" });
+
+  async function handlePasswordChange(e: any) {
+    e.preventDefault();
+    if (!pwdForm.currentPassword || pwdForm.newPassword.length < 8) return toast.error("Please enter current password and a new password (min 8 chars).");
+    setPwdBusy(true);
+    try {
+      await changePassword(pwdForm);
+      toast.success("Password changed! Please log in again.");
+      setShowPwd(false);
+      logout();
+    } catch(err: any) {
+      toast.error(err.message || "Failed to change password");
+    } finally {
+      setPwdBusy(false);
+    }
+  }
 
   const isNavActive = (itemHref: string) => {
     const [itemPath, itemQuery] = itemHref.split("?");
@@ -146,6 +168,7 @@ export function PortalShell({ children }: { children: React.ReactNode }) {
               <div className="min-w-0 flex-1"><p className="truncate text-sm font-bold">{user.name}</p><p className="truncate text-xs text-white/50">{user.employeeCode} · {roleLabels[user.role]}</p></div>
             </div>
             <button type="button" onClick={logout} className="flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold text-white/65 transition hover:bg-white/10 hover:text-white"><LogOut className="h-4 w-4" /> Secure logout</button>
+            <button type="button" onClick={() => setShowPwd(true)} className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold text-white/65 transition hover:bg-white/10 hover:text-white"><KeyRound className="h-4 w-4" /> Change password</button>
           </div>
         </div>
       </aside>

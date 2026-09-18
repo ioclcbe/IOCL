@@ -155,6 +155,13 @@ async function download(path: string, filename: string) {
 }
 
 export async function restoreSession() { if (DEMO_MODE) return null; return refreshAccess(); }
+export async function changePassword(payload: import("@iocl/shared").ChangePasswordInput) {
+  return apiFetch("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function logoutSession() {
   setAccessToken(null);
   if (DEMO_MODE) return;

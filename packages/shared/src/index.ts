@@ -341,6 +341,12 @@ export const createUserSchema = z.object({
 }).strict();
 export type CreateUserInput = z.input<typeof createUserSchema>;
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: passwordSchema,
+}).strict();
+export type ChangePasswordInput = z.input<typeof changePasswordSchema>;
+
 export const updateUserSchema = z.object({
   employeeCode: loginSchema.shape.employeeCode.optional(),
   name: cleanText(2, 100, "Name is required").optional(),
