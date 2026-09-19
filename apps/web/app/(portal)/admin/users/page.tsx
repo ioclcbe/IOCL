@@ -140,5 +140,22 @@ export default function UsersPage() {
       {loading ? Array.from({ length: 4 }).map((_, index) => <div key={index} className="h-24 animate-pulse bg-slate-50" />) : items.map((user) => <div key={user.id} className="grid gap-4 px-5 py-5 lg:grid-cols-[1.2fr_1fr_1fr_.8fr_auto] lg:items-center lg:px-6"><div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-50 text-iocl-orange"><ShieldCheck className="h-5 w-5" /></span><div><p className="font-black text-iocl-navy">{user.name}</p><p className="text-xs font-semibold text-slate-400">{user.employeeCode}</p></div></div><select className="field-input min-h-10 py-2 text-sm" value={user.role} disabled={busy} onChange={(event) => void changeRole(user, event.target.value as UserRole)}>{roles.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}</select><div className="flex flex-wrap gap-2"><Badge tone={user.isActive ? "green" : "red"}>{user.isActive ? "Active" : "Disabled"}</Badge>{user.lockedUntil ? <Badge tone="orange">Locked</Badge> : null}<span className="text-xs text-slate-400">Failed: {user.failedLoginAttempts}</span></div><div><p className="text-sm font-bold text-slate-700">{formatIndiaDate(user.createdAt)}</p><p className="text-xs text-slate-400">Last login {user.lastLoginAt ? formatIndiaDate(user.lastLoginAt, true) : "Never"}</p></div><div className="flex flex-wrap gap-2"><Button type="button" variant="secondary" className="min-h-10 px-3" disabled={busy} onClick={() => void editIdentity(user)} icon={<Pencil className="h-4 w-4" />}>Edit</Button><Button type="button" variant="secondary" className="min-h-10 px-3" disabled={busy} onClick={() => void resetPassword(user)} icon={<KeyRound className="h-4 w-4" />}>Reset</Button>{user.lockedUntil ? <Button type="button" variant="secondary" className="min-h-10 px-3" disabled={busy} onClick={() => void unlock(user)}>Unlock</Button> : null}<Button type="button" variant={user.isActive ? "danger" : "success"} className="min-h-10 px-3" disabled={busy} onClick={() => void toggle(user)} icon={user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}>{user.isActive ? "Disable" : "Enable"}</Button><Button type="button" variant="danger" className="min-h-10 px-3" disabled={busy} onClick={() => void removeUser(user)} icon={<Trash className="h-4 w-4" />}>Delete</Button></div></div>)}
       {!loading && items.length === 0 ? <div className="px-6 py-16 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-slate-300" /><p className="mt-3 font-black text-slate-600">No users found</p></div> : null}
     </div></section>
-  </div>;
+  
+      {resetTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <form onSubmit={confirmResetPassword} className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+            <h3 className="text-lg font-black text-slate-900 mb-2">Reset Password</h3>
+            <p className="text-sm text-slate-500 mb-6">Enter a new strong password for <strong>{resetTarget.name}</strong> ({resetTarget.employeeCode}). This will revoke all their active sessions.</p>
+            <label className="block mb-6">
+              <span className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">New Password</span>
+              <input type="text" required minLength={8} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-iocl-orange focus:ring-1 focus:ring-iocl-orange" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Minimum 8 characters..." />
+            </label>
+            <div className="flex gap-3">
+              <Button type="button" variant="ghost" className="flex-1 min-h-12" onClick={() => setResetTarget(null)}>Cancel</Button>
+              <Button type="submit" loading={busy} className="flex-1 min-h-12">Reset Password</Button>
+            </div>
+          </form>
+        </div>
+      )}
+</div>;
 }
