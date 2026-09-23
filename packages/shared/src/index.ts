@@ -490,11 +490,11 @@ export interface ExitResolveResult {
 export interface QuantitySummary {
   ms: string;
   xpms: string;
-  ebmg: string;
+  ebms: string;
   hsd: string;
   sko: string;
   xg: string;
-  bhsd: string;
+  bioHsd: string;
   fo: string;
   ldo: string;
 }

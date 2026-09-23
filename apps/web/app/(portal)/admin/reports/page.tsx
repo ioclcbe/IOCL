@@ -61,7 +61,7 @@ export default function AdminReportsPage() {
     { label: "FO",      value: Number(qty.fo || 0)     },
     { label: "LDO",     value: Number(qty.ldo || 0)    },
     { label: "HSD",     value: Number(qty.hsd || 0)    },
-    { label: "B-HSD",   value: Number(qty.bhsd || 0)   },
+    { label: "B-HSD",   value: Number(qty.bioHsd || 0)   },
     { label: "XG",      value: Number(qty.xg || 0)     },
     { label: "SKO",     value: Number(qty.sko || 0)    },
   ] : [];

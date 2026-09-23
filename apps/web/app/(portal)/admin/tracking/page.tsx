@@ -88,20 +88,20 @@ export default function LiveTrackingPage() {
       {summaryData && (
         <div className="panel p-0 overflow-hidden mt-6 mb-6">
           <div className="bg-slate-50 border-b border-slate-100 px-5 py-4">
-            <h2 className="text-sm font-black text-iocl-navy">Daily Volume Outflow (Kiloliters)</h2>
+            <h2 className="text-sm font-black text-iocl-navy">Daily Volume Outflow (Liters)</h2>
           </div>
           <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200">
-            {/* Left 4 */}
+            {/* Left Column */}
             <div className="flex-1 p-6 flex flex-col">
-              <p className="text-3xl font-black text-iocl-orange mb-6">{(Number(summaryData.quantities.ms || 0) + Number(summaryData.quantities.xpms || 0)).toFixed(3)} KL</p>
+              <p className="text-3xl font-black text-iocl-orange mb-6">{(Number(summaryData.quantities.ms || 0) + Number(summaryData.quantities.xpms || 0)).toFixed(1)} L</p>
               <div className="flex flex-col gap-5 text-xl font-bold">
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-orange">
                   <span>EBMG</span> <span className="font-mono">{summaryData.quantities.ms || "0"}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2 text-iocl-orange">
+                <div className="flex justify-between pb-4 text-iocl-orange">
                   <span>XP95</span> <span className="font-mono">{summaryData.quantities.xpms || "0"}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2 text-slate-900">
+                <div className="flex justify-between border-t-2 border-red-500 pt-4 pb-2 text-slate-900">
                   <span>FO</span> <span className="font-mono">{summaryData.quantities.fo || "0"}</span>
                 </div>
                 <div className="flex justify-between pb-2 text-slate-900">
@@ -109,17 +109,17 @@ export default function LiveTrackingPage() {
                 </div>
               </div>
             </div>
-            {/* Right 4 */}
+            {/* Right Column */}
             <div className="flex-1 p-6 flex flex-col">
-              <p className="text-3xl font-black text-blue-600 mb-6">{(Number(summaryData.quantities.hsd || 0) + Number(summaryData.quantities.sko || 0) + Number(summaryData.quantities.xg || 0) + Number(summaryData.quantities.bhsd || 0)).toFixed(3)} KL</p>
+              <p className="text-3xl font-black text-blue-600 mb-6">{(Number(summaryData.quantities.hsd || 0) + Number(summaryData.quantities.bioHsd || 0)).toFixed(1)} L</p>
               <div className="flex flex-col gap-5 text-xl font-bold">
                 <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
                   <span>HSD</span> <span className="font-mono">{summaryData.quantities.hsd || "0"}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
-                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bhsd || "0"}</span>
+                <div className="flex justify-between pb-4 text-blue-600">
+                  <span>B-HSD</span> <span className="font-mono">{summaryData.quantities.bioHsd || "0"}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-100 pb-2 text-blue-600">
+                <div className="flex justify-between border-t-2 border-red-500 pt-4 pb-2 text-blue-600">
                   <span>XG</span> <span className="font-mono">{summaryData.quantities.xg || "0"}</span>
                 </div>
                 <div className="flex justify-between pb-2 text-yellow-600">
