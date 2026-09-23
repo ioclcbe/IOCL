@@ -324,7 +324,7 @@ export function getDemoDashboard(): DashboardSummary {
     open: entries.filter((item) => item.status === "IN").length, exited: out.length,
     mismatches: entries.filter((item) => !item.ttNumberMatch).length,
     safetyExceptions: entries.filter((item) => Object.entries(item.safetyChecklist).some(([key, value]) => key !== "checklistVersion" && value === false)).length,
-    quantities: { ms: String(ms), xpms: String(xpms), ebmg: String(ebms), hsd: String(hsd), sko: "0", xg: "0", bhsd: "0", fo: "0", ldo: "0" },
+    quantities: { ms: String(ms), xpms: String(xpms), ebms: String(ebms), hsd: String(hsd), sko: "0", xg: "0", bioHsd: "0", fo: "0", ldo: "0" },
     recent: entries.slice(0, 8).map(({ id, serialNumber, displaySerial, businessDate, actualTankTruckNumber, driverName, customerDestination, ttNumberMatch, status, timeIn }) => ({ id, serialNumber, displaySerial, businessDate, actualTankTruckNumber, driverName, customerDestination, ttNumberMatch, status, timeIn })),
   };
 }
